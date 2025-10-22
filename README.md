@@ -35,3 +35,41 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 # portfolio-latest
+
+## Database and Email setup
+
+This app uses Neon (PostgreSQL) with Drizzle ORM and Brevo (Sendinblue) for emails.
+
+1) Environment variables
+
+Create a `.env.local` file based on `.env.example`:
+
+```
+DATABASE_URL=postgresql://USER:PASS@HOST/dbname?sslmode=require
+BREVO_API_KEY=your_brevo_api_key
+BREVO_SENDER_EMAIL=you@example.com
+BREVO_SENDER_NAME=Your Name
+CONTACT_TO_EMAIL=you@example.com
+```
+
+2) Drizzle setup
+
+- Schema: `db/schema.ts` (projects table)
+- Config: `drizzle.config.ts`
+
+Generate and apply migrations (requires DATABASE_URL):
+
+```bash
+npx drizzle-kit generate
+npx drizzle-kit migrate
+```
+
+3) Server API
+
+- GET /api/projects: returns projects from DB
+- POST /api/contact: sends contact email via Brevo
+
+4) Server actions
+
+- `app/actions.ts`: `getData()` (raw Neon) and `getProjects()` (Drizzle)
+

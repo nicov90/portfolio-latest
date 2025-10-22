@@ -1,0 +1,218 @@
+{
+  "intro": {
+    "hiIm": "Hola, soy",
+    "jobTitle": "Desarrollador Full Stack",
+    "clickToContinue": "Click para continuar"
+  },
+  "about": {
+    "title": "Sobre Mí",
+    "subtitle": "Apasionado por la tecnología y en constante búsqueda de mejora, me enfoco en crear soluciones sólidas, escalables y mantenibles que aporten valor real.",
+    "description": "Actualmente enfocado en arquitecturas modernas y automatización de flujos, integrando IA y N8N para optimizar procesos. Interesado en seguir profundizando en desarrollo front-end y full-stack, aplicando buenas prácticas de diseño, escalabilidad y usabilidad.",
+    "mainCard": {"title": "Desarrollador Full Stack"},
+    "stats": {
+      "years": "Años de Experiencia",
+      "projects": "Proyectos Internos",
+      "dedication": "Dedicación"
+    },
+    "transition": "Descubre mi trayectoria profesional..."
+  },
+  "whatIBring": {
+    "title": "Stack Tecnológico",
+    "subtitle": "Dominio de tecnologías modernas para crear soluciones completas y eficientes.",
+    "learnMore": "Ver más",
+    "services": {
+      "fullstack": {
+        "title": "Frontend",
+        "description": "Next.js • React • TypeScript • TanStack Query • Redux • Tailwind CSS • HTML/CSS. Especializado en crear interfaces modernas, responsivas y optimizadas."
+      },
+      "mobile": {
+        "title": "Backend",
+        "description": "C# • ASP.NET API • Node.js • Hono.js • Drizzle ORM • Prisma • Express. Arquitecturas robustas y escalables con enfoque en microservicios."
+      },
+      "design": {
+        "title": "Bases de Datos",
+        "description": "SQL Server • PostgreSQL • MongoDB. Diseño y optimización de esquemas, consultas complejas y gestión eficiente de datos."
+      },
+      "performance": {
+        "title": "Mobile",
+        "description": "React Native con Expo. Desarrollo de aplicaciones móviles multiplataforma con experiencia de usuario nativa."
+      },
+      "security": {
+        "title": "Automatización & IA",
+        "description": "Integración de N8N para automatización de flujos. Implementación de IA para optimizar procesos y enriquecer la experiencia del usuario."
+      },
+      "collaboration": {
+        "title": "Metodologías",
+        "description": "Git • Metodología Scrum • Validaciones con Zod/Yup. Trabajo colaborativo siguiendo mejores prácticas y estándares de la industria."
+      }
+    },
+    "transition": "Explora los proyectos en los que he trabajado..."
+  },
+  "experience": {
+    "title": "Experiencia",
+    "subtitle": "Mi trayectoria profesional desarrollando soluciones tecnológicas innovadoras y liderando proyectos de impacto.",
+    "current": "Actual",
+    "achievements": "Logros Principales",
+    "technologies": "Tecnologías",
+    "items": [
+      {
+        "company": "Grupo Tepsi",
+        "position": "Desarrollador Full Stack",
+        "duration": "Julio 2023 - Presente",
+        "location": "Argentina",
+        "description": "Desarrollo de aplicaciones internas con arquitectura orientada a microservicios, enfocadas en la gestión y automatización de procesos administrativos.",
+        "achievements": [
+          "Implementé autenticación, cifrado de contraseñas, roles y rutas protegidas en múltiples aplicaciones",
+          "Desarrollé sistema de Rendiciones: carga y aprobación escalonada de gastos de empleados",
+          "Creé sistema de Elementos de Protección Personal: control de stock, asignaciones e informes",
+          "Implementé sistema de Proveedores: carga de facturas y visualización de órdenes de compra",
+          "Integré funcionalidades de envío de emails, generación de PDFs y tablas paginadas",
+          "Utilicé Azure Blob Storage para gestión eficiente de archivos"
+        ],
+        "technologies": ["Next.js", "React", "TypeScript", "Tailwind", "ASP.NET", "C#", "Node.js", "SQL Server", "MongoDB", "Azure"]
+      }
+    ]
+  },
+  "skills": {
+    "title": "Habilidades",
+    "subtitle": "Tecnologías y herramientas que domino para crear soluciones completas y eficientes.",
+    "categories": {
+      "frontend": {
+        "title": "Frontend",
+        "items": [
+          {"name": "React", "proficiency": 95},
+          {"name": "TypeScript", "proficiency": 90},
+          {"name": "Next.js", "proficiency": 85},
+          {"name": "Tailwind CSS", "proficiency": 95},
+          {"name": "Framer Motion", "proficiency": 80}
+        ]
+      },
+      "backend": {
+        "title": "Backend",
+        "items": [
+          {"name": "Node.js", "proficiency": 90},
+          {"name": "Express", "proficiency": 85},
+          {"name": "MongoDB", "proficiency": 80},
+          {"name": "PostgreSQL", "proficiency": 75},
+          {"name": "GraphQL", "proficiency": 70}
+        ]
+      },
+      "tools": {
+        "title": "Herramientas",
+        "items": [
+          {"name": "Git", "proficiency": 95},
+          {"name": "Docker", "proficiency": 80},
+          {"name": "AWS", "proficiency": 75},
+          {"name": "Figma", "proficiency": 85},
+          {"name": "Jest", "proficiency": 80}
+        ]
+      }
+    }
+  },
+  "projects": {
+    "title": "Proyectos",
+    "subtitle": "Una selección de proyectos destacados que demuestran mi experiencia en desarrollo full stack y arquitecturas modernas.",
+    "featured": "Destacado",
+    "technologies": "Tecnologías",
+    "viewCode": "Ver Código",
+    "liveDemo": "Demo en Vivo",
+    "watchVideo": "Ver Video",
+    "items": [
+      {
+        "title": "Plataforma de Cursos Corporativa",
+        "description": "Sistema de gestión de cursos empresariales con streaming, seguimiento de progreso y automatización con IA.",
+        "longDescription": "Diseño e implementación de arquitectura modular con servicios, controladores y sistema de roles. Incluye paneles de administración, dashboard, gestión de cursos, empresas y profesores. Módulo de streaming, asignación de cursos y seguimiento de progreso. Integraciones planificadas con IA y N8N para automatización de flujos, sugerencias inteligentes y soporte al usuario."
+      },
+      {
+        "title": "Sistema de Rendiciones",
+        "description": "Aplicación para carga y aprobación escalonada de gastos de empleados con roles y flujos de aprobación.",
+        "longDescription": "Sistema completo de gestión de rendiciones desarrollado para Grupo Tepsi. Permite a empleados cargar gastos, adjuntar comprobantes y seguir el estado de aprobación. Implementa un flujo de aprobación multinivel con notificaciones por email, generación automática de reportes en PDF y dashboard de analíticas para gerencia."
+      },
+      {
+        "title": "Sistema de Elementos de Protección Personal",
+        "description": "Control de stock, asignaciones de EPP a personal e informes con trazabilidad completa.",
+        "longDescription": "Aplicación para la gestión integral de elementos de protección personal. Incluye control de inventario en tiempo real, asignación de EPP a empleados con registro histórico, alertas de stock bajo, generación de informes de vencimientos y cumplimiento normativo. Sistema de códigos QR para trackeo de elementos."
+      }
+    ]
+  },
+  "contact": {
+    "title": "Contacto",
+    "subtitle": "Estoy siempre abierto a nuevas oportunidades y proyectos interesantes. ¡Conectemos!",
+    "form": {
+      "title": "Envíame un mensaje",
+      "name": "Nombre",
+      "namePlaceholder": "Tu nombre completo",
+      "email": "Email",
+      "emailPlaceholder": "tu@email.com",
+      "subject": "Asunto",
+      "subjectPlaceholder": "Sobre qué quieres hablar",
+      "message": "Mensaje",
+      "messagePlaceholder": "Cuéntame sobre tu proyecto o consulta...",
+      "send": "Enviar Mensaje",
+      "sending": "Enviando...",
+      "success": "¡Mensaje enviado exitosamente!",
+      "error": "Error al enviar el mensaje. Inténtalo de nuevo."
+    },
+    "info": {
+      "title": "Información de Contacto",
+      "location": "Ubicación",
+      "locationValue": "Argentina",
+      "phone": "Idiomas",
+      "phoneValue": "Español (Nativo) • Inglés (C1)",
+      "availability": "Disponibilidad",
+      "availabilityValue": "Abierto a nuevas oportunidades"
+    },
+    "social": {"title": "Redes Sociales"},
+    "cta": {"title": "¿Tienes un proyecto en mente?", "subtitle": "Trabajemos juntos para hacerlo realidad"},
+    "direct": {"title": "Contacto Directo", "email": "nicolas.developer@gmail.com", "phone": "+54 11 4567-8901", "linkedin": "LinkedIn", "github": "GitHub"}
+  },
+  "certifications": {
+    "title": "Certificaciones",
+    "subtitle": "Formación continua y certificaciones que respaldan mi experiencia técnica.",
+    "download": "Descargar",
+    "verify": "Verificar",
+    "items": [
+      {
+        "title": "Azure Data Fundamentals DP-900",
+        "issuer": "Microsoft",
+        "date": "Septiembre 2023",
+        "description": "Fundamentos de datos en la nube, incluyendo conceptos de bases de datos relacionales y no relacionales, cargas de trabajo de datos y servicios de datos en Azure.",
+        "image": "https://images.unsplash.com/photo-1707455766931-3bc8a5892165?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaWNyb3NvZnQlMjBhenVyZSUyMGNsb3VkfGVufDF8fHx8MTc1OTk2ODY3N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+        "verifyUrl": "https://learn.microsoft.com/en-us/certifications/"
+      },
+      {
+        "title": "Desarrollo Front End & Back End",
+        "issuer": "Platzi",
+        "date": "Mayo 2023",
+        "description": "Formación completa en desarrollo web moderno, abarcando React, Node.js, bases de datos y arquitectura de aplicaciones escalables.",
+        "image": "https://images.unsplash.com/photo-1546430498-05c7b929830e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxvbmxpbmUlMjBsZWFybmluZyUyMGNvZGV8ZW58MXx8fHwxNzU5OTY4Njc3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+        "verifyUrl": "https://platzi.com/verify"
+      },
+      {
+        "title": "Programa Full Stack Java",
+        "issuer": "Oracle Next Education",
+        "date": "Julio 2022 - Febrero 2023",
+        "description": "Programa intensivo de desarrollo full stack con Java, Spring Boot, JPA/Hibernate, y mejores prácticas de programación orientada a objetos.",
+        "image": "https://images.unsplash.com/photo-1664570000007-db164768644d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxqYXZhJTIwcHJvZ3JhbW1pbmclMjBjb2RlfGVufDF8fHx8MTc1OTk2ODY3N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+        "verifyUrl": "https://www.oracle.com/ar/education/oracle-next-education/"
+      },
+      {
+        "title": "Certificado Inglés C1",
+        "issuer": "EF SET",
+        "date": "Nivel Avanzado",
+        "description": "Certificación que acredita dominio avanzado del inglés en comprensión lectora y auditiva, permitiendo comunicación efectiva en contextos profesionales.",
+        "image": "https://images.unsplash.com/photo-1567206163313-9e34c830557a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbmdsaXNoJTIwbGFuZ3VhZ2UlMjBsZWFybmluZ3xlbnwxfHx8fDE3NTk4OTkwNzR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+        "verifyUrl": "https://www.efset.org/cert/"
+      }
+    ],
+    "transition": "¿Listo para trabajar juntos?"
+  },
+  "navigation": {
+    "aboutMe": "Sobre Mí",
+    "experience": "Experiencia",
+    "skills": "Lo Que Ofrezco",
+    "projects": "Proyectos",
+    "certifications": "Certificaciones",
+    "contact": "Contacto"
+  }
+}

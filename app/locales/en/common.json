@@ -1,0 +1,218 @@
+{
+  "intro": {
+    "hiIm": "Hi, I'm",
+    "jobTitle": "Full Stack Developer",
+    "clickToContinue": "Click to continue"
+  },
+  "about": {
+    "title": "About Me",
+    "subtitle": "Passionate about technology and constantly seeking improvement, I focus on creating solid, scalable, and maintainable solutions that bring real value.",
+    "description": "Currently focused on modern architectures and workflow automation, integrating AI and N8N to optimize processes. Interested in furthering my expertise in front-end and full-stack development, applying best practices in design, scalability, and usability.",
+    "mainCard": {"title": "Full Stack Developer"},
+    "stats": {
+      "years": "Years of Experience",
+      "projects": "Internal Projects",
+      "dedication": "Dedication"
+    },
+    "transition": "Discover my professional journey..."
+  },
+  "whatIBring": {
+    "title": "Technology Stack",
+    "subtitle": "Mastery of modern technologies to create complete and efficient solutions.",
+    "learnMore": "Learn more",
+    "services": {
+      "fullstack": {
+        "title": "Frontend",
+        "description": "Next.js • React • TypeScript • TanStack Query • Redux • Tailwind CSS • HTML/CSS. Specialized in creating modern, responsive, and optimized interfaces."
+      },
+      "mobile": {
+        "title": "Backend",
+        "description": "C# • ASP.NET API • Node.js • Hono.js • Drizzle ORM • Prisma • Express. Robust and scalable architectures with a focus on microservices."
+      },
+      "design": {
+        "title": "Databases",
+        "description": "SQL Server • PostgreSQL • MongoDB. Schema design and optimization, complex queries, and efficient data management."
+      },
+      "performance": {
+        "title": "Mobile",
+        "description": "React Native with Expo. Cross-platform mobile app development with native user experience."
+      },
+      "security": {
+        "title": "Automation & AI",
+        "description": "N8N integration for workflow automation. AI implementation to optimize processes and enrich user experience."
+      },
+      "collaboration": {
+        "title": "Methodologies",
+        "description": "Git • Scrum Methodology • Validation with Zod/Yup. Collaborative work following industry best practices and standards."
+      }
+    },
+    "transition": "Explore the projects I've worked on..."
+  },
+  "experience": {
+    "title": "Experience",
+    "subtitle": "My professional journey developing innovative technological solutions and leading impactful projects.",
+    "current": "Current",
+    "achievements": "Key Achievements",
+    "technologies": "Technologies",
+    "items": [
+      {
+        "company": "Grupo Tepsi",
+        "position": "Full Stack Developer",
+        "duration": "July 2023 - Present",
+        "location": "Argentina",
+        "description": "Development of internal applications with microservices-oriented architecture, focused on management and automation of administrative processes.",
+        "achievements": [
+          "Implemented authentication, password encryption, roles, and protected routes in multiple applications",
+          "Developed Expense System: upload and escalated approval of employee expenses",
+          "Created PPE System: stock control, employee assignments, and reports",
+          "Implemented Supplier System: invoice upload and purchase order visualization",
+          "Integrated email sending, PDF generation, and paginated tables functionality",
+          "Used Azure Blob Storage for efficient file management"
+        ],
+        "technologies": ["Next.js", "React", "TypeScript", "Tailwind", "ASP.NET", "C#", "Node.js", "SQL Server", "MongoDB", "Azure"]
+      }
+    ]
+  },
+  "skills": {
+    "title": "Skills",
+    "subtitle": "Technologies and tools I master to create complete and efficient solutions.",
+    "categories": {
+      "frontend": {
+        "title": "Frontend",
+        "items": [
+          {"name": "React", "proficiency": 95},
+          {"name": "TypeScript", "proficiency": 90},
+          {"name": "Next.js", "proficiency": 85},
+          {"name": "Tailwind CSS", "proficiency": 95},
+          {"name": "Framer Motion", "proficiency": 80}
+        ]
+      },
+      "backend": {
+        "title": "Backend",
+        "items": [
+          {"name": "Node.js", "proficiency": 90},
+          {"name": "Express", "proficiency": 85},
+          {"name": "MongoDB", "proficiency": 80},
+          {"name": "PostgreSQL", "proficiency": 75},
+          {"name": "GraphQL", "proficiency": 70}
+        ]
+      },
+      "tools": {
+        "title": "Tools",
+        "items": [
+          {"name": "Git", "proficiency": 95},
+          {"name": "Docker", "proficiency": 80},
+          {"name": "AWS", "proficiency": 75},
+          {"name": "Figma", "proficiency": 85},
+          {"name": "Jest", "proficiency": 80}
+        ]
+      }
+    }
+  },
+  "projects": {
+    "title": "Projects",
+    "subtitle": "A selection of featured projects that demonstrate my experience in full stack development and modern architectures.",
+    "featured": "Featured",
+    "technologies": "Technologies",
+    "viewCode": "View Code",
+    "liveDemo": "Live Demo",
+    "watchVideo": "Watch Video",
+    "items": [
+      {
+        "title": "Corporate Course Platform",
+        "description": "Enterprise course management system with streaming, progress tracking, and AI automation.",
+        "longDescription": "Design and implementation of modular architecture with services, controllers, and role system. Includes administration panels, dashboard, management of courses, companies, and teachers. Streaming module, course assignment, and progress tracking. Planned integrations with AI and N8N for workflow automation, intelligent suggestions, and user support."
+      },
+      {
+        "title": "Expense System",
+        "description": "Application for upload and escalated approval of employee expenses with roles and approval flows.",
+        "longDescription": "Complete expense management system developed for Grupo Tepsi. Allows employees to upload expenses, attach receipts, and track approval status. Implements a multi-level approval flow with email notifications, automatic PDF report generation, and analytics dashboard for management."
+      },
+      {
+        "title": "Personal Protective Equipment System",
+        "description": "Stock control, PPE assignments to personnel, and reports with complete traceability.",
+        "longDescription": "Application for comprehensive management of personal protective equipment. Includes real-time inventory control, PPE assignment to employees with historical record, low stock alerts, expiration reports and regulatory compliance generation. QR code system for equipment tracking."
+      }
+    ]
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "I'm always open to new opportunities and interesting projects. Let's connect!",
+    "form": {
+      "title": "Send me a message",
+      "name": "Name",
+      "namePlaceholder": "Your full name",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "subject": "Subject",
+      "subjectPlaceholder": "What do you want to talk about",
+      "message": "Message",
+      "messagePlaceholder": "Tell me about your project or question...",
+      "send": "Send Message",
+      "sending": "Sending...",
+      "success": "Message sent successfully!",
+      "error": "Error sending message. Please try again."
+    },
+    "info": {
+      "title": "Contact Information",
+      "location": "Location",
+      "locationValue": "Argentina",
+      "phone": "Languages",
+      "phoneValue": "Spanish (Native) • English (C1)",
+      "availability": "Availability",
+      "availabilityValue": "Open to new opportunities"
+    },
+    "social": {"title": "Social Media"},
+    "cta": {"title": "Have a project in mind?", "subtitle": "Let's work together to make it happen"},
+    "direct": {"title": "Direct Contact", "email": "nicolas.developer@gmail.com", "phone": "+54 11 4567-8901", "linkedin": "LinkedIn", "github": "GitHub"}
+  },
+  "certifications": {
+    "title": "Certifications",
+    "subtitle": "Continuous training and certifications that support my technical expertise.",
+    "download": "Download",
+    "verify": "Verify",
+    "items": [
+      {
+        "title": "Azure Data Fundamentals DP-900",
+        "issuer": "Microsoft",
+        "date": "September 2023",
+        "description": "Cloud data fundamentals, including relational and non-relational database concepts, data workloads, and data services in Azure.",
+        "image": "https://images.unsplash.com/photo-1707455766931-3bc8a5892165?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaWNyb3NvZnQlMjBhenVyZSUyMGNsb3VkfGVufDF8fHx8MTc1OTk2ODY3N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+        "verifyUrl": "https://learn.microsoft.com/en-us/certifications/"
+      },
+      {
+        "title": "Front End & Back End Development",
+        "issuer": "Platzi",
+        "date": "May 2023",
+        "description": "Complete training in modern web development, covering React, Node.js, databases, and scalable application architecture.",
+        "image": "https://images.unsplash.com/photo-1546430498-05c7b929830e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxvbmxpbmUlMjBsZWFybmluZyUyMGNvZGV8ZW58MXx8fHwxNzU5OTY4Njc3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+        "verifyUrl": "https://platzi.com/verify"
+      },
+      {
+        "title": "Full Stack Java Program",
+        "issuer": "Oracle Next Education",
+        "date": "July 2022 - February 2023",
+        "description": "Intensive full stack development program with Java, Spring Boot, JPA/Hibernate, and object-oriented programming best practices.",
+        "image": "https://images.unsplash.com/photo-1664570000007-db164768644d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxqYXZhJTIwcHJvZ3JhbW1pbmclMjBjb2RlfGVufDF8fHx8MTc1OTk2ODY3N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+        "verifyUrl": "https://www.oracle.com/ar/education/oracle-next-education/"
+      },
+      {
+        "title": "English Certificate C1",
+        "issuer": "EF SET",
+        "date": "Advanced Level",
+        "description": "Certification that validates advanced English proficiency in reading and listening comprehension, enabling effective communication in professional contexts.",
+        "image": "https://images.unsplash.com/photo-1567206163313-9e34c830557a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbmdsaXNoJTIwbGFuZ3VhZ2UlMjBsZWFybmluZ3xlbnwxfHx8fDE3NTk4OTkwNzR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+        "verifyUrl": "https://www.efset.org/cert/"
+      }
+    ],
+    "transition": "Ready to work together?"
+  },
+  "navigation": {
+    "aboutMe": "About Me",
+    "experience": "Experience",
+    "skills": "Tech Stack",
+    "projects": "Projects",
+    "certifications": "Certifications",
+    "contact": "Contact"
+  }
+}
