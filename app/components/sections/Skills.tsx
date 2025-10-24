@@ -1,18 +1,16 @@
-import React from 'react';
-import { motion } from 'motion/react';
-import { useI18n } from '../../contexts/i18nContext';
-import { 
-  Code2, 
-  Palette, 
-  Database, 
-  Cloud, 
-  Smartphone, 
-  Globe,
-  Cpu,
-  Layers,
-  GitBranch,
-  Zap
+import {
+    Cloud,
+    Code2,
+    Cpu,
+    Database,
+    GitBranch,
+    Globe,
+    Layers,
+    Palette
 } from 'lucide-react';
+import { motion } from 'motion/react';
+import React from 'react';
+import { useI18n } from '../../contexts/i18nContext';
 
 interface SkillsProps {
   isVisible: boolean;
@@ -73,7 +71,7 @@ export const Skills: React.FC<SkillsProps> = ({ isVisible }) => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={isVisible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6"
+          className="text-4xl sm:text-5xl md:text-6xl leading-tight font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6"
         >
           {t('skills.title')}
         </motion.h1>
@@ -132,7 +130,7 @@ export const Skills: React.FC<SkillsProps> = ({ isVisible }) => {
 
                 {/* Skills List */}
                 <div className="space-y-4">
-                  {category.skills.map((skill, skillIndex) => (
+                  {category.skills.map((skill: { name: string; proficiency: number }, skillIndex: number) => (
                     <motion.div
                       key={skillIndex}
                       initial={{ opacity: 0, x: -50 }}

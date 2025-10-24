@@ -136,7 +136,7 @@
     ]
   },
   "contact": {
-    "title": "Contacto",
+    "title": "Pongámonos en contacto",
     "subtitle": "Estoy siempre abierto a nuevas oportunidades y proyectos interesantes. ¡Conectemos!",
     "form": {
       "title": "Envíame un mensaje",
@@ -147,8 +147,8 @@
       "subject": "Asunto",
       "subjectPlaceholder": "Sobre qué quieres hablar",
       "message": "Mensaje",
-      "messagePlaceholder": "Cuéntame sobre tu proyecto o consulta...",
-      "send": "Enviar Mensaje",
+      "messagePlaceholder": "Cuéntame sobre tu propuesta o proyecto.",
+      "send": "Enviar mensaje",
       "sending": "Enviando...",
       "success": "¡Mensaje enviado exitosamente!",
       "error": "Error al enviar el mensaje. Inténtalo de nuevo."
@@ -164,7 +164,7 @@
     },
     "social": {"title": "Redes Sociales"},
     "cta": {"title": "¿Tienes un proyecto en mente?", "subtitle": "Trabajemos juntos para hacerlo realidad"},
-    "direct": {"title": "Contacto Directo", "email": "nicolas.developer@gmail.com", "phone": "+54 11 4567-8901", "linkedin": "LinkedIn", "github": "GitHub"}
+    "direct": {"title": "Contacto Directo", "email": "nico_v99@hotmail.com", "phone": "+54 11 28477792", "linkedin": "LinkedIn", "github": "GitHub"}
   },
   "certifications": {
     "title": "Certificaciones",
@@ -210,7 +210,7 @@
   "navigation": {
     "aboutMe": "Sobre Mí",
     "experience": "Experiencia",
-    "skills": "Lo Que Ofrezco",
+    "skills": "Mis Habilidades",
     "projects": "Proyectos",
     "certifications": "Certificaciones",
     "contact": "Contacto"

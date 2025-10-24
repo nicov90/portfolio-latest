@@ -1,7 +1,7 @@
-import React from 'react';
+import { Award, Building, Calendar, MapPin } from 'lucide-react';
 import { motion } from 'motion/react';
+import React from 'react';
 import { useI18n } from '../../contexts/i18nContext';
-import { Calendar, MapPin, Building, Award, ExternalLink } from 'lucide-react';
 
 interface ExperienceProps {
   isVisible: boolean;
@@ -24,7 +24,7 @@ export const Experience: React.FC<ExperienceProps> = ({ isVisible }) => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={isVisible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6"
+          className="text-4xl sm:text-5xl md:text-6xl leading-tight font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6"
         >
           {t('experience.title')}
         </motion.h1>
@@ -41,12 +41,12 @@ export const Experience: React.FC<ExperienceProps> = ({ isVisible }) => {
 
       {/* Timeline Container */}
       <div className="relative">
-        {/* Timeline Line */}
+        {/* Timeline Line (hidden on mobile) */}
         <motion.div
           initial={{ scaleY: 0 }}
           animate={isVisible ? { scaleY: 1 } : { scaleY: 0 }}
           transition={{ duration: 1.5, delay: 0.6 }}
-          className="absolute left-1/2 transform -translate-x-1/2 w-1 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 rounded-full"
+          className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-1 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 rounded-full"
           style={{ height: '100%', transformOrigin: 'top' }}
         />
 
@@ -60,12 +60,12 @@ export const Experience: React.FC<ExperienceProps> = ({ isVisible }) => {
               transition={{ duration: 0.8, delay: 0.8 + (index * 0.2) }}
               className={`relative flex items-center ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}
             >
-              {/* Timeline Dot */}
+              {/* Timeline Dot (hidden on mobile) */}
               <motion.div
                 initial={{ scale: 0, rotate: 0 }}
                 animate={isVisible ? { scale: 1, rotate: 360 } : { scale: 0, rotate: 0 }}
                 transition={{ duration: 0.8, delay: 1 + (index * 0.2), type: "spring", bounce: 0.4 }}
-                className="absolute left-1/2 transform -translate-x-1/2 w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full border-4 border-white shadow-lg z-10"
+                className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full border-4 border-white shadow-lg z-10"
               >
                 {index === 0 && (
                   <motion.div
@@ -158,7 +158,7 @@ export const Experience: React.FC<ExperienceProps> = ({ isVisible }) => {
                         {t('experience.achievements')}
                       </h4>
                       <ul className="space-y-2">
-                        {exp.achievements.map((achievement, achIndex) => (
+                        {exp.achievements.map((achievement: string, achIndex: number) => (
                           <motion.li
                             key={achIndex}
                             initial={{ opacity: 0, x: -20 }}
@@ -183,7 +183,7 @@ export const Experience: React.FC<ExperienceProps> = ({ isVisible }) => {
                         {t('experience.technologies')}
                       </h4>
                       <div className="flex flex-wrap gap-2">
-                        {exp.technologies.map((tech, techIndex) => (
+                        {exp.technologies.map((tech: string, techIndex: number) => (
                           <motion.span
                             key={techIndex}
                             initial={{ opacity: 0, scale: 0 }}

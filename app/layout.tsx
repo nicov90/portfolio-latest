@@ -1,6 +1,10 @@
 import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { DevCertificatesControl } from "./components/dev/DevCertificatesControl";
+import { DevCreateMenu } from "./components/dev/DevCreateMenu";
+import { DevProjectsControl } from "./components/dev/DevProjectsControl";
+import { QueryProvider } from "./providers/QueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +31,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <QueryProvider>
+          {children}
+          {/* Dev admin controls (visible only in development) */}
+          <DevProjectsControl />
+          <DevCertificatesControl />
+          <DevCreateMenu />
+        </QueryProvider>
       </body>
     </html>
   );

@@ -1,10 +1,4 @@
-import {
-  Github,
-  Linkedin,
-  MessageSquare,
-  Send,
-  Sparkles
-} from 'lucide-react';
+import { MessageSquare, Send } from 'lucide-react';
 import { motion } from 'motion/react';
 import React, { useState } from 'react';
 import { useI18n } from '../../contexts/i18nContext';
@@ -65,20 +59,7 @@ export const Contact: React.FC<ContactProps> = ({ isVisible }) => {
     }));
   };
 
-  const socialLinks = [
-    {
-      icon: Github,
-      label: 'GitHub',
-      url: 'https://github.com',
-      color: 'from-gray-700 to-gray-900'
-    },
-    {
-      icon: Linkedin,
-      label: 'LinkedIn',
-      url: 'https://linkedin.com',
-      color: 'from-[#00bfe6] to-[#0096c7]'
-    }
-  ];
+  // Social links moved to navbar (mobile) and floating sidebar (desktop)
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -92,7 +73,7 @@ export const Contact: React.FC<ContactProps> = ({ isVisible }) => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={isVisible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6"
+          className="text-4xl sm:text-5xl md:text-6xl leading-tight font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6"
         >
           {t('contact.title')}
         </motion.h1>
@@ -107,13 +88,13 @@ export const Contact: React.FC<ContactProps> = ({ isVisible }) => {
         </motion.p>
       </motion.div>
 
-      <div className="grid lg:grid-cols-5 gap-8">
+      <div>
         {/* Contact Form */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="lg:col-span-3 relative"
+          className="relative max-w-2xl mx-auto"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-[#00bfe6]/20 to-[#0096c7]/20 rounded-3xl blur-xl"></div>
           <div className="relative bg-white/25 backdrop-blur-xl rounded-3xl p-8 border border-white/30 shadow-2xl">
@@ -251,77 +232,6 @@ export const Contact: React.FC<ContactProps> = ({ isVisible }) => {
                 {isSubmitting ? t('contact.form.sending') : t('contact.form.send')}
               </motion.button>
             </form>
-          </div>
-        </motion.div>
-
-        {/* Social Links */}
-        <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="lg:col-span-2 relative"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-[#00bfe6]/20 to-[#48cae4]/20 rounded-3xl blur-xl"></div>
-          <div className="relative bg-white/25 backdrop-blur-xl rounded-3xl p-8 border border-white/30 shadow-2xl h-full flex flex-col justify-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.6, delay: 1 }}
-              className="flex items-center gap-3 mb-8"
-            >
-              <motion.div
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.8 }}
-                className="w-12 h-12 bg-gradient-to-r from-[#00bfe6] to-[#48cae4] rounded-xl flex items-center justify-center"
-              >
-                <Sparkles size={24} className="text-white" />
-              </motion.div>
-              <h3 className="text-2xl font-bold text-gray-800">
-                {t('contact.social.title')}
-              </h3>
-            </motion.div>
-
-            <div className="flex flex-col gap-4">
-              {socialLinks.map((social, index) => {
-                const Icon = social.icon;
-                return (
-                  <motion.a
-                    key={index}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={isVisible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
-                    transition={{ 
-                      duration: 0.6, 
-                      delay: 1.2 + (index * 0.1),
-                      type: "spring",
-                      bounce: 0.4
-                    }}
-                    whileHover={{ 
-                      scale: 1.05, 
-                      x: 5
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                    className="group relative p-6 bg-white/20 rounded-2xl border border-white/20 hover:bg-white/30 transition-all duration-300"
-                  >
-                    <div className="flex items-center gap-4">
-                      <motion.div
-                        whileHover={{ rotate: 360 }}
-                        transition={{ duration: 0.8 }}
-                        className={`w-14 h-14 bg-gradient-to-r ${social.color} rounded-xl flex items-center justify-center`}
-                      >
-                        <Icon size={28} className="text-white" />
-                      </motion.div>
-                      <div className="flex-1">
-                        <p className="text-xl font-bold text-gray-800">{social.label}</p>
-                        <p className="text-sm text-gray-600">@username</p>
-                      </div>
-                    </div>
-                  </motion.a>
-                );
-              })}
-            </div>
           </div>
         </motion.div>
       </div>

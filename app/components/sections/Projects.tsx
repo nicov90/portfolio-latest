@@ -7,6 +7,7 @@ import { motion } from 'motion/react';
 import React, { useEffect, useState } from 'react';
 import { useI18n } from '../../contexts/i18nContext';
 import { ImageStackCarousel } from '../ImageStackCarousel';
+import { SimpleImageCarousel } from '../SimpleImageCarousel';
 
 interface ProjectsProps {
   isVisible: boolean;
@@ -91,18 +92,17 @@ export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
 
   return (
     <div className="w-full">
-      {/* Header */}
-      <div className="min-h-screen flex items-center justify-center py-20">
+      {/* Header - centered with whitespace around */}
+      <div className="min-h-[80vh] flex items-center justify-center py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.h1
             initial={{ opacity: 0, scale: 0.9 }}
             animate={isVisible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6"
+            className="text-4xl sm:text-5xl md:text-6xl leading-tight font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6"
           >
             {t('projects.title')}
           </motion.h1>
-          
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
@@ -114,7 +114,7 @@ export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
         </div>
       </div>
 
-      {/* Projects */}
+  {/* Projects */}
       <div className="space-y-0">
         {projects && projects.length > 0 ? projects.map((project, index) => (
           <motion.div
@@ -128,8 +128,9 @@ export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
             <div className="w-full max-w-7xl mx-auto px-4">
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                 {/* Left side - Image Stack Carousel */}
+                {/* Desktop/Large screens: 3D stack */}
                 <motion.div
-                  className="h-[70vh] min-h-[500px]"
+                  className="h-[70vh] min-h-[500px] w-[75%] lg:w-full mx-auto hidden md:block"
                   initial={{ x: -50, opacity: 0 }}
                   whileInView={{ x: 0, opacity: 1 }}
                   viewport={{ once: true }}
@@ -138,9 +139,20 @@ export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
                   <ImageStackCarousel images={project.images} />
                 </motion.div>
 
+                {/* Mobile/Tablet: simple full-image carousel */}
+                <motion.div
+                  className="block md:hidden"
+                  initial={{ x: -50, opacity: 0 }}
+                  whileInView={{ x: 0, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.2, duration: 0.6 }}
+                >
+                  <SimpleImageCarousel images={project.images} />
+                </motion.div>
+
                 {/* Right side - Project Info */}
                 <motion.div
-                  className="space-y-6"
+                  className="space-y-6 px-4 sm:px-6 md:px-0"
                   initial={{ x: 50, opacity: 0 }}
                   whileInView={{ x: 0, opacity: 1 }}
                   viewport={{ once: true }}

@@ -1,15 +1,15 @@
-import React from 'react';
-import { motion } from 'motion/react';
-import { useI18n } from '../../contexts/i18nContext';
-import { 
-  Blocks, 
-  Smartphone, 
-  Palette, 
-  Zap, 
-  Shield, 
+import {
+  ArrowRight,
+  Blocks,
+  Palette,
+  Shield,
+  Smartphone,
   Users,
-  ArrowRight
+  Zap
 } from 'lucide-react';
+import { motion } from 'motion/react';
+import React from 'react';
+import { useI18n } from '../../contexts/i18nContext';
 
 interface WhatIBringProps {
   isVisible: boolean;
@@ -71,7 +71,7 @@ export const WhatIBring: React.FC<WhatIBringProps> = ({ isVisible }) => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={isVisible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6"
+            className="text-4xl sm:text-5xl md:text-6xl leading-tight font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6"
           >
             {t('whatIBring.title')}
           </motion.h2>
@@ -163,7 +163,7 @@ export const WhatIBring: React.FC<WhatIBringProps> = ({ isVisible }) => {
         initial={{ opacity: 0, y: 30 }}
         animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
         transition={{ duration: 0.8, delay: 1.8 }}
-        className="text-center mt-32"
+        className="text-center mt-32 px-4 sm:px-6"
       >
         <p className="text-2xl text-gray-500 italic">
           {t('whatIBring.transition')}

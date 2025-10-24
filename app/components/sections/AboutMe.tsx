@@ -1,7 +1,8 @@
-import React from 'react';
-import { motion } from 'motion/react';
-import { useI18n } from '../../contexts/i18nContext';
+import dayjs from 'dayjs';
 import { Sparkles } from 'lucide-react';
+import { motion } from 'motion/react';
+import React, { useMemo } from 'react';
+import { useI18n } from '../../contexts/i18nContext';
 
 interface AboutMeProps {
   isVisible: boolean;
@@ -9,7 +10,10 @@ interface AboutMeProps {
 
 export const AboutMe: React.FC<AboutMeProps> = ({ isVisible }) => {
   const { t } = useI18n();
-
+  const startedDate = useMemo(() => new Date('2023-07-01'), []);
+  const roundedExperienceYears = useMemo(() => dayjs().diff(startedDate, 'year'), [startedDate]);
+  const internalProjects = t('projects.items').length;
+  
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Main Hero Section */}
@@ -26,7 +30,7 @@ export const AboutMe: React.FC<AboutMeProps> = ({ isVisible }) => {
             animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <h1 className="text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-4">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl leading-tight font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-4">
               {t('about.title')}
             </h1>
             <div className="h-1 w-32 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] rounded-full mb-6"></div>
@@ -60,8 +64,8 @@ export const AboutMe: React.FC<AboutMeProps> = ({ isVisible }) => {
             className="grid grid-cols-3 gap-4 pt-6"
           >
             {[
-              { value: '1.5+', label: t('about.stats.years') },
-              { value: '10+', label: t('about.stats.projects') },
+              { value: roundedExperienceYears + '+', label: t('about.stats.years') },
+              { value: internalProjects + '+', label: t('about.stats.projects') },
               { value: '100%', label: t('about.stats.dedication') }
             ].map((stat, index) => (
               <motion.div
@@ -119,7 +123,7 @@ export const AboutMe: React.FC<AboutMeProps> = ({ isVisible }) => {
         initial={{ opacity: 0, y: 30 }}
         animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
         transition={{ duration: 0.8, delay: 1.5 }}
-        className="text-center mb-16"
+        className="text-center mb-16 px-4 sm:px-6"
       >
         <p className="text-2xl text-gray-500 italic">
           {t('about.transition')}

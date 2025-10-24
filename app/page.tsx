@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
 import { ClickRipple } from './components/ClickRipple';
-import { DevProjectsControl } from './components/dev/DevProjectsControl';
 import { IntroScreen } from './components/IntroScreen';
 import { Layout, Section } from './components/Layout';
 import { AboutMe } from './components/sections/AboutMe';
@@ -11,11 +10,25 @@ import { Experience } from './components/sections/Experience';
 import { Projects } from './components/sections/Projects';
 import { WhatIBring } from './components/sections/WhatIBring';
 import { I18nProvider } from './contexts/i18nContext';
+import { useInitialHashNavigation } from './hooks/useInitialHashNavigation';
+import { useIntersectionObserver } from './hooks/useIntersectionObserver';
 
 export default function App() {
   const [currentSection, setCurrentSection] = useState<Section>('intro');
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set(['about-me', 'experience', 'skills', 'projects', 'certifications', 'contact']));
+  const [preferredSection, setPreferredSection] = useState<Section | null>(null);
   const sectionsRef = useRef<HTMLDivElement>(null);
+  // Reserved for potential future batching needs
+  // const rafRef = useRef<number | null>(null);
+  const validSections: Section[] = ['about-me', 'experience', 'skills', 'projects', 'certifications', 'contact'];
+
+  // Visual-only hash update (no default jump)
+  const updateHashVisual = (section: Section) => {
+    const target = `#${section}`;
+    if (window.location.hash !== target) {
+      history.replaceState(null, '', target);
+    }
+  };
   
   // Check if accessing admin panel
   // const isAdminPanel = window && window.location.hash === '#admin';
@@ -25,6 +38,13 @@ export default function App() {
   };
 
   const scrollToSection = (section: Section) => {
+    // Reflect active state immediately for mobile drawer highlight
+    setCurrentSection(section);
+    // Update URL visually as requested
+    updateHashVisual(section);
+    // Bias activation toward the target while smooth scrolling is in progress
+    setPreferredSection(section);
+    window.setTimeout(() => setPreferredSection(null), 1200);
     const element = document.getElementById(section);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -32,30 +52,60 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (currentSection === 'intro') return;
-
-    const observerOptions = {
-      root: null,
-      rootMargin: '-100px 0px -100px 0px',
-      threshold: [0.1, 0.3, 0.5]
+    // Viewport height CSS var for mobile browsers (handle dynamic toolbars)
+    let rafId: number | null = null;
+    const setVh = () => {
+      const base = (window.visualViewport?.height ?? window.innerHeight);
+      const vh = base * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
     };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting && entry.intersectionRatio > 0.1) {
-          setVisibleSections(prev => new Set([...prev, entry.target.id]));
-          setCurrentSection(entry.target.id as Section);
-        }
-      });
-    }, observerOptions);
-
-    const sections = document.querySelectorAll('[data-section]');
-    sections.forEach((section) => observer.observe(section));
-
+    const schedule = () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(setVh);
+    };
+    setVh();
+    window.addEventListener('resize', schedule);
+    window.addEventListener('orientationchange', schedule);
+    // iOS Safari updates visualViewport on scroll when bars hide/show
+    window.visualViewport?.addEventListener('resize', schedule);
+    // As a fallback, lightly listen to scroll to capture toolbar changes
+    window.addEventListener('scroll', schedule, { passive: true });
     return () => {
-      sections.forEach((section) => observer.unobserve(section));
+      if (rafId) cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', schedule);
+      window.removeEventListener('orientationchange', schedule);
+      window.visualViewport?.removeEventListener('resize', schedule);
+      window.removeEventListener('scroll', schedule);
     };
-  }, [currentSection]);
+  }, []);
+
+  useIntersectionObserver({
+    enabled: currentSection !== 'intro',
+    root: null,
+    rootMargin: '-15% 0px -55% 0px',
+    threshold: [0, 0.25, 0.5, 0.75, 1],
+    minRatioToActivate: 0.2,
+    activeAnchorRatio: 0.35,
+    preferredId: preferredSection,
+    onSectionVisible: (id) => {
+      setVisibleSections(prev => new Set([...prev, id]));
+    },
+    onSectionChange: (id) => {
+      if (id !== currentSection) {
+        setCurrentSection(id as Section);
+        updateHashVisual(id as Section);
+        if (preferredSection && id === preferredSection) {
+          setPreferredSection(null);
+        }
+      }
+    }
+  });
+
+  // Only apply hash on initial load (no updates during scroll/navigation)
+  useInitialHashNavigation(validSections, (id) => {
+    setCurrentSection(id as Section);
+    scrollToSection(id as Section);
+  }, currentSection !== 'intro');
 
   // Show admin panel if accessing via #admin
   // if (isAdminPanel) {
@@ -80,9 +130,8 @@ export default function App() {
 
   return (
     <I18nProvider>
-      <div className="size-full min-h-screen">
+      <div className="size-full" style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}>
         <ClickRipple />
-        <DevProjectsControl />
         <Layout
           currentSection={currentSection}
           onSectionChange={scrollToSection}
@@ -91,11 +140,12 @@ export default function App() {
             <section 
               id="about-me" 
               data-section="about-me"
-              className="min-h-screen flex items-center justify-center py-20 relative -mt-24 pt-40 scroll-mt-24"
+              className="flex items-center justify-center py-20 relative -mt-28 pt-48 scroll-mt-28"
+              style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
             >
-              {/* Gradient overlay with backdrop blur - extends above section to cover navbar area */}
+              {/* Gradient overlay - starts white at the top and fades down (top half only) */}
               <div className="absolute -top-24 left-0 right-0 bottom-0 bg-gradient-to-b from-[#f0f6fe]/70 from-0% via-[#f0f6fe]/70 via-30% to-transparent to-100% backdrop-blur-sm pointer-events-none" />
-              <div className="relative z-10 w-full">
+              <div className="relative z-10 w-full px-2 sm:px-0">
                 <AboutMe isVisible={visibleSections.has('about-me')} />
               </div>
             </section>
@@ -103,7 +153,8 @@ export default function App() {
             <section 
               id="experience" 
               data-section="experience"
-              className="min-h-screen flex items-center justify-center py-20 scroll-mt-28"
+              className="flex items-center justify-center py-20 scroll-mt-28"
+              style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
             >
               <Experience isVisible={visibleSections.has('experience')} />
             </section>
@@ -111,7 +162,8 @@ export default function App() {
             <section 
               id="skills" 
               data-section="skills"
-              className="min-h-screen flex items-center justify-center py-20 scroll-mt-28"
+              className="flex items-center justify-center py-20 scroll-mt-28"
+              style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
             >
               <WhatIBring isVisible={visibleSections.has('skills')} />
             </section>
@@ -119,7 +171,8 @@ export default function App() {
             <section 
               id="projects" 
               data-section="projects"
-              className="min-h-screen flex items-center justify-center py-20 scroll-mt-20"
+              className="py-20 "
+              style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
             >
               <Projects isVisible={visibleSections.has('projects')} />
             </section>
@@ -127,7 +180,8 @@ export default function App() {
             <section 
               id="certifications" 
               data-section="certifications"
-              className="min-h-screen flex items-center justify-center py-20 scroll-mt-28"
+              className="flex items-center justify-center py-20 scroll-mt-28"
+              style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
             >
               <Certifications isVisible={visibleSections.has('certifications')} />
             </section>
@@ -135,7 +189,8 @@ export default function App() {
             <section 
               id="contact" 
               data-section="contact"
-              className="min-h-screen flex items-center justify-center py-20 scroll-mt-28"
+              className="flex items-center justify-center py-20 scroll-mt-28"
+              style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
             >
               <Contact isVisible={visibleSections.has('contact')} />
             </section>

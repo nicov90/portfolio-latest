@@ -136,7 +136,7 @@
     ]
   },
   "contact": {
-    "title": "Contact",
+    "title": "Let's get in touch!",
     "subtitle": "I'm always open to new opportunities and interesting projects. Let's connect!",
     "form": {
       "title": "Send me a message",
@@ -147,8 +147,8 @@
       "subject": "Subject",
       "subjectPlaceholder": "What do you want to talk about",
       "message": "Message",
-      "messagePlaceholder": "Tell me about your project or question...",
-      "send": "Send Message",
+      "messagePlaceholder": "Tell me about your proposal or project.",
+      "send": "Send message",
       "sending": "Sending...",
       "success": "Message sent successfully!",
       "error": "Error sending message. Please try again."
@@ -164,7 +164,7 @@
     },
     "social": {"title": "Social Media"},
     "cta": {"title": "Have a project in mind?", "subtitle": "Let's work together to make it happen"},
-    "direct": {"title": "Direct Contact", "email": "nicolas.developer@gmail.com", "phone": "+54 11 4567-8901", "linkedin": "LinkedIn", "github": "GitHub"}
+    "direct": {"title": "Direct Contact", "email": "nico_v99@hotmail.com", "phone": "+54 11 28477792", "linkedin": "LinkedIn", "github": "GitHub"}
   },
   "certifications": {
     "title": "Certifications",

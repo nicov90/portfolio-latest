@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 
 type TranslationFields = {
   title?: string;
@@ -36,6 +36,21 @@ export const DevProjectsControl: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  // Upload limits
+  const IMAGE_MAX_BYTES = 10 * 1024 * 1024; // 10 MB
+  const VIDEO_MAX_BYTES = 100 * 1024 * 1024; // 100 MB
+
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+
+  const formatBytes = (bytes: number) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+  };
+
   const [form, setForm] = useState<ProjectForm>({
     title: '',
     description: '',
@@ -47,15 +62,31 @@ export const DevProjectsControl: React.FC = () => {
     sortOrder: 0,
     images: [],
     videos: [],
-    translations: { es: {}, en: {} },
+    // Base fields are EN. Provide only non-EN locales here.
+    translations: { es: {} },
   });
+
+  // Allow external trigger: dispatch `open-dev-projects` on window to open the modal
+  React.useEffect(() => {
+    const handler = () => setOpen(true);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('open-dev-projects', handler as EventListener);
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('open-dev-projects', handler as EventListener);
+      }
+    };
+  }, []);
 
   if (!isDev) return null;
 
   const addLocale = (locale: string) => {
+    const code = locale.toLowerCase();
+    if (code === 'en') return; // base is EN; avoid duplicate
     setForm((f) => ({
       ...f,
-      translations: { ...f.translations, [locale]: f.translations[locale] || {} },
+      translations: { ...f.translations, [code]: f.translations[code] || {} },
     }));
   };
 
@@ -63,8 +94,23 @@ export const DevProjectsControl: React.FC = () => {
     if (!files) return;
     setLoading(true); setError(null); setSuccess(null);
     try {
-      const uploads = await Promise.all(Array.from(files).map((file) => uploadToCloudinary(file, 'image')));
+      const fileArr = Array.from(files);
+      const rejected: string[] = [];
+      const accepted = fileArr.filter((file) => {
+        const isImage = file.type?.startsWith('image/');
+        const okSize = file.size <= IMAGE_MAX_BYTES;
+        if (!isImage) rejected.push(`${file.name} (tipo inválido)`);
+        else if (!okSize) rejected.push(`${file.name} (${formatBytes(file.size)} > 10 MB)`);
+        return isImage && okSize;
+      });
+      if (accepted.length === 0) {
+        setError(`No se subieron imágenes. ${rejected.length ? `Omitidas: ${rejected.join(', ')}` : ''}`.trim());
+        return;
+      }
+      const uploads = await Promise.all(accepted.map((file) => uploadToCloudinary(file, 'image')));
       setForm((f) => ({ ...f, images: [...f.images, ...uploads.map((u) => ({ url: u.url }))] }));
+      if (rejected.length) setSuccess(`Imágenes subidas: ${uploads.length}. Omitidas: ${rejected.join(', ')}`);
+      else setSuccess(`Imágenes subidas: ${uploads.length}.`);
     } catch (e: any) {
       setError(e?.message || 'Error uploading images');
     } finally {
@@ -76,8 +122,23 @@ export const DevProjectsControl: React.FC = () => {
     if (!files) return;
     setLoading(true); setError(null); setSuccess(null);
     try {
-      const uploads = await Promise.all(Array.from(files).map((file) => uploadToCloudinary(file, 'video')));
+      const fileArr = Array.from(files);
+      const rejected: string[] = [];
+      const accepted = fileArr.filter((file) => {
+        const isVideo = file.type?.startsWith('video/');
+        const okSize = file.size <= VIDEO_MAX_BYTES;
+        if (!isVideo) rejected.push(`${file.name} (tipo inválido)`);
+        else if (!okSize) rejected.push(`${file.name} (${formatBytes(file.size)} > 100 MB)`);
+        return isVideo && okSize;
+      });
+      if (accepted.length === 0) {
+        setError(`No se subieron videos. ${rejected.length ? `Omitidos: ${rejected.join(', ')}` : ''}`.trim());
+        return;
+      }
+      const uploads = await Promise.all(accepted.map((file) => uploadToCloudinary(file, 'video')));
       setForm((f) => ({ ...f, videos: [...f.videos, ...uploads.map((u) => ({ url: u.url }))] }));
+      if (rejected.length) setSuccess(`Videos subidos: ${uploads.length}. Omitidos: ${rejected.join(', ')}`);
+      else setSuccess(`Videos subidos: ${uploads.length}.`);
     } catch (e: any) {
       setError(e?.message || 'Error uploading videos');
     } finally {
@@ -85,9 +146,21 @@ export const DevProjectsControl: React.FC = () => {
     }
   };
 
+  const removeImage = (index: number) => {
+    setForm((f) => ({ ...f, images: f.images.filter((_, i) => i !== index) }));
+  };
+
+  const removeVideo = (index: number) => {
+    setForm((f) => ({ ...f, videos: f.videos.filter((_, i) => i !== index) }));
+  };
+
   const handleSubmit = async () => {
     try {
       setLoading(true); setError(null); setSuccess(null);
+      if (!form.title.trim()) {
+        setError('El título es obligatorio');
+        return;
+      }
       const techArr = form.tech.split(',').map(s => s.trim()).filter(Boolean);
       const images = form.images.map(i => i.url).filter(Boolean) as string[];
       const videos = form.videos.map(v => v.url).filter(Boolean) as string[];
@@ -133,16 +206,6 @@ export const DevProjectsControl: React.FC = () => {
 
   return (
     <>
-      {/* Floating dev button */}
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-[998] rounded-full h-12 w-12 flex items-center justify-center shadow-lg bg-gradient-to-r from-[#00bfe6] to-[#0096c7] text-white"
-        title="Nuevo Proyecto (Dev)"
-      >
-        +
-      </button>
-
       {open && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center">
           <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
@@ -157,11 +220,11 @@ export const DevProjectsControl: React.FC = () => {
 
             <div className="grid grid-cols-1 gap-4">
               <div>
-                <label className="block text-sm font-medium">Título (base)</label>
+                <label className="block text-sm font-medium">Título (base, EN)</label>
                 <input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="w-full border rounded px-3 py-2" />
               </div>
               <div>
-                <label className="block text-sm font-medium">Descripción</label>
+                <label className="block text-sm font-medium">Descripción (base, EN)</label>
                 <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="w-full border rounded px-3 py-2" />
               </div>
               <div>
@@ -190,20 +253,83 @@ export const DevProjectsControl: React.FC = () => {
 
               {/* Images */}
               <div>
-                <label className="block text-sm font-medium">Imágenes</label>
-                <input type="file" accept="image/*" multiple onChange={e => handleUploadImages(e.target.files)} />
-                <div className="grid grid-cols-4 gap-2 mt-2">
-                  {form.images.map((img, i) => (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img key={i} src={img.url} alt="uploaded" className="w-16 h-16 object-cover rounded" />
-                  ))}
+                <label className="block text-sm font-medium mb-1">Imágenes</label>
+                <div
+                  className="border-2 border-dashed rounded-lg p-4 text-center hover:bg-gray-50 cursor-pointer"
+                  onClick={() => imageInputRef.current?.click()}
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  onDrop={(e) => { e.preventDefault(); e.stopPropagation(); handleUploadImages(e.dataTransfer.files); }}
+                >
+                  <p className="text-sm text-gray-600">Arrastra y suelta aquí, o haz clic para seleccionar</p>
+                  <p className="text-xs text-gray-500 mt-1">Formatos: PNG/JPG • Tamaño máx: 10 MB por imagen</p>
+                  <input
+                    ref={imageInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={e => handleUploadImages(e.target.files)}
+                  />
                 </div>
+                {form.images.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-3">
+                    {form.images.map((img, i) => (
+                      <div key={i} className="relative group">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={img.url} alt="uploaded" className="w-40 h-40 object-cover rounded-lg shadow" />
+                        <button
+                          type="button"
+                          className="absolute top-1 right-1 bg-black/60 text-white rounded-full h-7 w-7 hidden group-hover:flex items-center justify-center"
+                          onClick={() => removeImage(i)}
+                          title="Quitar imagen"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Video */}
               <div>
-                <label className="block text-sm font-medium">Video</label>
-                <input type="file" accept="video/*" onChange={e => handleUploadVideos(e.target.files)} />
+                <label className="block text-sm font-medium mb-1">Video</label>
+                <div
+                  className="border-2 border-dashed rounded-lg p-4 text-center hover:bg-gray-50 cursor-pointer"
+                  onClick={() => videoInputRef.current?.click()}
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  onDrop={(e) => { e.preventDefault(); e.stopPropagation(); handleUploadVideos(e.dataTransfer.files); }}
+                >
+                  <p className="text-sm text-gray-600">Arrastra y suelta aquí, o haz clic para seleccionar</p>
+                  <p className="text-xs text-gray-500 mt-1">Formatos: MP4/WEBM • Tamaño máx: 100 MB</p>
+                  <input
+                    ref={videoInputRef}
+                    type="file"
+                    accept="video/*"
+                    className="hidden"
+                    onChange={e => handleUploadVideos(e.target.files)}
+                  />
+                </div>
+                {form.videos.length > 0 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mt-3">
+                    {form.videos.map((vid, i) => (
+                      <div key={i} className="relative bg-black rounded-lg overflow-hidden shadow">
+                        <div className="absolute top-1 left-1 text-xs bg-white/80 rounded px-2 py-0.5">
+                          {i === 0 ? 'Primario' : `#${i + 1}`}
+                        </div>
+                        <video src={vid.url} className="w-full h-40 object-cover" controls preload="metadata" />
+                        <button
+                          type="button"
+                          className="absolute top-1 right-1 bg-black/60 text-white rounded-full h-7 w-7 flex items-center justify-center"
+                          onClick={() => removeVideo(i)}
+                          title="Quitar video"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 <div className="text-xs text-gray-500 mt-1">Se usará el primero como videoUrl</div>
               </div>
 
@@ -212,7 +338,7 @@ export const DevProjectsControl: React.FC = () => {
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold">Traducciones</h3>
                   <button className="text-sm text-blue-600" onClick={() => {
-                    const code = prompt('Código de idioma (ej: es, en, pt, fr)');
+                    const code = prompt('Código de idioma (ej: es, pt, fr) — EN ya está como base');
                     if (code) addLocale(code.toLowerCase());
                   }}>+ Añadir idioma</button>
                 </div>
