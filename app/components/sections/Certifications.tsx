@@ -1,7 +1,8 @@
 import { Award, ChevronDown, ChevronUp, Download, ExternalLink } from 'lucide-react';
 import { motion } from 'motion/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useI18n } from '../../contexts/i18nContext';
+import { useCertificates } from '../../hooks/useCertificates';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 
 interface CertificationsProps {
@@ -9,10 +10,67 @@ interface CertificationsProps {
 }
 
 export const Certifications: React.FC<CertificationsProps> = ({ isVisible }) => {
-  const { t } = useI18n();
+  const { t, language } = useI18n() as any;
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const { data: certsData } = useCertificates(language);
+  const backendCerts = React.useMemo(() => (Array.isArray(certsData) ? certsData : []), [certsData]);
+  const [prefixAssets, setPrefixAssets] = useState<Record<string, { images: string[] }>>({});
 
-  const certifications = t('certifications.items');
+  // If any certificate declares mediaPrefix, fetch its image list (use first)
+  useEffect(() => {
+    let cancelled = false;
+    async function loadPrefixes() {
+      if (!backendCerts || backendCerts.length === 0) return;
+      const missing = backendCerts
+        .map((c) => c?.mediaPrefix)
+        .filter((pfx): pfx is string => !!pfx && !(pfx in prefixAssets));
+      if (missing.length === 0) return;
+      try {
+        const results = await Promise.all(missing.map(async (pfx) => {
+          const res = await fetch(`/api/media/by-prefix?prefix=${encodeURIComponent(pfx)}&resourceType=image`);
+          if (!res.ok) return [pfx, { images: [] }] as const;
+          const data = await res.json();
+          const images = Array.isArray(data?.images) ? data.images : [];
+          return [pfx, { images }] as const;
+        }));
+        if (!cancelled) {
+          setPrefixAssets((prev) => {
+            const next = { ...prev } as typeof prev;
+            for (const [pfx, val] of results) next[pfx] = val as any;
+            return next;
+          });
+        }
+      } catch {
+        // ignore
+      }
+    }
+    loadPrefixes();
+    return () => { cancelled = true; };
+  }, [backendCerts, prefixAssets]);
+
+  // Fallback from i18n if no dynamic items
+  const i18nCerts = t('certifications.items');
+
+  // Normalize data for rendering
+  const certifications = (backendCerts && backendCerts.length > 0)
+    ? backendCerts.map((c: any) => {
+        const title = c.title;
+        const description = c.description ?? '';
+        const subtitle = c.subtitle ?? '';
+        const issuer = c.issuer ?? '';
+        const imgByPrefix = c.mediaPrefix ? prefixAssets[c.mediaPrefix]?.images?.[0] : undefined;
+        const image = imgByPrefix || c.imageUrl || '';
+        return {
+          title,
+          description,
+          subtitle,
+          issuer,
+          image,
+          downloadUrl: c.downloadUrl ?? undefined,
+          verifyUrl: c.verifyUrl ?? undefined,
+        };
+      })
+    : i18nCerts;
 
   const toggleExpand = (index: number) => {
     setExpandedIndex(expandedIndex === index ? null : index);
@@ -144,7 +202,9 @@ export const Certifications: React.FC<CertificationsProps> = ({ isVisible }) => 
                           )}
                         </div>
 
-                        <p className="text-gray-600 mb-4">{cert.date}</p>
+                        {(cert.subtitle || cert.date) && (
+                          <p className="text-gray-600 mb-4">{cert.subtitle || cert.date}</p>
+                        )}
 
                         {cert.description && (
                           <p className="text-gray-700 leading-relaxed">
@@ -180,8 +240,9 @@ export const Certifications: React.FC<CertificationsProps> = ({ isVisible }) => 
                                   href={cert.verifyUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.95 }}
+                                  // No zoom on hover for verify
+                                  whileHover={{}}
+                                  whileTap={{ scale: 0.98 }}
                                   className="flex items-center gap-2 px-5 py-2.5 bg-white/50 backdrop-blur-sm text-[#00bfe6] font-medium rounded-xl border-2 border-[#00bfe6]/30 hover:bg-[#00bfe6]/10 hover:border-[#00bfe6] transition-all duration-300"
                                 >
                                   <ExternalLink size={18} />

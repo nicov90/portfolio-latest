@@ -1,8 +1,9 @@
 import dayjs from 'dayjs';
-import { Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../contexts/i18nContext';
+import { CreativeRoleCard } from './about/CreativeRoleCard';
+import { QuickStats } from './about/QuickStats';
 
 interface AboutMeProps {
   isVisible: boolean;
@@ -11,8 +12,56 @@ interface AboutMeProps {
 export const AboutMe: React.FC<AboutMeProps> = ({ isVisible }) => {
   const { t } = useI18n();
   const startedDate = useMemo(() => new Date('2023-07-01'), []);
-  const roundedExperienceYears = useMemo(() => dayjs().diff(startedDate, 'year'), [startedDate]);
-  const internalProjects = t('projects.items').length;
+  // Experience in 0.5 increments
+  const experienceYearsHalfStep = useMemo(() => {
+    const months = dayjs().diff(startedDate, 'month');
+    const years = months / 12;
+    return (Math.round(years * 2) / 2); // nearest 0.5
+  }, [startedDate]);
+
+  // Dynamic project count from API (fallback to translation length)
+  const [projectCount, setProjectCount] = useState<number | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/projects/count');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled && typeof data.count === 'number') setProjectCount(data.count);
+      } catch {
+        // ignore
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+  const fallbackProjects = t('projects.items').length;
+  const effectiveProjects = projectCount ?? fallbackProjects;
+
+  // Placeholder for certifications count (could be dynamic similar to projects)
+  const [certCount, setCertCount] = useState<number | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/certificates?count=1');
+        if (!res.ok) return;
+        const data = await res.json();
+        // If endpoint returns array, derive length; else expect {count}
+        const c = Array.isArray(data) ? data.length : (typeof data.count === 'number' ? data.count : null);
+        if (!cancelled && typeof c === 'number') setCertCount(c);
+      } catch {
+        // ignore
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const stats = [
+    { value: experienceYearsHalfStep.toFixed(1).replace(/\.0$/, '') + '+', label: t('about.stats.years') },
+    { value: effectiveProjects + '+', label: t('about.stats.projects') },
+    { value: (certCount ?? 10) + '+', label: t('about.stats.certifications') || 'Certifications' }
+  ];
   
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -56,66 +105,24 @@ export const AboutMe: React.FC<AboutMeProps> = ({ isVisible }) => {
             </p>
           </motion.div>
 
-          {/* Quick Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            className="grid grid-cols-3 gap-4 pt-6"
-          >
-            {[
-              { value: roundedExperienceYears + '+', label: t('about.stats.years') },
-              { value: internalProjects + '+', label: t('about.stats.projects') },
-              { value: '100%', label: t('about.stats.dedication') }
-            ].map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ scale: 0 }}
-                animate={isVisible ? { scale: 1 } : { scale: 0 }}
-                transition={{ 
-                  duration: 0.5, 
-                  delay: 1 + (index * 0.1),
-                  type: "spring",
-                  bounce: 0.5
-                }}
-                className="text-center"
-              >
-                <div className="text-3xl font-bold bg-gradient-to-r from-[#00bfe6] to-[#0096c7] bg-clip-text text-transparent">
-                  {stat.value}
-                </div>
-                <div className="text-sm text-gray-600 mt-1">{stat.label}</div>
-              </motion.div>
-            ))}
-          </motion.div>
+          <QuickStats isVisible={isVisible} stats={stats} />
         </motion.div>
 
-        {/* Right Side - Interactive Visual */}
-        <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="relative"
-        >
-          {/* Main Circle with Floating Icons */}
-          <div className="relative w-full aspect-square max-w-md mx-auto">
-            {/* Central Circle */}
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={isVisible ? { scale: 1, rotate: 0 } : { scale: 0, rotate: -180 }}
-              transition={{ duration: 1, delay: 0.5, type: "spring", bounce: 0.4 }}
-              className="absolute inset-0 flex items-center justify-center"
-            >
-              <div className="w-64 h-64 rounded-full bg-gradient-to-br from-[#00bfe6]/20 to-[#0096c7]/20 backdrop-blur-xl border-4 border-[#00bfe6]/30 flex items-center justify-center shadow-2xl">
-                <div className="text-center">
-                  <Sparkles size={48} className="text-[#00bfe6] mx-auto mb-2" />
-                  <p className="font-bold text-2xl text-gray-800">{t('about.mainCard.title')}</p>
-                </div>
-              </div>
-            </motion.div>
-
-
-          </div>
-        </motion.div>
+        {/* Right Side - Creative Role Card */}
+        <div className="relative">
+          <CreativeRoleCard
+            isVisible={isVisible}
+            title={t('about.mainCard.title')}
+            suffix={t('about.mainCard.suffix') || 'Crafting Impactful Solutions'}
+            tagline={t('about.mainCard.tagline') || 'Designing, building and refining scalable web experiences with a product mindset and a love for clean code.'}
+            chips={[
+              t('about.mainCard.pills.frontend') || 'Frontend',
+              t('about.mainCard.pills.backend') || 'Backend',
+              t('about.mainCard.pills.cloud') || 'Cloud',
+              t('about.mainCard.pills.ux') || 'UX',
+            ]}
+          />
+        </div>
       </div>
 
       {/* Section Transition Text */}

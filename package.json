@@ -9,6 +9,7 @@
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:run": "npm run db:generate && npm run db:migrate",
     "sync:projects": "tsx scripts/sync-projects.ts"
   },
   "dependencies": {

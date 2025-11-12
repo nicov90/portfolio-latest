@@ -1,4 +1,6 @@
-import React, { createContext, ReactNode, useContext, useState } from 'react';
+"use client";
+import React, { createContext, ReactNode, useContext } from 'react';
+import { usePreferredLanguage } from '../hooks/usePreferredLanguage';
 import en from '../locales/en/common.json';
 import es from '../locales/es/common.json';
 
@@ -13,7 +15,7 @@ const I18nContext = createContext<I18nContextType | undefined>(undefined);
 export const translations = { es, en } as const;
 
 export const I18nProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState('es');
+  const { language, setLanguage } = usePreferredLanguage();
 
   const t = (key: string): any => {
     const keys = key.split('.');

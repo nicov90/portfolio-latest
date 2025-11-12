@@ -7,6 +7,7 @@ export type CertificatePayload = {
   description?: string | null;
   issuer?: string | null;
   imageUrl?: string | null;
+  mediaPrefix?: string | null;
   verifyUrl?: string | null;
   downloadUrl?: string | null;
   sortOrder?: number;
@@ -18,11 +19,12 @@ export type CertificateTranslations = Record<string, {
   description?: string;
 }>;
 
-export function useCertificates() {
+export function useCertificates(lang?: string) {
   return useQuery({
-    queryKey: ['certificates'],
+    queryKey: ['certificates', lang || 'en'],
     queryFn: async () => {
-      const res = await fetch('/api/certificates');
+      const url = lang ? `/api/certificates?lang=${encodeURIComponent(lang)}` : '/api/certificates';
+      const res = await fetch(url);
       if (!res.ok) throw new Error('Failed to fetch certificates');
       return res.json();
     },

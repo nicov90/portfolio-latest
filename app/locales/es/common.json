@@ -8,11 +8,21 @@
     "title": "Sobre Mí",
     "subtitle": "Apasionado por la tecnología y en constante búsqueda de mejora, me enfoco en crear soluciones sólidas, escalables y mantenibles que aporten valor real.",
     "description": "Actualmente enfocado en arquitecturas modernas y automatización de flujos, integrando IA y N8N para optimizar procesos. Interesado en seguir profundizando en desarrollo front-end y full-stack, aplicando buenas prácticas de diseño, escalabilidad y usabilidad.",
-    "mainCard": {"title": "Desarrollador Full Stack"},
+    "mainCard": {
+      "title": "Desarrollador Full Stack",
+      "suffix": "Soluciones con impacto",
+      "tagline": "Diseño, construyo y refino experiencias web escalables con mentalidad de producto y amor por el código limpio.",
+      "pills": {
+        "frontend": "Frontend",
+        "backend": "Backend",
+        "cloud": "Cloud",
+        "ux": "UX"
+      }
+    },
     "stats": {
       "years": "Años de Experiencia",
       "projects": "Proyectos Internos",
-      "dedication": "Dedicación"
+      "certifications": "Certificaciones"
     },
     "transition": "Descubre mi trayectoria profesional..."
   },

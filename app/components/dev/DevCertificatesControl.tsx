@@ -2,10 +2,12 @@
 import { useCreateCertificate, type CertificatePayload, type CertificateTranslations } from '@/app/hooks/useCertificates';
 import React, { useMemo, useRef, useState } from 'react';
 
-async function uploadToCloudinary(file: File) {
+async function uploadToCloudinary(file: File, opts?: { resourceType?: 'image' | 'video' | 'auto'; publicId?: string; overwrite?: boolean }) {
   const fd = new FormData();
   fd.append('file', file);
-  fd.append('resourceType', 'image');
+  fd.append('resourceType', opts?.resourceType || 'image');
+  if (opts?.publicId) fd.append('publicId', opts.publicId);
+  if (typeof opts?.overwrite !== 'undefined') fd.append('overwrite', String(opts.overwrite));
   const res = await fetch('/api/upload', { method: 'POST', body: fd });
   if (!res.ok) throw new Error('Upload failed');
   return res.json();
@@ -25,6 +27,7 @@ export const DevCertificatesControl: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [mediaPrefix, setMediaPrefix] = useState<string>('');
 
   const [form, setForm] = useState<CertificatePayload>({
     title: '',
@@ -73,12 +76,36 @@ export const DevCertificatesControl: React.FC = () => {
     if (!okSize) { setError(`La imagen supera el límite (${formatBytes(file.size)} > 10 MB)`); return; }
     setLoading(true); setError(null); setSuccess(null);
     try {
-      const res = await uploadToCloudinary(file);
+      // If a prefix is present, upload using explicit publicId: prefix-1 and overwrite=true
+      const pfx = mediaPrefix.trim();
+      const usePrefix = Boolean(pfx);
+      const publicId = usePrefix ? `${pfx}-1` : undefined;
+      const res = await uploadToCloudinary(file, { resourceType: 'image', publicId, overwrite: usePrefix ? true : undefined });
       setImageUrl(res.url);
       setForm((f) => ({ ...f, imageUrl: res.url }));
       setSuccess('Imagen subida');
     } catch (e: any) {
       setError(e?.message || 'Error subiendo imagen');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFetchImageByPrefix = async () => {
+    const pfx = mediaPrefix.trim();
+    if (!pfx) { setError('Ingresa un prefijo'); return; }
+    setLoading(true); setError(null); setSuccess(null);
+    try {
+      const res = await fetch(`/api/media/by-prefix?prefix=${encodeURIComponent(pfx)}&resourceType=image`);
+      if (!res.ok) throw new Error('No se pudo buscar en Cloudinary');
+      const data = await res.json();
+      const first: string | undefined = Array.isArray(data?.images) && data.images.length > 0 ? data.images[0] : undefined;
+      if (!first) { setError('No se encontraron imágenes con ese prefijo. Asegúrate de usar «prefijo-1», «prefijo-2», …'); return; }
+      setImageUrl(first);
+      setForm((f) => ({ ...f, imageUrl: first }));
+      setSuccess('Imagen tomada por prefijo');
+    } catch (e: any) {
+      setError(e?.message || 'Error obteniendo imagen por prefijo');
     } finally {
       setLoading(false);
     }
@@ -104,6 +131,7 @@ export const DevCertificatesControl: React.FC = () => {
         description: form.description || null,
         issuer: form.issuer || null,
         imageUrl: form.imageUrl || imageUrl || null,
+        mediaPrefix: mediaPrefix.trim() ? mediaPrefix.trim() : null,
         verifyUrl: form.verifyUrl || null,
         downloadUrl: form.downloadUrl || null,
         sortOrder: form.sortOrder ?? 0,
@@ -111,6 +139,7 @@ export const DevCertificatesControl: React.FC = () => {
       setSuccess('Certificado creado');
       setForm({ title: '', subtitle: '', description: '', issuer: '', imageUrl: null, verifyUrl: '', downloadUrl: '', sortOrder: 0 });
       setTranslations({ es: {} });
+      setMediaPrefix('');
       setImageUrl(null);
       setOpen(false);
     } catch (e: any) {
@@ -155,6 +184,20 @@ export const DevCertificatesControl: React.FC = () => {
               {/* Image */}
               <div>
                 <label className="block text-sm font-medium mb-1">Imagen</label>
+                {/* Opción por prefijo */}
+                <div className="mb-3">
+                  <label className="block text-xs font-medium text-gray-700">Prefijo (Cloudinary) — opcional</label>
+                  <div className="flex items-center gap-2 mt-1">
+                    <input
+                      value={mediaPrefix}
+                      onChange={e => setMediaPrefix(e.target.value)}
+                      placeholder="p.ej. certificados-aws"
+                      className="flex-1 border rounded px-3 py-2"
+                    />
+                    <button type="button" onClick={handleFetchImageByPrefix} className="px-3 py-2 rounded border">Cargar por prefijo</button>
+                  </div>
+                  <p className="text-[11px] text-gray-500 mt-1">Convención: imágenes «prefijo-1», «prefijo-2», … Se tomará la primera encontrada.</p>
+                </div>
                 {imageUrl ? (
                   <div className="flex items-center gap-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}

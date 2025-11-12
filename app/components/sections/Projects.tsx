@@ -26,6 +26,27 @@ interface Project {
 export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
   const { t, language } = useI18n() as any;
   const [allLocaleProjects, setAllLocaleProjects] = useState<any[] | null>(null);
+  const [prefixAssets] = useState<Record<string, { images: string[]; video: string | null }>>({});
+
+  // Render plain text with blank lines as paragraphs and single newlines as line breaks
+  const renderDescription = (text?: string) => {
+    if (!text) return null;
+    const normalized = text.replace(/\r\n/g, '\n');
+    const paragraphs = normalized
+      .split(/\n\s*\n/g) // split on blank lines
+      .map((p) => p.trim())
+      .filter(Boolean);
+    if (paragraphs.length === 0) return null;
+    return (
+      <div className="space-y-4">
+        {paragraphs.map((p, i) => (
+          <p key={i} className="text-lg text-gray-600 leading-relaxed whitespace-pre-line">
+            {p}
+          </p>
+        ))}
+      </div>
+    );
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -34,6 +55,7 @@ export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
         const res = await fetch(`/api/projects?allLocales=1`);
         if (!res.ok) return; // fallback to i18n
         const data = await res.json();
+        console.log(data)
         if (isMounted) setAllLocaleProjects(Array.isArray(data) ? data : []);
       } catch {
         // ignore, will fallback to i18n
@@ -44,6 +66,41 @@ export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
       isMounted = false;
     };
   }, []);
+
+  // Load Cloudinary assets for any project that declares a mediaPrefix
+  // useEffect(() => {
+  //   let cancelled = false;
+  //   async function loadPrefixes() {
+  //     if (!allLocaleProjects || allLocaleProjects.length === 0) return;
+  //     const missing = allLocaleProjects
+  //       .map((p) => p?.mediaPrefix)
+  //       .filter((pfx): pfx is string => !!pfx && !(pfx in prefixAssets));
+  //     if (missing.length === 0) return;
+  //     try {
+  //       const results = await Promise.all(
+  //         missing.map(async (pfx) => {
+  //           const res = await fetch(`/api/media/by-prefix?prefix=${encodeURIComponent(pfx)}`);
+  //           if (!res.ok) return [pfx, { images: [], video: null }] as const;
+  //           const data = await res.json();
+  //           return [pfx, { images: Array.isArray(data.images) ? data.images : [], video: data.video ?? null }] as const;
+  //         })
+  //       );
+  //       if (!cancelled) {
+  //         setPrefixAssets((prev) => {
+  //           const next = { ...prev } as typeof prev;
+  //           for (const [pfx, val] of results) next[pfx] = val as any;
+  //           return next;
+  //         });
+  //       }
+  //     } catch {
+  //       // ignore individual failures
+  //     }
+  //   }
+  //   loadPrefixes();
+  //   return () => {
+  //     cancelled = true;
+  //   };
+  // }, [allLocaleProjects, prefixAssets]);
 
   // Get projects data with fallback
   let projectsData;
@@ -78,7 +135,7 @@ export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
   const projects: Project[] = (allLocaleProjects && allLocaleProjects.length > 0)
     ? allLocaleProjects.map((p: any) => {
         const tr = p?.translations?.[language];
-        return {
+        const base: Project = {
           title: tr?.title ?? p.title,
           description: tr?.description ?? p.description ?? '',
           tech: Array.isArray(p.tech) ? p.tech : [],
@@ -87,6 +144,15 @@ export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
           github: p.githubUrl ?? undefined,
           video: p.videoUrl ?? undefined,
         };
+        if (p?.mediaPrefix && prefixAssets[p.mediaPrefix]) {
+          const assets = prefixAssets[p.mediaPrefix];
+          return {
+            ...base,
+            images: assets.images.length > 0 ? assets.images : base.images,
+            video: assets.video ?? base.video,
+          };
+        }
+        return base;
       })
     : projectsFromI18n;
 
@@ -136,7 +202,8 @@ export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
                   viewport={{ once: true }}
                   transition={{ delay: 0.2, duration: 0.6 }}
                 >
-                  <ImageStackCarousel images={project.images} />
+                  {/* Delay distinto por proyecto */}
+                  <ImageStackCarousel images={project.images} autoPlayDelay={4500 + (index % 7) * 600} />
                 </motion.div>
 
                 {/* Mobile/Tablet: simple full-image carousel */}
@@ -147,7 +214,7 @@ export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
                   viewport={{ once: true }}
                   transition={{ delay: 0.2, duration: 0.6 }}
                 >
-                  <SimpleImageCarousel images={project.images} />
+                  <SimpleImageCarousel images={project.images} autoPlayDelay={4500 + (index % 7) * 600} />
                 </motion.div>
 
                 {/* Right side - Project Info */}
@@ -161,9 +228,7 @@ export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
                   <div>
                     <h2 className="text-4xl font-bold mb-4">{project.title}</h2>
                     <div className="h-1 w-20 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] rounded-full mb-6" />
-                    <p className="text-lg text-gray-600 leading-relaxed">
-                      {project.description}
-                    </p>
+                    {renderDescription(project.description)}
                   </div>
 
                   {/* Tech Stack */}
@@ -173,8 +238,8 @@ export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
                       {project.tech.map((tech, techIndex) => (
                         <motion.span
                           key={techIndex}
-                          className="px-4 py-2 text-sm bg-[#00bfe6]/20 text-[#00bfe6] border border-[#00bfe6]/30 rounded-full font-semibold backdrop-blur-sm shadow-sm"
-                          whileHover={{ scale: 1.05, borderColor: "#00bfe6" }}
+                          className="px-4 py-2 text-sm rounded-full font-semibold shadow-sm bg-white/50 backdrop-blur-xl border border-white/70 text-[#00bfe6]"
+                          whileHover={{ scale: 1.05 }}
                           transition={{ duration: 0.2 }}
                         >
                           {tech}

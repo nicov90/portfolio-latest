@@ -15,15 +15,18 @@ type ProjectForm = {
   videoUrl?: string;
   featured: boolean;
   sortOrder: number;
+  mediaPrefix?: string;
   images: { file?: File; url?: string }[];
   videos: { file?: File; url?: string }[];
   translations: Record<string, TranslationFields>;
 };
 
-async function uploadToCloudinary(file: File, resourceType: 'image' | 'video' | 'auto' = 'auto') {
+async function uploadToCloudinary(file: File, opts?: { resourceType?: 'image' | 'video' | 'auto'; publicId?: string; overwrite?: boolean }) {
   const fd = new FormData();
   fd.append('file', file);
-  fd.append('resourceType', resourceType);
+  fd.append('resourceType', opts?.resourceType || 'auto');
+  if (opts?.publicId) fd.append('publicId', opts.publicId);
+  if (typeof opts?.overwrite !== 'undefined') fd.append('overwrite', String(opts.overwrite));
   const res = await fetch('/api/upload', { method: 'POST', body: fd });
   if (!res.ok) throw new Error('Upload failed');
   return res.json();
@@ -60,6 +63,7 @@ export const DevProjectsControl: React.FC = () => {
     videoUrl: '',
     featured: false,
     sortOrder: 0,
+    mediaPrefix: '',
     images: [],
     videos: [],
     // Base fields are EN. Provide only non-EN locales here.
@@ -107,7 +111,55 @@ export const DevProjectsControl: React.FC = () => {
         setError(`No se subieron imágenes. ${rejected.length ? `Omitidas: ${rejected.join(', ')}` : ''}`.trim());
         return;
       }
-      const uploads = await Promise.all(accepted.map((file) => uploadToCloudinary(file, 'image')));
+      let nextIndexStart = 1;
+      const pfx = (form.mediaPrefix || '').trim();
+      if (pfx) {
+        // Find next available index based on existing assets (remote + local fallback)
+        try {
+          const resp = await fetch(`/api/media/by-prefix?prefix=${encodeURIComponent(pfx)}&resourceType=image`);
+          if (resp.ok) {
+            const data = await resp.json();
+            // Try to infer max index either from explicit "order" field or from publicId patterns
+            const imagesArr: any[] = Array.isArray(data?.raw?.images) ? data.raw.images : [];
+            const remoteOrders: number[] = imagesArr
+              .map((x: any) => x?.order)
+              .filter((n: any) => Number.isFinite(n));
+            let remoteMax = remoteOrders.length ? Math.max(...remoteOrders) : 0;
+            if (!remoteMax) {
+              // Fallback: parse trailing -<n> from publicId-like fields
+              const idCandidates: string[] = imagesArr
+                .map((x: any) => x?.publicId || x?.public_id || x?.id || x?.public_id_prefix)
+                .filter(Boolean);
+              const parsedNums = idCandidates
+                .map((id) => {
+                  const m = String(id).match(new RegExp(`${pfx}-(\\d+)$`));
+                  return m ? parseInt(m[1], 10) : 0;
+                })
+                .filter((n) => Number.isFinite(n));
+              remoteMax = parsedNums.length ? Math.max(...parsedNums) : 0;
+            }
+
+            // Also consider locally added images in current session
+            const localMax = (form.images || []).reduce((max, img) => {
+              const m = (img.url || '').match(new RegExp(`${pfx}-(\\d+)`));
+              return Math.max(max, m ? parseInt(m[1], 10) : 0);
+            }, 0);
+
+            nextIndexStart = Math.max(1, remoteMax + 1, localMax + 1);
+          }
+        } catch { /* ignore */ }
+        // Final safety: if still 1 but we already have images locally, start after them
+        if (nextIndexStart === 1 && form.images?.length) {
+          nextIndexStart = form.images.length + 1;
+        }
+      }
+      const uploads = await Promise.all(accepted.map((file, idx) => {
+        if (pfx) {
+          const publicId = `${pfx}-${nextIndexStart + idx}`;
+          return uploadToCloudinary(file, { resourceType: 'image', publicId, overwrite: false });
+        }
+        return uploadToCloudinary(file, { resourceType: 'image' });
+      }));
       setForm((f) => ({ ...f, images: [...f.images, ...uploads.map((u) => ({ url: u.url }))] }));
       if (rejected.length) setSuccess(`Imágenes subidas: ${uploads.length}. Omitidas: ${rejected.join(', ')}`);
       else setSuccess(`Imágenes subidas: ${uploads.length}.`);
@@ -115,6 +167,8 @@ export const DevProjectsControl: React.FC = () => {
       setError(e?.message || 'Error uploading images');
     } finally {
       setLoading(false);
+      // Reset input so selecting the same file again triggers onChange and clears stale FileList
+      try { if (imageInputRef.current) imageInputRef.current.value = ''; } catch {}
     }
   };
 
@@ -135,7 +189,14 @@ export const DevProjectsControl: React.FC = () => {
         setError(`No se subieron videos. ${rejected.length ? `Omitidos: ${rejected.join(', ')}` : ''}`.trim());
         return;
       }
-      const uploads = await Promise.all(accepted.map((file) => uploadToCloudinary(file, 'video')));
+      const pfx = (form.mediaPrefix || '').trim();
+      const uploads = await Promise.all(accepted.map((file, idx) => {
+        if (pfx && idx === 0) {
+          // Primary video always at -0 and overwritten
+          return uploadToCloudinary(file, { resourceType: 'video', publicId: `${pfx}-0`, overwrite: true });
+        }
+        return uploadToCloudinary(file, { resourceType: 'video' });
+      }));
       setForm((f) => ({ ...f, videos: [...f.videos, ...uploads.map((u) => ({ url: u.url }))] }));
       if (rejected.length) setSuccess(`Videos subidos: ${uploads.length}. Omitidos: ${rejected.join(', ')}`);
       else setSuccess(`Videos subidos: ${uploads.length}.`);
@@ -143,6 +204,7 @@ export const DevProjectsControl: React.FC = () => {
       setError(e?.message || 'Error uploading videos');
     } finally {
       setLoading(false);
+      try { if (videoInputRef.current) videoInputRef.current.value = ''; } catch {}
     }
   };
 
@@ -173,6 +235,7 @@ export const DevProjectsControl: React.FC = () => {
         videoUrl: videos[0] || null,
         demoUrl: form.demoUrl || null,
         githubUrl: form.githubUrl || null,
+        mediaPrefix: form.mediaPrefix?.trim() ? form.mediaPrefix.trim() : null,
         featured: form.featured,
         sortOrder: form.sortOrder,
       };
@@ -240,6 +303,19 @@ export const DevProjectsControl: React.FC = () => {
                   <label className="block text-sm font-medium">GitHub URL</label>
                   <input value={form.githubUrl} onChange={e => setForm({ ...form, githubUrl: e.target.value })} className="w-full border rounded px-3 py-2" />
                 </div>
+              </div>
+              {/* Media prefix (Cloudinary) */}
+              <div>
+                <label className="block text-sm font-medium">Prefijo de media (Cloudinary)</label>
+                <input
+                  placeholder="p.ej. rendiciones"
+                  value={form.mediaPrefix || ''}
+                  onChange={e => setForm({ ...form, mediaPrefix: e.target.value })}
+                  className="w-full border rounded px-3 py-2"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Convención: video principal «prefijo-0» (video), imágenes «prefijo-1», «prefijo-2», … (image). Si hay prefijo, se usarán automáticamente.
+                </p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>

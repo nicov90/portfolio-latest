@@ -227,7 +227,7 @@ export const ImageStackCarousel = ({ images, autoPlayDelay = 5000 }: ImageStackC
 
         {/* Current Card (center, main focus) */}
         <motion.div
-          className="relative w-[60%] h-[88%] z-20 cursor-pointer"
+          className="relative w-[60%] h-[88%] max-h-[550px] z-20 cursor-pointer"
           style={{ transformStyle: "preserve-3d" }}
           animate={{
             scale: isHovered && !isDragging ? 1.08 : 1,
@@ -274,13 +274,13 @@ export const ImageStackCarousel = ({ images, autoPlayDelay = 5000 }: ImageStackC
                 scale: { duration: 0.6 },
                 rotateY: { duration: 0.6 }
               }}
-              className="absolute inset-0 z-10"
+              className="absolute flex justify-center inset-0 z-10"
               style={{ transformStyle: "preserve-3d", willChange: 'transform, opacity' }}
             >
               <motion.img
                 src={images[currentIndex]}
                 alt={`Project image ${currentIndex + 1}`}
-                className="w-full h-full object-cover rounded-2xl shadow-[0_25px_80px_-20px_rgba(0,0,0,0.6)]"
+                className="h-full object-contain rounded-2xl shadow-[0_25px_80px_-20px_rgba(0,0,0,0.6)]"
                 style={{
                   boxShadow: "0 25px 80px -20px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1)",
                   willChange: 'transform, opacity'

@@ -6,6 +6,8 @@ export const projects = pgTable('projects', {
   description: text('description'),
   tech: text('tech').array(),
   images: text('images').array(),
+  // Optional media prefix to dynamically fetch images/videos from Cloudinary
+  mediaPrefix: varchar('media_prefix', { length: 255 }),
   demoUrl: varchar('demo_url', { length: 512 }),
   githubUrl: varchar('github_url', { length: 512 }),
   videoUrl: varchar('video_url', { length: 512 }),
@@ -40,6 +42,8 @@ export const certificates = pgTable('certificates', {
   description: text('description'),
   issuer: varchar('issuer', { length: 255 }),
   imageUrl: varchar('image_url', { length: 512 }),
+  // Optional media prefix to fetch image dynamically from Cloudinary
+  mediaPrefix: varchar('media_prefix', { length: 255 }),
   verifyUrl: varchar('verify_url', { length: 512 }),
   downloadUrl: varchar('download_url', { length: 512 }),
   sortOrder: integer('sort_order').default(0),

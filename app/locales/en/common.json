@@ -8,11 +8,21 @@
     "title": "About Me",
     "subtitle": "Passionate about technology and constantly seeking improvement, I focus on creating solid, scalable, and maintainable solutions that bring real value.",
     "description": "Currently focused on modern architectures and workflow automation, integrating AI and N8N to optimize processes. Interested in furthering my expertise in front-end and full-stack development, applying best practices in design, scalability, and usability.",
-    "mainCard": {"title": "Full Stack Developer"},
+    "mainCard": {
+      "title": "Full Stack Developer",
+      "suffix": "Crafting Impactful Solutions",
+      "tagline": "Designing, building and refining scalable web experiences with a product mindset and a love for clean code.",
+      "pills": {
+        "frontend": "Frontend",
+        "backend": "Backend",
+        "cloud": "Cloud",
+        "ux": "UX"
+      }
+    },
     "stats": {
       "years": "Years of Experience",
       "projects": "Internal Projects",
-      "dedication": "Dedication"
+      "certifications": "Certifications"
     },
     "transition": "Discover my professional journey..."
   },

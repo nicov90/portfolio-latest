@@ -1,7 +1,7 @@
 "use client";
 import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../contexts/i18nContext';
 
 const languages = [
@@ -12,6 +12,7 @@ const languages = [
 export const LanguageSelector: React.FC = () => {
   const { language, setLanguage } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const currentLanguage = languages.find(lang => lang.code === language) || languages[0];
 
@@ -20,8 +21,28 @@ export const LanguageSelector: React.FC = () => {
     setIsOpen(false);
   };
 
+  // Close on outside click
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+      if (!containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [isOpen]);
+
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 hover:bg-white/30 transition-all duration-300 shadow-lg"
@@ -40,42 +61,30 @@ export const LanguageSelector: React.FC = () => {
 
       <AnimatePresence>
         {isOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-10"
-              onClick={() => setIsOpen(false)}
-            />
-            
-            {/* Dropdown */}
-            <motion.div
-              initial={{ opacity: 0, y: -10, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.9 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="absolute top-full mt-2 right-0 min-w-[120px] bg-white/25 backdrop-blur-xl rounded-xl border border-white/30 shadow-2xl z-20 overflow-hidden"
-            >
-              {languages.map((lang, index) => (
-                <motion.button
-                  key={lang.code}
-                  onClick={() => handleLanguageChange(lang.code)}
-                  className={`w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-white/20 transition-all duration-200 ${
-                    lang.code === language ? 'bg-white/15' : ''
-                  }`}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  whileHover={{ x: 3 }}
-                >
-                  <span className="text-lg">{lang.flag}</span>
-                  <span className="text-sm font-medium text-gray-800">{lang.name}</span>
-                </motion.button>
-              ))}
-            </motion.div>
-          </>
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.95 }}
+            transition={{ duration: 0.18 }}
+            className="absolute top-full mt-2 right-0 min-w-[140px] bg-white/30 backdrop-blur-xl rounded-xl border border-white/40 shadow-2xl z-20 overflow-hidden ring-1 ring-white/50"
+          >
+            {languages.map((lang, index) => (
+              <motion.button
+                key={lang.code}
+                onClick={() => handleLanguageChange(lang.code)}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left transition-colors duration-150 ${
+                  lang.code === language ? 'bg-white/25' : 'hover:bg-white/20'
+                }`}
+                initial={{ opacity: 0, x: 12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.04 * index }}
+                whileHover={{ x: 4 }}
+              >
+                <span className="text-lg">{lang.flag}</span>
+                <span className="text-sm font-medium text-gray-800">{lang.name}</span>
+              </motion.button>
+            ))}
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

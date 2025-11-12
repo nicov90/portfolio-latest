@@ -1,7 +1,7 @@
 "use client";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface ImageLightboxProps {
   images: string[];
@@ -22,10 +22,17 @@ export const ImageLightbox = ({
     setCurrentIndex(initialIndex);
   }, [initialIndex, isOpen]);
 
+  const nextImage = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % images.length);
+  }, [images.length]);
+
+  const prevImage = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  }, [images.length]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
-      
       if (e.key === "Escape") {
         onClose();
       } else if (e.key === "ArrowLeft") {
@@ -34,28 +41,18 @@ export const ImageLightbox = ({
         nextImage();
       }
     };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, currentIndex]);
-
-  const nextImage = () => {
-    setCurrentIndex((prev) => (prev + 1) % images.length);
-  };
-
-  const prevImage = () => {
-    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
-  };
-
-  if (!isOpen) return null;
+  }, [isOpen, currentIndex, onClose, nextImage, prevImage]);
 
   return (
     <AnimatePresence>
+      {isOpen && (
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm"
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80"
         onClick={onClose}
       >
         {/* Close Button */}
@@ -112,7 +109,7 @@ export const ImageLightbox = ({
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           className="relative w-full h-full flex items-center justify-center p-12"
-          onClick={(e) => e.stopPropagation()}
+          // Allow clicking anywhere (including image) to close via parent onClick
         >
           <AnimatePresence mode="wait">
             <motion.img
@@ -183,6 +180,7 @@ export const ImageLightbox = ({
           </motion.div>
         )}
       </motion.div>
+      )}
     </AnimatePresence>
   );
 };

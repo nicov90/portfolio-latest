@@ -84,6 +84,7 @@ export async function POST(request: NextRequest) {
       description: certificate.description ? String(certificate.description) : null,
       issuer: certificate.issuer ? String(certificate.issuer) : null,
       imageUrl: certificate.imageUrl ? String(certificate.imageUrl) : null,
+      mediaPrefix: certificate.mediaPrefix ? String(certificate.mediaPrefix) : null,
       verifyUrl: certificate.verifyUrl ? String(certificate.verifyUrl) : null,
       downloadUrl: certificate.downloadUrl ? String(certificate.downloadUrl) : null,
       sortOrder: certificate.sortOrder != null ? Number(certificate.sortOrder) : 0,

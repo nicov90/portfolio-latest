@@ -83,6 +83,7 @@ export async function POST(request: NextRequest) {
       description: project.description ? String(project.description) : null,
       tech: Array.isArray(project.tech) ? project.tech.map(String) : [],
       images: Array.isArray(project.images) ? project.images.map(String) : [],
+      mediaPrefix: project.mediaPrefix ? String(project.mediaPrefix) : null,
       demoUrl: project.demoUrl ? String(project.demoUrl) : null,
       githubUrl: project.githubUrl ? String(project.githubUrl) : null,
       videoUrl: project.videoUrl ? String(project.videoUrl) : null,
