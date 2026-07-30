@@ -6,7 +6,8 @@ import { useI18n } from '../contexts/i18nContext';
 
 const languages = [
   { code: 'es', name: 'Español', flag: '🇪🇸' },
-  { code: 'en', name: 'English', flag: '🇺🇸' }
+  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'ja', name: '日本語', flag: '🇯🇵' }
 ];
 
 export const LanguageSelector: React.FC = () => {
@@ -72,13 +73,12 @@ export const LanguageSelector: React.FC = () => {
               <motion.button
                 key={lang.code}
                 onClick={() => handleLanguageChange(lang.code)}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-left transition-colors duration-150 ${
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer transition-colors duration-150 ${
                   lang.code === language ? 'bg-white/25' : 'hover:bg-white/20'
                 }`}
                 initial={{ opacity: 0, x: 12 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.04 * index }}
-                whileHover={{ x: 4 }}
               >
                 <span className="text-lg">{lang.flag}</span>
                 <span className="text-sm font-medium text-gray-800">{lang.name}</span>

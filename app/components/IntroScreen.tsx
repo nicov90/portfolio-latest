@@ -73,7 +73,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onComplete }) => {
           </motion.p>
           
           <motion.div
-            className="absolute top-full mt-20"
+            className="absolute top-full mt-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: animationEnded ? 1 : 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}

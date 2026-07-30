@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ClickRipple } from './components/ClickRipple';
 import { IntroScreen } from './components/IntroScreen';
 import { Layout, Section } from './components/Layout';
@@ -12,12 +12,17 @@ import { WhatIBring } from './components/sections/WhatIBring';
 import { I18nProvider } from './contexts/i18nContext';
 import { useInitialHashNavigation } from './hooks/useInitialHashNavigation';
 import { useIntersectionObserver } from './hooks/useIntersectionObserver';
+import { smoothScrollToElement } from './lib/smoothScroll';
 
 export default function App() {
   const [currentSection, setCurrentSection] = useState<Section>('intro');
-  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set(['about-me', 'experience', 'skills', 'projects', 'certifications', 'contact']));
+  // Starts empty (not pre-filled) so it stays in sync with useIntersectionObserver's own tracking,
+  // which also starts empty — otherwise a section that begins off-screen would be marked "already
+  // revealed" before it's ever actually been seen, skipping its first genuine entrance animation.
+  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
   const [preferredSection, setPreferredSection] = useState<Section | null>(null);
   const sectionsRef = useRef<HTMLDivElement>(null);
+  const currentSectionRef = useRef<Section>('intro');
   // Reserved for potential future batching needs
   // const rafRef = useRef<number | null>(null);
   const validSections: Section[] = ['about-me', 'experience', 'skills', 'projects', 'certifications', 'contact'];
@@ -42,12 +47,26 @@ export default function App() {
     setCurrentSection(section);
     // Update URL visually as requested
     updateHashVisual(section);
-    // Bias activation toward the target while smooth scrolling is in progress
+    // Bias activation toward the target while smooth scrolling is in progress. Smooth-scroll
+    // duration varies with distance (a click from "Sobre Mí" to "Contacto" travels much further
+    // than to "Experiencia"), so a fixed timeout here was clearing this bias before a long scroll
+    // actually finished — the anchor-based fallback would then briefly latch onto whatever section
+    // was mid-scroll at that moment and never get corrected once the animation's last 'scroll'
+    // event fired. `scrollend` fires exactly when the browser's scroll animation truly completes,
+    // regardless of how long it took, so the bias now stays until the scroll is actually done.
     setPreferredSection(section);
-    window.setTimeout(() => setPreferredSection(null), 1200);
+    const clearPreferred = () => {
+      setPreferredSection(null);
+      window.clearTimeout(fallbackTimeout);
+      window.removeEventListener('scrollend', clearPreferred);
+    };
+    window.addEventListener('scrollend', clearPreferred, { once: true });
+    // Safety net for browsers without 'scrollend' (or if the scroll never truly settles).
+    const fallbackTimeout = window.setTimeout(clearPreferred, 2500);
+
     const element = document.getElementById(section);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      smoothScrollToElement(element);
     }
   };
 
@@ -66,39 +85,54 @@ export default function App() {
     setVh();
     window.addEventListener('resize', schedule);
     window.addEventListener('orientationchange', schedule);
-    // iOS Safari updates visualViewport on scroll when bars hide/show
+    // iOS Safari updates visualViewport (not a plain 'scroll' event) when toolbars hide/show,
+    // so this alone covers the dynamic-toolbar case without needing a 'scroll' listener.
+    // A 'scroll'-triggered version of this used to also run during in-page navigation: rewriting
+    // --vh on every scroll frame forces layout recalculation on every section's min-height (they
+    // all read var(--vh)), which was enough to stall the browser's native smooth-scroll animation
+    // mid-flight when clicking a nav link — the page would stop scrolling partway and the section
+    // never actually finished arriving, so it never got marked as current.
     window.visualViewport?.addEventListener('resize', schedule);
-    // As a fallback, lightly listen to scroll to capture toolbar changes
-    window.addEventListener('scroll', schedule, { passive: true });
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener('resize', schedule);
       window.removeEventListener('orientationchange', schedule);
       window.visualViewport?.removeEventListener('resize', schedule);
-      window.removeEventListener('scroll', schedule);
     };
+  }, []);
+
+  useEffect(() => {
+    currentSectionRef.current = currentSection;
+  }, [currentSection]);
+
+  // Toggles both ways (not just true) so a section's entrance animation replays every time it
+  // scrolls back into view, rather than only the very first time it's ever seen.
+  const handleVisibilityChange = useCallback((id: string, visible: boolean) => {
+    setVisibleSections(prev => {
+      if (visible === prev.has(id)) return prev;
+      const next = new Set(prev);
+      if (visible) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }, []);
+
+  const handleSectionChange = useCallback((id: string) => {
+    if (id === currentSectionRef.current) return;
+    // Side effect lives here, in the event-handler body — not inside a setState updater,
+    // which must stay pure (React may invoke updaters more than once).
+    updateHashVisual(id as Section);
+    setCurrentSection(id as Section);
+    setPreferredSection((preferred) => (preferred && id === preferred ? null : preferred));
   }, []);
 
   useIntersectionObserver({
     enabled: currentSection !== 'intro',
-    root: null,
-    rootMargin: '-15% 0px -55% 0px',
-    threshold: [0, 0.25, 0.5, 0.75, 1],
     minRatioToActivate: 0.2,
     activeAnchorRatio: 0.35,
     preferredId: preferredSection,
-    onSectionVisible: (id) => {
-      setVisibleSections(prev => new Set([...prev, id]));
-    },
-    onSectionChange: (id) => {
-      if (id !== currentSection) {
-        setCurrentSection(id as Section);
-        updateHashVisual(id as Section);
-        if (preferredSection && id === preferredSection) {
-          setPreferredSection(null);
-        }
-      }
-    }
+    onVisibilityChange: handleVisibilityChange,
+    onSectionChange: handleSectionChange,
   });
 
   // Only apply hash on initial load (no updates during scroll/navigation)
@@ -168,10 +202,10 @@ export default function App() {
               <WhatIBring isVisible={visibleSections.has('skills')} />
             </section>
             
-            <section 
-              id="projects" 
+            <section
+              id="projects"
               data-section="projects"
-              className="py-20 "
+              className="scroll-mt-28"
               style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
             >
               <Projects isVisible={visibleSections.has('projects')} />

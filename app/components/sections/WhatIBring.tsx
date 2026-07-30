@@ -9,48 +9,55 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import React from 'react';
+import { EditableText } from '../admin/EditableText';
 import { useI18n } from '../../contexts/i18nContext';
 
 interface WhatIBringProps {
   isVisible: boolean;
 }
 
-export const WhatIBring: React.FC<WhatIBringProps> = ({ isVisible }) => {
-  const { t } = useI18n();
+export const WhatIBring: React.FC<WhatIBringProps> = React.memo(({ isVisible }) => {
+  const { t, language } = useI18n();
 
   const services = [
     {
       icon: Blocks,
+      key: 'fullstack',
       title: t('whatIBring.services.fullstack.title'),
       description: t('whatIBring.services.fullstack.description'),
       gradient: 'from-[#00bfe6] to-[#0096c7]'
     },
     {
       icon: Smartphone,
+      key: 'mobile',
       title: t('whatIBring.services.mobile.title'),
       description: t('whatIBring.services.mobile.description'),
       gradient: 'from-[#0096c7] to-[#0077b6]'
     },
     {
       icon: Palette,
+      key: 'design',
       title: t('whatIBring.services.design.title'),
       description: t('whatIBring.services.design.description'),
       gradient: 'from-[#00bfe6] to-[#48cae4]'
     },
     {
       icon: Zap,
+      key: 'performance',
       title: t('whatIBring.services.performance.title'),
       description: t('whatIBring.services.performance.description'),
       gradient: 'from-[#0096c7] to-[#00bfe6]'
     },
     {
       icon: Shield,
+      key: 'security',
       title: t('whatIBring.services.security.title'),
       description: t('whatIBring.services.security.description'),
       gradient: 'from-[#0077b6] to-[#0096c7]'
     },
     {
       icon: Users,
+      key: 'collaboration',
       title: t('whatIBring.services.collaboration.title'),
       description: t('whatIBring.services.collaboration.description'),
       gradient: 'from-[#48cae4] to-[#00bfe6]'
@@ -73,16 +80,16 @@ export const WhatIBring: React.FC<WhatIBringProps> = ({ isVisible }) => {
             transition={{ duration: 1, delay: 0.2 }}
             className="text-4xl sm:text-5xl md:text-6xl leading-tight font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6"
           >
-            {t('whatIBring.title')}
+            <EditableText path="whatIBring.title" locale={language}>{t('whatIBring.title')}</EditableText>
           </motion.h2>
-          
+
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed"
           >
-            {t('whatIBring.subtitle')}
+            <EditableText path="whatIBring.subtitle" locale={language} multiline>{t('whatIBring.subtitle')}</EditableText>
           </motion.p>
           
           <motion.div
@@ -104,15 +111,14 @@ export const WhatIBring: React.FC<WhatIBringProps> = ({ isVisible }) => {
                 key={index}
                 initial={{ opacity: 0, y: 50 }}
                 animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                transition={{ 
-                  duration: 0.6, 
-                  delay: 0.8 + (index * 0.1),
-                  type: "spring",
-                  bounce: 0.4
+                transition={{
+                  duration: 0.7,
+                  delay: 0.8 + (index * 0.12),
+                  ease: [0.22, 1, 0.36, 1]
                 }}
-                whileHover={{ 
+                whileHover={{
                   y: -10,
-                  transition: { duration: 0.3 }
+                  transition: { duration: 0.3, ease: 'easeOut' }
                 }}
                 className="group relative"
               >
@@ -123,32 +129,34 @@ export const WhatIBring: React.FC<WhatIBringProps> = ({ isVisible }) => {
                 
                 {/* Card */}
                 <div className="relative bg-white/70 backdrop-blur-xl rounded-3xl p-8 border border-[#00bfe6]/20 shadow-lg group-hover:shadow-2xl transition-all duration-300 h-full">
-                  {/* Icon */}
+                  {/* Icon: idle float loop, independent of hover, so the card has a little life at rest */}
                   <motion.div
-                    whileHover={{ y: -8, scale: 1.05 }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    animate={{ y: [0, -6, 0] }}
+                    transition={{ duration: 3.2 + (index % 3) * 0.4, repeat: Infinity, ease: "easeInOut", delay: index * 0.15 }}
+                    whileHover={{ scale: 1.08, rotate: -4, transition: { duration: 0.25, ease: 'easeOut' } }}
                     className={`w-16 h-16 bg-gradient-to-r ${service.gradient} rounded-2xl flex items-center justify-center mb-6 shadow-lg`}
                   >
                     <Icon size={32} className="text-white" />
                   </motion.div>
-                  
+
                   {/* Title */}
-                  <h3 className="text-2xl font-bold text-gray-800 mb-4">
-                    {service.title}
+                  <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                    <EditableText path={`whatIBring.services.${service.key}.title`} locale={language}>{service.title}</EditableText>
                   </h3>
-                  
+                  <div className={`h-0.5 w-10 bg-gradient-to-r ${service.gradient} rounded-full mb-4 origin-left scale-x-100 group-hover:w-16 transition-all duration-300`} />
+
                   {/* Description */}
                   <p className="text-gray-600 leading-relaxed mb-6">
-                    {service.description}
+                    <EditableText path={`whatIBring.services.${service.key}.description`} locale={language} multiline>{service.description}</EditableText>
                   </p>
-                  
+
                   {/* Hover Arrow */}
                   <motion.div
                     initial={{ x: -10, opacity: 0 }}
                     whileHover={{ x: 0, opacity: 1 }}
                     className="flex items-center gap-2 text-[#00bfe6] font-semibold"
                   >
-                    <span className="text-sm">{t('whatIBring.learnMore')}</span>
+                    <span className="text-sm"><EditableText path="whatIBring.learnMore" locale={language}>{t('whatIBring.learnMore')}</EditableText></span>
                     <ArrowRight size={16} />
                   </motion.div>
                 </div>
@@ -166,7 +174,7 @@ export const WhatIBring: React.FC<WhatIBringProps> = ({ isVisible }) => {
         className="text-center mt-32 px-4 sm:px-6"
       >
         <p className="text-2xl text-gray-500 italic">
-          {t('whatIBring.transition')}
+          <EditableText path="whatIBring.transition" locale={language}>{t('whatIBring.transition')}</EditableText>
         </p>
         <motion.div
           initial={{ scaleX: 0 }}
@@ -177,4 +185,6 @@ export const WhatIBring: React.FC<WhatIBringProps> = ({ isVisible }) => {
       </motion.div>
     </div>
   );
-};
+});
+
+WhatIBring.displayName = 'WhatIBring';

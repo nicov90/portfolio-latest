@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from 'react';
 
-const SUPPORTED = ["es", "en"] as const;
+const SUPPORTED = ["es", "en", "ja"] as const;
 export type SupportedLang = typeof SUPPORTED[number];
 
 function normalizeToSupported(code: string | null | undefined): SupportedLang {

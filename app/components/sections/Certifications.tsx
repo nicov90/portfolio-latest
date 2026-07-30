@@ -9,7 +9,7 @@ interface CertificationsProps {
   isVisible: boolean;
 }
 
-export const Certifications: React.FC<CertificationsProps> = ({ isVisible }) => {
+export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVisible }) => {
   const { t, language } = useI18n() as any;
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const { data: certsData } = useCertificates(language);
@@ -191,7 +191,7 @@ export const Certifications: React.FC<CertificationsProps> = ({ isVisible }) => 
                               onClick={() => toggleExpand(index)}
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
-                              className="p-2 bg-[#00bfe6]/20 rounded-lg hover:bg-[#00bfe6]/30 transition-colors"
+                              className="p-2 bg-[#00bfe6]/20 rounded-lg hover:bg-[#00bfe6]/30 transition-colors duration-300 ease-out"
                             >
                               {isExpanded ? (
                                 <ChevronUp size={20} className="text-[#00bfe6]" />
@@ -275,4 +275,6 @@ export const Certifications: React.FC<CertificationsProps> = ({ isVisible }) => 
       </motion.div>
     </div>
   );
-};
+});
+
+Certifications.displayName = 'Certifications';

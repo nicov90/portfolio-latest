@@ -83,46 +83,9 @@
       }
     ]
   },
-  "skills": {
-    "title": "Habilidades",
-    "subtitle": "Tecnologías y herramientas que domino para crear soluciones completas y eficientes.",
-    "categories": {
-      "frontend": {
-        "title": "Frontend",
-        "items": [
-          {"name": "React", "proficiency": 95},
-          {"name": "TypeScript", "proficiency": 90},
-          {"name": "Next.js", "proficiency": 85},
-          {"name": "Tailwind CSS", "proficiency": 95},
-          {"name": "Framer Motion", "proficiency": 80}
-        ]
-      },
-      "backend": {
-        "title": "Backend",
-        "items": [
-          {"name": "Node.js", "proficiency": 90},
-          {"name": "Express", "proficiency": 85},
-          {"name": "MongoDB", "proficiency": 80},
-          {"name": "PostgreSQL", "proficiency": 75},
-          {"name": "GraphQL", "proficiency": 70}
-        ]
-      },
-      "tools": {
-        "title": "Herramientas",
-        "items": [
-          {"name": "Git", "proficiency": 95},
-          {"name": "Docker", "proficiency": 80},
-          {"name": "AWS", "proficiency": 75},
-          {"name": "Figma", "proficiency": 85},
-          {"name": "Jest", "proficiency": 80}
-        ]
-      }
-    }
-  },
   "projects": {
     "title": "Proyectos",
     "subtitle": "Una selección de proyectos destacados que demuestran mi experiencia en desarrollo full stack y arquitecturas modernas.",
-    "featured": "Destacado",
     "technologies": "Tecnologías",
     "viewCode": "Ver Código",
     "liveDemo": "Demo en Vivo",
@@ -168,13 +131,12 @@
       "location": "Ubicación",
       "locationValue": "Argentina",
       "phone": "Idiomas",
-      "phoneValue": "Español (Nativo) • Inglés (C1)",
+      "phoneValue": "Español (Nativo) • Inglés (C1) • Japonés (N4)",
       "availability": "Disponibilidad",
       "availabilityValue": "Abierto a nuevas oportunidades"
     },
-    "social": {"title": "Redes Sociales"},
     "cta": {"title": "¿Tienes un proyecto en mente?", "subtitle": "Trabajemos juntos para hacerlo realidad"},
-    "direct": {"title": "Contacto Directo", "email": "nico_v99@hotmail.com", "phone": "+54 11 28477792", "linkedin": "LinkedIn", "github": "GitHub"}
+    "direct": {"title": "Contacto Directo", "email": "nico_v99@hotmail.com", "phone": "+54 11 28477792"}
   },
   "certifications": {
     "title": "Certificaciones",

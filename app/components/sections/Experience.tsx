@@ -1,16 +1,84 @@
-import { Award, Building, Calendar, MapPin } from 'lucide-react';
+import { Award, Building, Calendar, MapPin, Plus, X } from 'lucide-react';
 import { motion } from 'motion/react';
 import React from 'react';
+import { useEditMode } from '../../contexts/editModeContext';
 import { useI18n } from '../../contexts/i18nContext';
+import { useCreateExperienceItem, useDeleteExperienceItem, useExperienceItems, useUpdateExperienceItem } from '../../hooks/useExperience';
+import { EditableList } from '../admin/EditableList';
+import { EditableText } from '../admin/EditableText';
 
 interface ExperienceProps {
   isVisible: boolean;
 }
 
-export const Experience: React.FC<ExperienceProps> = ({ isVisible }) => {
-  const { t } = useI18n();
+interface NormalizedExperience {
+  id: number | null;
+  position: string;
+  company: string;
+  duration: string;
+  location: string;
+  description: string;
+  achievements: string[];
+  technologies: string[];
+}
 
-  const experiences = t('experience.items') as any[];
+const BASE_LOCALE = 'en';
+
+export const Experience: React.FC<ExperienceProps> = React.memo(({ isVisible }) => {
+  const { t, language } = useI18n();
+  const { isAdmin, editMode } = useEditMode();
+  const { data } = useExperienceItems();
+  const { mutate: updateItem } = useUpdateExperienceItem();
+  const { mutate: createItem, isPending: creating } = useCreateExperienceItem();
+  const { mutate: deleteItem } = useDeleteExperienceItem();
+
+  const dbItems: any[] = Array.isArray(data) ? data : [];
+  const usingDb = dbItems.length > 0;
+
+  const experiences: NormalizedExperience[] = usingDb
+    ? dbItems.map((item) => {
+        const tr = item.translations?.[language];
+        return {
+          id: item.id,
+          position: tr?.position ?? item.position,
+          company: tr?.company ?? item.company,
+          duration: tr?.duration ?? item.duration ?? '',
+          location: tr?.location ?? item.location ?? '',
+          description: tr?.description ?? item.description ?? '',
+          achievements: tr?.achievements ?? item.achievements ?? [],
+          technologies: tr?.technologies ?? item.technologies ?? [],
+        };
+      })
+    : (t('experience.items') as any[]).map((exp) => ({ ...exp, id: null }));
+
+  // Saves a single field for a given experience item, targeting the base row (EN)
+  // or that locale's translation row, matching the currently selected language.
+  const saveField = (id: number, field: string, value: string | string[]) => {
+    if (language === BASE_LOCALE) {
+      updateItem({ id, item: { [field]: value } });
+    } else {
+      updateItem({ id, translations: { [language]: { [field]: value } } });
+    }
+  };
+
+  const handleAdd = () => {
+    createItem({
+      item: {
+        position: 'Nuevo puesto',
+        company: 'Nueva empresa',
+        duration: '',
+        location: '',
+        description: '',
+        achievements: [],
+        technologies: [],
+      },
+    });
+  };
+
+  const handleDelete = (id: number) => {
+    if (!confirm('¿Eliminar esta experiencia?')) return;
+    deleteItem(id);
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,16 +94,16 @@ export const Experience: React.FC<ExperienceProps> = ({ isVisible }) => {
           transition={{ duration: 1, delay: 0.2 }}
           className="text-4xl sm:text-5xl md:text-6xl leading-tight font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6"
         >
-          {t('experience.title')}
+          <EditableText path="experience.title" locale={language}>{t('experience.title')}</EditableText>
         </motion.h1>
-        
+
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed"
         >
-          {t('experience.subtitle')}
+          <EditableText path="experience.subtitle" locale={language} multiline>{t('experience.subtitle')}</EditableText>
         </motion.p>
       </motion.div>
 
@@ -54,7 +122,7 @@ export const Experience: React.FC<ExperienceProps> = ({ isVisible }) => {
         <div className="space-y-12">
           {experiences.map((exp, index) => (
             <motion.div
-              key={index}
+              key={exp.id ?? index}
               initial={{ opacity: 0, x: index % 2 === 0 ? -100 : 100 }}
               animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: index % 2 === 0 ? -100 : 100 }}
               transition={{ duration: 0.8, delay: 0.8 + (index * 0.2) }}
@@ -85,6 +153,16 @@ export const Experience: React.FC<ExperienceProps> = ({ isVisible }) => {
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative bg-white/25 backdrop-blur-xl rounded-3xl p-8 border border-white/30 shadow-2xl">
+                    {isAdmin && editMode && exp.id != null && experiences.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(exp.id as number)}
+                        className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-red-500/90 text-white flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors"
+                        title="Eliminar experiencia"
+                      >
+                        <X size={16} />
+                      </button>
+                    )}
                     {/* Header */}
                     <div className="flex items-start justify-between mb-6">
                       <div>
@@ -94,9 +172,14 @@ export const Experience: React.FC<ExperienceProps> = ({ isVisible }) => {
                           transition={{ duration: 0.6, delay: 1.2 + (index * 0.2) }}
                           className="text-2xl font-bold text-gray-800 mb-2"
                         >
-                          {exp.position}
+                          <EditableText
+                            locale={language}
+                            onSave={exp.id != null ? (v) => saveField(exp.id as number, 'position', v) : undefined}
+                          >
+                            {exp.position}
+                          </EditableText>
                         </motion.h3>
-                        
+
                         <motion.div
                           initial={{ opacity: 0, x: -20 }}
                           animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
@@ -104,9 +187,14 @@ export const Experience: React.FC<ExperienceProps> = ({ isVisible }) => {
                           className="flex items-center gap-2 text-lg font-semibold text-gray-700 mb-1"
                         >
                           <Building size={18} className="text-blue-500" />
-                          {exp.company}
+                          <EditableText
+                            locale={language}
+                            onSave={exp.id != null ? (v) => saveField(exp.id as number, 'company', v) : undefined}
+                          >
+                            {exp.company}
+                          </EditableText>
                         </motion.div>
-                        
+
                         <motion.div
                           initial={{ opacity: 0, x: -20 }}
                           animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
@@ -115,15 +203,25 @@ export const Experience: React.FC<ExperienceProps> = ({ isVisible }) => {
                         >
                           <div className="flex items-center gap-1">
                             <Calendar size={16} className="text-purple-500" />
-                            {exp.duration}
+                            <EditableText
+                              locale={language}
+                              onSave={exp.id != null ? (v) => saveField(exp.id as number, 'duration', v) : undefined}
+                            >
+                              {exp.duration}
+                            </EditableText>
                           </div>
                           <div className="flex items-center gap-1">
                             <MapPin size={16} className="text-pink-500" />
-                            {exp.location}
+                            <EditableText
+                              locale={language}
+                              onSave={exp.id != null ? (v) => saveField(exp.id as number, 'location', v) : undefined}
+                            >
+                              {exp.location}
+                            </EditableText>
                           </div>
                         </motion.div>
                       </div>
-                      
+
                       {index === 0 && (
                         <motion.div
                           initial={{ scale: 0 }}
@@ -131,7 +229,7 @@ export const Experience: React.FC<ExperienceProps> = ({ isVisible }) => {
                           transition={{ duration: 0.5, delay: 1.8 + (index * 0.2) }}
                           className="px-3 py-1 bg-gradient-to-r from-green-400 to-blue-500 text-white text-xs font-semibold rounded-full"
                         >
-                          {t('experience.current')}
+                          <EditableText path="experience.current" locale={language}>{t('experience.current')}</EditableText>
                         </motion.div>
                       )}
                     </div>
@@ -143,7 +241,13 @@ export const Experience: React.FC<ExperienceProps> = ({ isVisible }) => {
                       transition={{ duration: 0.6, delay: 2 + (index * 0.2) }}
                       className="text-gray-700 mb-6 leading-relaxed"
                     >
-                      {exp.description}
+                      <EditableText
+                        locale={language}
+                        multiline
+                        onSave={exp.id != null ? (v) => saveField(exp.id as number, 'description', v) : undefined}
+                      >
+                        {exp.description}
+                      </EditableText>
                     </motion.p>
 
                     {/* Achievements */}
@@ -155,22 +259,30 @@ export const Experience: React.FC<ExperienceProps> = ({ isVisible }) => {
                     >
                       <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
                         <Award size={18} className="text-yellow-500" />
-                        {t('experience.achievements')}
+                        <EditableText path="experience.achievements" locale={language}>{t('experience.achievements')}</EditableText>
                       </h4>
-                      <ul className="space-y-2">
-                        {exp.achievements.map((achievement: string, achIndex: number) => (
-                          <motion.li
-                            key={achIndex}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                            transition={{ duration: 0.4, delay: 2.4 + (index * 0.2) + (achIndex * 0.1) }}
-                            className="flex items-start gap-2 text-gray-700"
-                          >
-                            <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-2 flex-shrink-0"></div>
-                            {achievement}
-                          </motion.li>
-                        ))}
-                      </ul>
+                      <EditableList
+                        locale={language}
+                        items={exp.achievements}
+                        onSave={exp.id != null ? (v) => saveField(exp.id as number, 'achievements', v) : undefined}
+                      >
+                        {(achievements) => (
+                          <ul className="space-y-2">
+                            {achievements.map((achievement: string, achIndex: number) => (
+                              <motion.li
+                                key={achIndex}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                                transition={{ duration: 0.4, delay: 2.4 + (index * 0.2) + (achIndex * 0.1) }}
+                                className="flex items-start gap-2 text-gray-700"
+                              >
+                                <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+                                {achievement}
+                              </motion.li>
+                            ))}
+                          </ul>
+                        )}
+                      </EditableList>
                     </motion.div>
 
                     {/* Technologies */}
@@ -180,27 +292,35 @@ export const Experience: React.FC<ExperienceProps> = ({ isVisible }) => {
                       transition={{ duration: 0.6, delay: 2.6 + (index * 0.2) }}
                     >
                       <h4 className="font-semibold text-gray-800 mb-3">
-                        {t('experience.technologies')}
+                        <EditableText path="experience.technologies" locale={language}>{t('experience.technologies')}</EditableText>
                       </h4>
-                      <div className="flex flex-wrap gap-2">
-                        {exp.technologies.map((tech: string, techIndex: number) => (
-                          <motion.span
-                            key={techIndex}
-                            initial={{ opacity: 0, scale: 0 }}
-                            animate={isVisible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
-                            transition={{ 
-                              duration: 0.4, 
-                              delay: 2.8 + (index * 0.2) + (techIndex * 0.05),
-                              type: "spring",
-                              bounce: 0.4
-                            }}
-                            whileHover={{ scale: 1.1 }}
-                            className="px-3 py-1 bg-gradient-to-r from-gray-200 to-gray-300 text-gray-700 text-sm rounded-full font-medium shadow-sm hover:shadow-md transition-shadow duration-200"
-                          >
-                            {tech}
-                          </motion.span>
-                        ))}
-                      </div>
+                      <EditableList
+                        locale={language}
+                        items={exp.technologies}
+                        onSave={exp.id != null ? (v) => saveField(exp.id as number, 'technologies', v) : undefined}
+                      >
+                        {(technologies) => (
+                          <div className="flex flex-wrap gap-2">
+                            {technologies.map((tech: string, techIndex: number) => (
+                              <motion.span
+                                key={techIndex}
+                                initial={{ opacity: 0, scale: 0 }}
+                                animate={isVisible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
+                                transition={{
+                                  duration: 0.4,
+                                  delay: 2.8 + (index * 0.2) + (techIndex * 0.05),
+                                  type: "spring",
+                                  bounce: 0.4
+                                }}
+                                whileHover={{ scale: 1.1 }}
+                                className="px-3 py-1 bg-gradient-to-r from-gray-200 to-gray-300 text-gray-700 text-sm rounded-full font-medium shadow-sm hover:shadow-md transition-shadow duration-200"
+                              >
+                                {tech}
+                              </motion.span>
+                            ))}
+                          </div>
+                        )}
+                      </EditableList>
                     </motion.div>
                   </div>
                 </motion.div>
@@ -209,6 +329,22 @@ export const Experience: React.FC<ExperienceProps> = ({ isVisible }) => {
           ))}
         </div>
       </div>
+
+      {isAdmin && editMode && usingDb && (
+        <div className="flex justify-center mt-12">
+          <button
+            type="button"
+            onClick={handleAdd}
+            disabled={creating}
+            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-[#00bfe6] to-[#0096c7] text-white font-medium shadow-lg disabled:opacity-60"
+          >
+            <Plus size={18} />
+            {creating ? 'Agregando…' : 'Agregar experiencia'}
+          </button>
+        </div>
+      )}
     </div>
   );
-};
+});
+
+Experience.displayName = 'Experience';

@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import { motion } from 'motion/react';
 import React, { useEffect, useMemo, useState } from 'react';
+import { EditableText } from '../admin/EditableText';
 import { useI18n } from '../../contexts/i18nContext';
 import { CreativeRoleCard } from './about/CreativeRoleCard';
 import { QuickStats } from './about/QuickStats';
@@ -9,8 +10,8 @@ interface AboutMeProps {
   isVisible: boolean;
 }
 
-export const AboutMe: React.FC<AboutMeProps> = ({ isVisible }) => {
-  const { t } = useI18n();
+export const AboutMe: React.FC<AboutMeProps> = React.memo(({ isVisible }) => {
+  const { t, language } = useI18n();
   const startedDate = useMemo(() => new Date('2023-07-01'), []);
   // Experience in 0.5 increments
   const experienceYearsHalfStep = useMemo(() => {
@@ -58,9 +59,18 @@ export const AboutMe: React.FC<AboutMeProps> = ({ isVisible }) => {
   }, []);
 
   const stats = [
-    { value: experienceYearsHalfStep.toFixed(1).replace(/\.0$/, '') + '+', label: t('about.stats.years') },
-    { value: effectiveProjects + '+', label: t('about.stats.projects') },
-    { value: (certCount ?? 10) + '+', label: t('about.stats.certifications') || 'Certifications' }
+    {
+      value: experienceYearsHalfStep.toFixed(1).replace(/\.0$/, '') + '+',
+      label: <EditableText path="about.stats.years" locale={language}>{t('about.stats.years')}</EditableText>,
+    },
+    {
+      value: effectiveProjects + '+',
+      label: <EditableText path="about.stats.projects" locale={language}>{t('about.stats.projects')}</EditableText>,
+    },
+    {
+      value: (certCount ?? 10) + '+',
+      label: <EditableText path="about.stats.certifications" locale={language}>{t('about.stats.certifications') || 'Certifications'}</EditableText>,
+    }
   ];
   
   return (
@@ -80,7 +90,7 @@ export const AboutMe: React.FC<AboutMeProps> = ({ isVisible }) => {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <h1 className="text-4xl sm:text-5xl md:text-6xl leading-tight font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-4">
-              {t('about.title')}
+              <EditableText path="about.title" locale={language}>{t('about.title')}</EditableText>
             </h1>
             <div className="h-1 w-32 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] rounded-full mb-6"></div>
           </motion.div>
@@ -91,7 +101,7 @@ export const AboutMe: React.FC<AboutMeProps> = ({ isVisible }) => {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="text-xl text-gray-700 leading-relaxed"
           >
-            {t('about.subtitle')}
+            <EditableText path="about.subtitle" locale={language} multiline>{t('about.subtitle')}</EditableText>
           </motion.p>
 
           <motion.div
@@ -101,7 +111,7 @@ export const AboutMe: React.FC<AboutMeProps> = ({ isVisible }) => {
             className="space-y-4"
           >
             <p className="text-gray-600 leading-relaxed">
-              {t('about.description')}
+              <EditableText path="about.description" locale={language} multiline>{t('about.description')}</EditableText>
             </p>
           </motion.div>
 
@@ -112,14 +122,14 @@ export const AboutMe: React.FC<AboutMeProps> = ({ isVisible }) => {
         <div className="relative">
           <CreativeRoleCard
             isVisible={isVisible}
-            title={t('about.mainCard.title')}
-            suffix={t('about.mainCard.suffix') || 'Crafting Impactful Solutions'}
-            tagline={t('about.mainCard.tagline') || 'Designing, building and refining scalable web experiences with a product mindset and a love for clean code.'}
+            title={<EditableText path="about.mainCard.title" locale={language}>{t('about.mainCard.title')}</EditableText>}
+            suffix={<EditableText path="about.mainCard.suffix" locale={language}>{t('about.mainCard.suffix') || 'Crafting Impactful Solutions'}</EditableText>}
+            tagline={<EditableText path="about.mainCard.tagline" locale={language} multiline>{t('about.mainCard.tagline') || 'Designing, building and refining scalable web experiences with a product mindset and a love for clean code.'}</EditableText>}
             chips={[
-              t('about.mainCard.pills.frontend') || 'Frontend',
-              t('about.mainCard.pills.backend') || 'Backend',
-              t('about.mainCard.pills.cloud') || 'Cloud',
-              t('about.mainCard.pills.ux') || 'UX',
+              <EditableText key="frontend" path="about.mainCard.pills.frontend" locale={language}>{t('about.mainCard.pills.frontend') || 'Frontend'}</EditableText>,
+              <EditableText key="backend" path="about.mainCard.pills.backend" locale={language}>{t('about.mainCard.pills.backend') || 'Backend'}</EditableText>,
+              <EditableText key="cloud" path="about.mainCard.pills.cloud" locale={language}>{t('about.mainCard.pills.cloud') || 'Cloud'}</EditableText>,
+              <EditableText key="ux" path="about.mainCard.pills.ux" locale={language}>{t('about.mainCard.pills.ux') || 'UX'}</EditableText>,
             ]}
           />
         </div>
@@ -133,7 +143,7 @@ export const AboutMe: React.FC<AboutMeProps> = ({ isVisible }) => {
         className="text-center mb-16 px-4 sm:px-6"
       >
         <p className="text-2xl text-gray-500 italic">
-          {t('about.transition')}
+          <EditableText path="about.transition" locale={language}>{t('about.transition')}</EditableText>
         </p>
         <motion.div
           initial={{ scaleX: 0 }}
@@ -144,4 +154,6 @@ export const AboutMe: React.FC<AboutMeProps> = ({ isVisible }) => {
       </motion.div>
     </div>
   );
-};
+});
+
+AboutMe.displayName = 'AboutMe';

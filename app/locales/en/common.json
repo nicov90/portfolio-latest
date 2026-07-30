@@ -83,46 +83,9 @@
       }
     ]
   },
-  "skills": {
-    "title": "Skills",
-    "subtitle": "Technologies and tools I master to create complete and efficient solutions.",
-    "categories": {
-      "frontend": {
-        "title": "Frontend",
-        "items": [
-          {"name": "React", "proficiency": 95},
-          {"name": "TypeScript", "proficiency": 90},
-          {"name": "Next.js", "proficiency": 85},
-          {"name": "Tailwind CSS", "proficiency": 95},
-          {"name": "Framer Motion", "proficiency": 80}
-        ]
-      },
-      "backend": {
-        "title": "Backend",
-        "items": [
-          {"name": "Node.js", "proficiency": 90},
-          {"name": "Express", "proficiency": 85},
-          {"name": "MongoDB", "proficiency": 80},
-          {"name": "PostgreSQL", "proficiency": 75},
-          {"name": "GraphQL", "proficiency": 70}
-        ]
-      },
-      "tools": {
-        "title": "Tools",
-        "items": [
-          {"name": "Git", "proficiency": 95},
-          {"name": "Docker", "proficiency": 80},
-          {"name": "AWS", "proficiency": 75},
-          {"name": "Figma", "proficiency": 85},
-          {"name": "Jest", "proficiency": 80}
-        ]
-      }
-    }
-  },
   "projects": {
     "title": "Projects",
     "subtitle": "A selection of featured projects that demonstrate my experience in full stack development and modern architectures.",
-    "featured": "Featured",
     "technologies": "Technologies",
     "viewCode": "View Code",
     "liveDemo": "Live Demo",
@@ -168,13 +131,12 @@
       "location": "Location",
       "locationValue": "Argentina",
       "phone": "Languages",
-      "phoneValue": "Spanish (Native) • English (C1)",
+      "phoneValue": "Spanish (Native) • English (C1) • Japanese (N4)",
       "availability": "Availability",
       "availabilityValue": "Open to new opportunities"
     },
-    "social": {"title": "Social Media"},
     "cta": {"title": "Have a project in mind?", "subtitle": "Let's work together to make it happen"},
-    "direct": {"title": "Direct Contact", "email": "nico_v99@hotmail.com", "phone": "+54 11 28477792", "linkedin": "LinkedIn", "github": "GitHub"}
+    "direct": {"title": "Direct Contact", "email": "nico_v99@hotmail.com", "phone": "+54 11 28477792"}
   },
   "certifications": {
     "title": "Certifications",

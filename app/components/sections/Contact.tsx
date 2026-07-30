@@ -1,14 +1,15 @@
-import { MessageSquare, Send } from 'lucide-react';
+import { Clock, Globe2, Mail, MapPin, MessageSquare, Phone, Send, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import React, { useState } from 'react';
 import { useI18n } from '../../contexts/i18nContext';
+import { EditableText } from '../admin/EditableText';
 
 interface ContactProps {
   isVisible: boolean;
 }
 
-export const Contact: React.FC<ContactProps> = ({ isVisible }) => {
-  const { t } = useI18n();
+export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
+  const { t, language } = useI18n();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -88,13 +89,13 @@ export const Contact: React.FC<ContactProps> = ({ isVisible }) => {
         </motion.p>
       </motion.div>
 
-      <div>
+      <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto items-start">
         {/* Contact Form */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="relative max-w-2xl mx-auto"
+          className="relative"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-[#00bfe6]/20 to-[#0096c7]/20 rounded-3xl blur-xl"></div>
           <div className="relative bg-white/25 backdrop-blur-xl rounded-3xl p-8 border border-white/30 shadow-2xl">
@@ -216,8 +217,8 @@ export const Contact: React.FC<ContactProps> = ({ isVisible }) => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                 transition={{ duration: 0.6, delay: 1.4 }}
-                whileHover={{ scale: isSubmitting ? 1 : 1.05 }}
-                whileTap={{ scale: isSubmitting ? 1 : 0.95 }}
+                whileHover={{ scale: isSubmitting ? 1 : 1.05, transition: { duration: 0.2, ease: 'easeOut' } }}
+                whileTap={{ scale: isSubmitting ? 1 : 0.95, transition: { duration: 0.1 } }}
                 className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] text-white font-bold rounded-xl hover:from-[#0096c7] hover:to-[#0077b6] transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
@@ -234,7 +235,86 @@ export const Contact: React.FC<ContactProps> = ({ isVisible }) => {
             </form>
           </div>
         </motion.div>
+
+        {/* Direct contact + availability info (LinkedIn/GitHub live in the floating sidebar, not repeated here) */}
+        <motion.div
+          initial={{ opacity: 0, x: 50 }}
+          animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
+          transition={{ duration: 0.8, delay: 0.7 }}
+          className="relative"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-[#667eea]/20 to-[#00bfe6]/20 rounded-3xl blur-xl" />
+          <div className="relative bg-white/25 backdrop-blur-xl rounded-3xl p-8 border border-white/30 shadow-2xl space-y-8">
+            {/* CTA */}
+            <div>
+              <div className="flex items-center gap-2 text-[#0096c7] font-semibold mb-2">
+                <Sparkles size={18} />
+                <span className="text-sm uppercase tracking-wide">{t('contact.cta.title')}</span>
+              </div>
+              <p className="text-gray-700 leading-relaxed">{t('contact.cta.subtitle')}</p>
+            </div>
+
+            {/* Direct contact */}
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">{t('contact.direct.title')}</h4>
+              <a
+                href={`mailto:${t('contact.direct.email')}`}
+                className="flex items-center gap-3 p-3 rounded-xl bg-white/40 border border-white/40 hover:bg-white/60 transition-colors duration-300 ease-out group"
+              >
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#00bfe6] to-[#0096c7] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300 ease-out">
+                  <Mail size={18} className="text-white" />
+                </div>
+                <span className="text-gray-800 font-medium truncate">
+                  <EditableText path="contact.direct.email" locale={language}>{t('contact.direct.email')}</EditableText>
+                </span>
+              </a>
+              <a
+                href={`tel:${t('contact.direct.phone').replace(/\s+/g, '')}`}
+                className="flex items-center gap-3 p-3 rounded-xl bg-white/40 border border-white/40 hover:bg-white/60 transition-colors duration-300 ease-out group"
+              >
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300 ease-out">
+                  <Phone size={18} className="text-white" />
+                </div>
+                <span className="text-gray-800 font-medium">
+                  <EditableText path="contact.direct.phone" locale={language}>{t('contact.direct.phone')}</EditableText>
+                </span>
+              </a>
+            </div>
+
+            {/* Info */}
+            <div className="space-y-3 pt-2 border-t border-white/30">
+              <div className="flex items-center gap-3">
+                <MapPin size={18} className="text-[#00bfe6] shrink-0" />
+                <span className="text-sm text-gray-500">{t('contact.info.location')}</span>
+                <span className="text-sm text-gray-800 font-medium ml-auto">
+                  <EditableText path="contact.info.locationValue" locale={language}>{t('contact.info.locationValue')}</EditableText>
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Globe2 size={18} className="text-[#00bfe6] shrink-0" />
+                <span className="text-sm text-gray-500">{t('contact.info.phone')}</span>
+                <span className="text-sm text-gray-800 font-medium ml-auto text-right">
+                  <EditableText path="contact.info.phoneValue" locale={language}>{t('contact.info.phoneValue')}</EditableText>
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Clock size={18} className="text-[#00bfe6] shrink-0" />
+                <span className="text-sm text-gray-500">{t('contact.info.availability')}</span>
+                <span className="flex items-center gap-1.5 text-sm text-gray-800 font-medium ml-auto">
+                  <motion.span
+                    className="w-2 h-2 rounded-full bg-green-500"
+                    animate={{ opacity: [1, 0.4, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                  <EditableText path="contact.info.availabilityValue" locale={language}>{t('contact.info.availabilityValue')}</EditableText>
+                </span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
-};
+});
+
+Contact.displayName = 'Contact';

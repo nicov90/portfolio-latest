@@ -78,6 +78,11 @@ export async function POST(request: NextRequest) {
     }
 
     const now = new Date();
+    let sortOrder = certificate.sortOrder != null ? Number(certificate.sortOrder) : null;
+    if (sortOrder === null) {
+      const existing = await db.select({ sortOrder: certificates.sortOrder }).from(certificates);
+      sortOrder = existing.reduce((max, r) => Math.max(max, r.sortOrder ?? 0), 0) + 1;
+    }
     const payload = {
       title: String(certificate.title),
       subtitle: certificate.subtitle ? String(certificate.subtitle) : null,
@@ -87,7 +92,7 @@ export async function POST(request: NextRequest) {
       mediaPrefix: certificate.mediaPrefix ? String(certificate.mediaPrefix) : null,
       verifyUrl: certificate.verifyUrl ? String(certificate.verifyUrl) : null,
       downloadUrl: certificate.downloadUrl ? String(certificate.downloadUrl) : null,
-      sortOrder: certificate.sortOrder != null ? Number(certificate.sortOrder) : 0,
+      sortOrder,
       createdAt: now,
       updatedAt: now,
     } as any;

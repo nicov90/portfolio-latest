@@ -78,6 +78,11 @@ export async function POST(request: NextRequest) {
     }
 
     const now = new Date();
+    let sortOrder = project.sortOrder != null ? Number(project.sortOrder) : null;
+    if (sortOrder === null) {
+      const existing = await db.select({ sortOrder: projects.sortOrder }).from(projects);
+      sortOrder = existing.reduce((max, r) => Math.max(max, r.sortOrder ?? 0), 0) + 1;
+    }
     const payload = {
       title: String(project.title),
       description: project.description ? String(project.description) : null,
@@ -88,7 +93,7 @@ export async function POST(request: NextRequest) {
       githubUrl: project.githubUrl ? String(project.githubUrl) : null,
       videoUrl: project.videoUrl ? String(project.videoUrl) : null,
       featured: Boolean(project.featured ?? false),
-      sortOrder: project.sortOrder != null ? Number(project.sortOrder) : 0,
+      sortOrder,
       createdAt: now,
       updatedAt: now,
     } as any;

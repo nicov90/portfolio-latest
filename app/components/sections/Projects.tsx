@@ -23,7 +23,7 @@ interface Project {
   video?: string;
 }
 
-export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
+export const Projects: React.FC<ProjectsProps> = React.memo(({ isVisible }) => {
   const { t, language } = useI18n() as any;
   const [allLocaleProjects, setAllLocaleProjects] = useState<any[] | null>(null);
   const [prefixAssets] = useState<Record<string, { images: string[]; video: string | null }>>({});
@@ -188,7 +188,7 @@ export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
             className="min-h-screen flex items-center justify-center py-20"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: false, margin: "-100px" }}
             transition={{ duration: 0.6 }}
           >
             <div className="w-full max-w-7xl mx-auto px-4">
@@ -199,7 +199,7 @@ export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
                   className="h-[70vh] min-h-[500px] w-[75%] lg:w-full mx-auto hidden md:block"
                   initial={{ x: -50, opacity: 0 }}
                   whileInView={{ x: 0, opacity: 1 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: false }}
                   transition={{ delay: 0.2, duration: 0.6 }}
                 >
                   {/* Delay distinto por proyecto */}
@@ -211,7 +211,7 @@ export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
                   className="block md:hidden"
                   initial={{ x: -50, opacity: 0 }}
                   whileInView={{ x: 0, opacity: 1 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: false }}
                   transition={{ delay: 0.2, duration: 0.6 }}
                 >
                   <SimpleImageCarousel images={project.images} autoPlayDelay={4500 + (index % 7) * 600} />
@@ -222,7 +222,7 @@ export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
                   className="space-y-6 px-4 sm:px-6 md:px-0"
                   initial={{ x: 50, opacity: 0 }}
                   whileInView={{ x: 0, opacity: 1 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: false }}
                   transition={{ delay: 0.3, duration: 0.6 }}
                 >
                   <div>
@@ -317,4 +317,6 @@ export const Projects: React.FC<ProjectsProps> = ({ isVisible }) => {
       </div>
     </div>
   );
-};
+});
+
+Projects.displayName = 'Projects';

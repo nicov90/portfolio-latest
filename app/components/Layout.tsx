@@ -4,7 +4,9 @@ import React, { useState } from 'react';
 import { useI18n } from '../contexts/i18nContext';
 import { DynamicBackground } from './DynamicBackground';
 import { LanguageSelector } from './LanguageSelector';
+import { ScrollProgressBar } from './ScrollProgressBar';
 import { SocialSidebar } from './SocialSidebar';
+import { StarsBackground } from './StarsBackground';
 
 export type Section = 'intro' | 'about-me' | 'experience' | 'skills' | 'projects' | 'certifications' | 'contact';
 
@@ -34,7 +36,14 @@ export const Layout: React.FC<LayoutProps> = ({
   return (
     <div className="relative min-h-screen">
       <DynamicBackground section={currentSection} />
-      
+      <StarsBackground />
+      <ScrollProgressBar />
+
+      {/* Soft scrim behind the floating nav: without it, whatever section content is scrolled
+          to just past its edges (the pill nav isn't full-width/opaque) peeks through around it —
+          most visible as a sliver of the previous section's trailing text right above the pill. */}
+      <div className="fixed top-0 inset-x-0 h-32 bg-gradient-to-b from-white via-white/60 to-transparent z-40 pointer-events-none" />
+
       {/* Desktop floating socials */}
       <SocialSidebar />
 
@@ -45,18 +54,19 @@ export const Layout: React.FC<LayoutProps> = ({
         transition={{ duration: 0.8, delay: 0.2 }}
         className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[90vw] max-w-6xl"
       >
-        <div className="bg-white/25 backdrop-blur-xl rounded-2xl border border-white/30 shadow-2xl px-6 py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="cursor-pointer"
-              onClick={() => onSectionChange('about-me')}
-            >
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <div className="bg-white/25 backdrop-blur-xl rounded-2xl border border-white/30 shadow-2xl px-3 sm:px-6 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
+            {/* Logo: a soft shine sweeps across the gradient text on hover instead of scaling up */}
+            <div className="cursor-pointer" onClick={() => onSectionChange('about-me')}>
+              <motion.h2
+                className="text-lg sm:text-2xl font-bold tracking-tight sm:tracking-normal whitespace-nowrap bg-gradient-to-r from-blue-600 via-purple-500 via-45% to-blue-600 bg-clip-text text-transparent"
+                style={{ backgroundSize: '220% auto', backgroundPosition: '0% center' }}
+                whileHover={{ backgroundPosition: '100% center' }}
+                transition={{ duration: 0.7, ease: 'easeInOut' }}
+              >
                 Nicolás Valdez
-              </h2>
-            </motion.div>
+              </motion.h2>
+            </div>
 
             {/* Navigation Items */}
             <div className="hidden md:flex items-center gap-2">
@@ -67,12 +77,13 @@ export const Layout: React.FC<LayoutProps> = ({
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.4 + (index * 0.1) }}
-                  whileHover={{ 
+                  whileHover={{
                     scale: 1.05,
-                    backgroundColor: "rgba(255, 255, 255, 0.3)"
+                    backgroundColor: "rgba(255, 255, 255, 0.3)",
+                    transition: { duration: 0.15, ease: 'easeOut' }
                   }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
+                  whileTap={{ scale: 0.95, transition: { duration: 0.1 } }}
+                  className={`px-4 py-2 rounded-xl font-medium cursor-pointer transition-colors duration-300 ${
                     currentSection === item.key
                       ? 'bg-white/30 text-blue-600 shadow-lg'
                       : 'text-gray-700 hover:text-gray-900'
@@ -89,9 +100,9 @@ export const Layout: React.FC<LayoutProps> = ({
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4, delay: 0.8 }}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 {/* Mobile socials: left of language selector */}
-                <div className="flex items-center gap-2 md:hidden">
+                <div className="flex items-center gap-1.5 sm:gap-2 md:hidden">
                   <a
                     href="https://github.com"
                     target="_blank"
@@ -171,9 +182,9 @@ export const Layout: React.FC<LayoutProps> = ({
                       initial={{ opacity: 0, x: 10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.25, delay: 0.05 * index }}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`w-full text-center px-4 py-4 rounded-xl transition-all duration-300 ${
+                      whileHover={{ scale: 1.02, transition: { duration: 0.15 } }}
+                      whileTap={{ scale: 0.98, transition: { duration: 0.1 } }}
+                      className={`w-full text-center px-4 py-4 rounded-xl cursor-pointer transition-colors duration-300 ${
                         currentSection === item.key
                           ? 'bg-white/55 text-blue-700 border border-white/60 shadow-lg'
                           : 'bg-white/25 text-gray-800'

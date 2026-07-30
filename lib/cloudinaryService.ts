@@ -25,6 +25,20 @@ async function getCloudinary() {
 }
 
 export class CloudinaryService {
+  /**
+   * Extracts the Cloudinary public_id (including folder path) from a secure delivery URL,
+   * e.g. https://res.cloudinary.com/<cloud>/image/upload/v169.../portfolio/foo-1.jpg -> portfolio/foo-1
+   */
+  static publicIdFromUrl(url: string): string | null {
+    const match = url.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z0-9]+(?:\?.*)?$/);
+    return match ? match[1] : null;
+  }
+
+  static async destroy(publicId: string, opts?: { resourceType?: 'image' | 'video' }): Promise<any> {
+    const cloudinary = await getCloudinary();
+    return cloudinary.uploader.destroy(publicId, { resource_type: opts?.resourceType ?? 'image' });
+  }
+
   static async uploadBuffer(
     buffer: Buffer,
     opts?: {

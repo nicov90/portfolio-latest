@@ -1,0 +1,190 @@
+{
+  "intro": {
+    "hiIm": "こんにちは、",
+    "jobTitle": "フルスタックエンジニア",
+    "clickToContinue": "クリックして続ける"
+  },
+  "about": {
+    "title": "自己紹介",
+    "subtitle": "私はテクノロジーが好きで、いつも新しいことを勉強しています。使いやすくて、長く使えるシステムを作りたいです。",
+    "description": "今は新しいアーキテクチャや自動化について勉強しています。AIやN8Nを使って、作業をもっと簡単にする方法を考えています。フロントエンドとフルスタック開発をもっと学んで、使いやすいデザインを作れるようになりたいです。",
+    "mainCard": {
+      "title": "フルスタックエンジニア",
+      "suffix": "役に立つソリューションを作る",
+      "tagline": "プロダクト目線で、使いやすいWeb体験をデザイン・開発しています。きれいなコードを書くことが好きです。",
+      "pills": {
+        "frontend": "フロントエンド",
+        "backend": "バックエンド",
+        "cloud": "クラウド",
+        "ux": "UX"
+      }
+    },
+    "stats": {
+      "years": "経験年数",
+      "projects": "社内プロジェクト",
+      "certifications": "資格"
+    },
+    "transition": "次は、私のキャリアを見てみましょう..."
+  },
+  "whatIBring": {
+    "title": "技術スタック",
+    "subtitle": "いろいろな技術を使って、早くて使いやすいシステムを作ることができます。",
+    "learnMore": "もっと見る",
+    "services": {
+      "fullstack": {
+        "title": "フロントエンド",
+        "description": "Next.js • React • TypeScript • TanStack Query • Redux • Tailwind CSS • HTML/CSS。使いやすくて、きれいな画面を作るのが得意です。"
+      },
+      "mobile": {
+        "title": "バックエンド",
+        "description": "C# • ASP.NET API • Node.js • Hono.js • Drizzle ORM • Prisma • Express。マイクロサービスを中心に、強くて大きくできるシステムを作ります。"
+      },
+      "design": {
+        "title": "データベース",
+        "description": "SQL Server • PostgreSQL • MongoDB。データベースの設計や、データの管理が得意です。"
+      },
+      "performance": {
+        "title": "モバイル",
+        "description": "React Native • Expo。iPhoneでもAndroidでも使える、使いやすいアプリを作ります。"
+      },
+      "security": {
+        "title": "自動化・AI",
+        "description": "N8Nを使って作業を自動化します。AIを使って、もっと便利なシステムを作ります。"
+      },
+      "collaboration": {
+        "title": "開発の進め方",
+        "description": "Git • スクラム • Zod/Yup。チームのルールを守りながら、みんなで協力して働きます。"
+      }
+    },
+    "transition": "次は、私が作ったプロジェクトを見てみましょう..."
+  },
+  "experience": {
+    "title": "職歴",
+    "subtitle": "新しいシステムを作ったり、大切なプロジェクトをリードしたりしてきました。",
+    "current": "現在",
+    "achievements": "主な実績",
+    "technologies": "技術",
+    "items": [
+      {
+        "company": "Grupo Tepsi",
+        "position": "フルスタックエンジニア",
+        "duration": "2023年7月〜現在",
+        "location": "アルゼンチン",
+        "description": "マイクロサービスを使った社内システムを開発しています。会社の事務作業を管理したり、自動化したりするためのシステムです。",
+        "achievements": [
+          "複数のアプリでログイン機能、パスワードの暗号化、権限管理を作りました",
+          "経費精算システムを作りました。社員が使った経費を登録して、段階的に承認する仕組みです",
+          "保護具管理システムを作りました。在庫管理、社員への割り当て、レポート作成ができます",
+          "取引先管理システムを作りました。請求書の登録や、注文書の確認ができます",
+          "メール送信、PDF作成、ページ分けされた表の機能を追加しました",
+          "Azure Blob Storageを使って、ファイルを効率よく管理しました"
+        ],
+        "technologies": ["Next.js", "React", "TypeScript", "Tailwind", "ASP.NET", "C#", "Node.js", "SQL Server", "MongoDB", "Azure"]
+      }
+    ]
+  },
+  "projects": {
+    "title": "プロジェクト",
+    "subtitle": "フルスタック開発の経験がわかる、代表的なプロジェクトを紹介します。",
+    "technologies": "技術",
+    "viewCode": "コードを見る",
+    "liveDemo": "デモを見る",
+    "watchVideo": "動画を見る",
+    "items": [
+      {
+        "title": "社内研修プラットフォーム",
+        "description": "動画配信や進捗管理ができる、会社向けの研修システムです。AIで自動化もしています。",
+        "longDescription": "サービス、コントローラー、権限管理を使ったシステムを作りました。管理画面、ダッシュボード、コースの管理、会社や先生の管理ができます。動画配信、コースの割り当て、進捗管理の機能もあります。将来はAIやN8Nを使って、作業を自動化したり、おすすめを表示したり、ユーザーをサポートしたりする予定です。"
+      },
+      {
+        "title": "経費精算システム",
+        "description": "社員の経費を登録して、段階的に承認できるシステムです。権限ごとに違う操作ができます。",
+        "longDescription": "Grupo Tepsi向けに作った経費精算システムです。社員は経費を登録して、レシートを添付して、承認の状況を確認できます。複数の段階で承認するフローで、メール通知、自動でPDFレポートを作成する機能、管理者向けの分析ダッシュボードもあります。"
+      },
+      {
+        "title": "保護具管理システム",
+        "description": "保護具の在庫管理、社員への割り当て、詳しいレポート作成ができるシステムです。",
+        "longDescription": "保護具を管理するためのシステムです。リアルタイムの在庫管理、社員への割り当てと履歴の記録、在庫が少ないときのアラート、期限切れのレポート作成ができます。QRコードで保護具を管理する機能もあります。"
+      }
+    ]
+  },
+  "contact": {
+    "title": "連絡してみましょう！",
+    "subtitle": "新しい仕事や面白いプロジェクトにいつでも興味があります。連絡を待っています！",
+    "form": {
+      "title": "メッセージを送る",
+      "name": "名前",
+      "namePlaceholder": "山田 太郎",
+      "email": "メールアドレス",
+      "emailPlaceholder": "example@email.com",
+      "subject": "件名",
+      "subjectPlaceholder": "話したいこと",
+      "message": "メッセージ",
+      "messagePlaceholder": "プロジェクトについて教えてください。",
+      "send": "送信する",
+      "sending": "送信中...",
+      "success": "メッセージを送信しました！",
+      "error": "送信できませんでした。もう一度試してください。"
+    },
+    "info": {
+      "title": "連絡先情報",
+      "location": "場所",
+      "locationValue": "アルゼンチン",
+      "phone": "言語",
+      "phoneValue": "スペイン語（母語）・英語（C1）・日本語（N4）",
+      "availability": "空き状況",
+      "availabilityValue": "新しい仕事を探しています"
+    },
+    "cta": {"title": "プロジェクトのアイデアがありますか？", "subtitle": "一緒に頑張りましょう！"},
+    "direct": {"title": "直接連絡", "email": "nico_v99@hotmail.com", "phone": "+54 11 28477792"}
+  },
+  "certifications": {
+    "title": "資格",
+    "subtitle": "今も勉強を続けていて、いろいろな資格を取りました。",
+    "download": "ダウンロード",
+    "verify": "確認する",
+    "items": [
+      {
+        "title": "Azure Data Fundamentals DP-900",
+        "issuer": "Microsoft",
+        "date": "2023年9月",
+        "description": "クラウドのデータについての基礎資格です。リレーショナルとNoSQLデータベース、データの処理、Azureのデータサービスについて学びました。",
+        "image": "https://images.unsplash.com/photo-1707455766931-3bc8a5892165?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaWNyb3NvZnQlMjBhenVyZSUyMGNsb3VkfGVufDF8fHx8MTc1OTk2ODY3N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+        "verifyUrl": "https://learn.microsoft.com/en-us/certifications/"
+      },
+      {
+        "title": "フロントエンド・バックエンド開発",
+        "issuer": "Platzi",
+        "date": "2023年5月",
+        "description": "React、Node.js、データベース、スケーラブルなシステムの設計など、モダンなWeb開発を幅広く学びました。",
+        "image": "https://images.unsplash.com/photo-1546430498-05c7b929830e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxvbmxpbmUlMjBsZWFybmluZyUyMGNvZGV8ZW58MXx8fHwxNzU5OTY4Njc3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+        "verifyUrl": "https://platzi.com/verify"
+      },
+      {
+        "title": "フルスタックJavaプログラム",
+        "issuer": "Oracle Next Education",
+        "date": "2022年7月〜2023年2月",
+        "description": "Java、Spring Boot、JPA/Hibernateを使った、集中的なフルスタック開発プログラムです。オブジェクト指向プログラミングのベストプラクティスも学びました。",
+        "image": "https://images.unsplash.com/photo-1664570000007-db164768644d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxqYXZhJTIwcHJvZ3JhbW1pbmclMjBjb2RlfGVufDF8fHx8MTc1OTk2ODY3N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+        "verifyUrl": "https://www.oracle.com/ar/education/oracle-next-education/"
+      },
+      {
+        "title": "英語検定 C1",
+        "issuer": "EF SET",
+        "date": "上級レベル",
+        "description": "読解力とリスニング力で高い英語力があることを証明する資格です。仕事で英語を使ってコミュニケーションができます。",
+        "image": "https://images.unsplash.com/photo-1567206163313-9e34c830557a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbmdsaXNoJTIwbGFuZ3VhZ2UlMjBsZWFybmluZ3xlbnwxfHx8fDE3NTk4OTkwNzR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+        "verifyUrl": "https://www.efset.org/cert/"
+      }
+    ],
+    "transition": "一緒に働く準備はできていますか？"
+  },
+  "navigation": {
+    "aboutMe": "自己紹介",
+    "experience": "職歴",
+    "skills": "スキル",
+    "projects": "プロジェクト",
+    "certifications": "資格",
+    "contact": "お問い合わせ"
+  }
+}

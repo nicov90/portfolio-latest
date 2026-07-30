@@ -48,3 +48,35 @@ export function useCreateCertificate() {
     },
   });
 }
+
+export function useUpdateCertificate() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { id: number; certificate: Partial<CertificatePayload>; translations?: CertificateTranslations }) => {
+      const res = await fetch(`/api/certificates/${input.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ certificate: input.certificate, translations: input.translations }),
+      });
+      if (!res.ok) throw new Error('Failed to update certificate');
+      return res.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['certificates'] });
+    },
+  });
+}
+
+export function useDeleteCertificate() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/certificates/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete certificate');
+      return res.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['certificates'] });
+    },
+  });
+}

@@ -1,9 +1,9 @@
 import "@/styles/globals.css";
+import "react-image-crop/dist/ReactCrop.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { DevCertificatesControl } from "./components/dev/DevCertificatesControl";
-import { DevCreateMenu } from "./components/dev/DevCreateMenu";
-import { DevProjectsControl } from "./components/dev/DevProjectsControl";
+import { EditModeToolbar } from "./components/admin/EditModeToolbar";
+import { EditModeProvider } from "./contexts/editModeContext";
 import { QueryProvider } from "./providers/QueryProvider";
 
 const geistSans = Geist({
@@ -32,11 +32,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <QueryProvider>
-          {children}
-          {/* Dev admin controls (visible only in development) */}
-          <DevProjectsControl />
-          <DevCertificatesControl />
-          <DevCreateMenu />
+          <EditModeProvider>
+            {children}
+            <EditModeToolbar />
+          </EditModeProvider>
         </QueryProvider>
       </body>
     </html>

@@ -41,3 +41,35 @@ export function useCreateProject() {
     },
   });
 }
+
+export function useUpdateProject() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { id: number; project: Partial<ProjectPayload>; translations?: Record<string, { title?: string; description?: string }> }) => {
+      const res = await fetch(`/api/projects/${input.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project: input.project, translations: input.translations }),
+      });
+      if (!res.ok) throw new Error('Failed to update project');
+      return res.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['projects'] });
+    },
+  });
+}
+
+export function useDeleteProject() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete project');
+      return res.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['projects'] });
+    },
+  });
+}

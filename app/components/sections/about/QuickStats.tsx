@@ -3,8 +3,8 @@ import { motion } from 'motion/react';
 import React from 'react';
 
 export interface StatItem {
-  value: string;
-  label: string;
+  value: React.ReactNode;
+  label: React.ReactNode;
 }
 
 interface QuickStatsProps {

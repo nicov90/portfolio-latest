@@ -35,3 +35,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: err?.message || 'Upload failed' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    let publicId = searchParams.get('publicId') || undefined;
+    const url = searchParams.get('url') || undefined;
+    const resourceType = (searchParams.get('resourceType') as 'image' | 'video') || 'image';
+
+    if (!publicId && url) {
+      publicId = CloudinaryService.publicIdFromUrl(url) || undefined;
+    }
+    if (!publicId) {
+      return NextResponse.json({ error: 'Missing publicId or a parseable url' }, { status: 400 });
+    }
+
+    const result = await CloudinaryService.destroy(publicId, { resourceType });
+    return NextResponse.json({ ok: true, result });
+  } catch (err: any) {
+    console.error('Delete error', err);
+    return NextResponse.json({ error: err?.message || 'Delete failed' }, { status: 500 });
+  }
+}
