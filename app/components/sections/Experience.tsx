@@ -234,28 +234,32 @@ export const Experience: React.FC<ExperienceProps> = React.memo(({ isVisible }) 
                       )}
                     </div>
 
-                    {/* Description */}
-                    <motion.p
+                    {/* Description: an accented "pull quote" block rather than plain running text,
+                        so it reads as a distinct highlight instead of blending into the card. */}
+                    <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                       transition={{ duration: 0.6, delay: 2 + (index * 0.2) }}
-                      className="text-gray-700 mb-6 leading-relaxed"
+                      className="mb-6 pl-4 py-0.5 border-l-2 border-[#00bfe6]/40"
                     >
-                      <EditableText
-                        locale={language}
-                        multiline
-                        onSave={exp.id != null ? (v) => saveField(exp.id as number, 'description', v) : undefined}
-                      >
-                        {exp.description}
-                      </EditableText>
-                    </motion.p>
+                      <p className="text-gray-700 leading-relaxed italic">
+                        <EditableText
+                          locale={language}
+                          multiline
+                          onSave={exp.id != null ? (v) => saveField(exp.id as number, 'description', v) : undefined}
+                        >
+                          {exp.description}
+                        </EditableText>
+                      </p>
+                    </motion.div>
 
-                    {/* Achievements */}
+                    {/* Achievements: nested in their own inner panel so they read as a distinct
+                        sub-block of the card instead of floating loose on the card background. */}
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                       transition={{ duration: 0.6, delay: 2.2 + (index * 0.2) }}
-                      className="mb-6"
+                      className="mb-6 rounded-2xl bg-white/30 border border-white/40 p-4 sm:p-5"
                     >
                       <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
                         <Award size={18} className="text-yellow-500" />
@@ -274,7 +278,7 @@ export const Experience: React.FC<ExperienceProps> = React.memo(({ isVisible }) 
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
                                 transition={{ duration: 0.4, delay: 2.4 + (index * 0.2) + (achIndex * 0.1) }}
-                                className="flex items-start gap-2 text-gray-700"
+                                className="flex items-start gap-2 text-[15px] text-gray-600 leading-relaxed"
                               >
                                 <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mt-2 flex-shrink-0"></div>
                                 {achievement}

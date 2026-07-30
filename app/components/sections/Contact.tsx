@@ -14,7 +14,8 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
     name: '',
     email: '',
     subject: '',
-    message: ''
+    message: '',
+    website: '' // honeypot: kept off-screen, real visitors never fill it in
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -40,7 +41,7 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
       if (response.ok && result.success) {
         setSubmitStatus('success');
         setSubmitMessage(t('contact.form.success'));
-        setFormData({ name: '', email: '', subject: '', message: '' });
+        setFormData({ name: '', email: '', subject: '', message: '', website: '' });
       } else {
         throw new Error(result.error || 'Unknown error occurred');
       }
@@ -118,6 +119,19 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
             </motion.div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Honeypot: real visitors never see or fill this, so anything landing here marks
+                  the submission as a bot and the API silently drops it. */}
+              <input
+                type="text"
+                name="website"
+                value={formData.website}
+                onChange={handleChange}
+                tabIndex={-1}
+                autoComplete="off"
+                className="hidden"
+                aria-hidden="true"
+              />
+
               <div className="grid md:grid-cols-2 gap-4">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -133,6 +147,7 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
                     value={formData.name}
                     onChange={handleChange}
                     required
+                    maxLength={100}
                     className="w-full px-4 py-3 bg-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#00bfe6]/50 focus:border-transparent backdrop-blur-sm transition-all duration-300"
                     placeholder={t('contact.form.namePlaceholder')}
                   />
@@ -152,6 +167,7 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
                     value={formData.email}
                     onChange={handleChange}
                     required
+                    maxLength={254}
                     className="w-full px-4 py-3 bg-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#00bfe6]/50 focus:border-transparent backdrop-blur-sm transition-all duration-300"
                     placeholder={t('contact.form.emailPlaceholder')}
                   />
@@ -172,6 +188,7 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
                   value={formData.subject}
                   onChange={handleChange}
                   required
+                  maxLength={150}
                   className="w-full px-4 py-3 bg-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#00bfe6]/50 focus:border-transparent backdrop-blur-sm transition-all duration-300"
                   placeholder={t('contact.form.subjectPlaceholder')}
                 />
@@ -190,6 +207,7 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
                   value={formData.message}
                   onChange={handleChange}
                   required
+                  maxLength={5000}
                   rows={5}
                   className="w-full px-4 py-3 bg-white/50 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#00bfe6]/50 focus:border-transparent backdrop-blur-sm transition-all duration-300 resize-none"
                   placeholder={t('contact.form.messagePlaceholder')}
@@ -281,28 +299,38 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
               </a>
             </div>
 
-            {/* Info */}
+            {/* Info: stacked (label above value) on narrow screens, side-by-side from sm: up.
+                The old single-row `items-center` + `ml-auto` layout had no width constraint on
+                the value, so it couldn't shrink or wrap — a long value (e.g. three languages)
+                just overflowed the card instead. Stacking on mobile gives the value the full
+                row width to wrap into naturally. */}
             <div className="space-y-3 pt-2 border-t border-white/30">
-              <div className="flex items-center gap-3">
-                <MapPin size={18} className="text-[#00bfe6] shrink-0" />
-                <span className="text-sm text-gray-500">{t('contact.info.location')}</span>
-                <span className="text-sm text-gray-800 font-medium ml-auto">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+                <span className="flex items-center gap-2 text-sm text-gray-500 shrink-0">
+                  <MapPin size={18} className="text-[#00bfe6] shrink-0" />
+                  {t('contact.info.location')}
+                </span>
+                <span className="text-sm text-gray-800 font-medium sm:ml-auto sm:text-right">
                   <EditableText path="contact.info.locationValue" locale={language}>{t('contact.info.locationValue')}</EditableText>
                 </span>
               </div>
-              <div className="flex items-center gap-3">
-                <Globe2 size={18} className="text-[#00bfe6] shrink-0" />
-                <span className="text-sm text-gray-500">{t('contact.info.phone')}</span>
-                <span className="text-sm text-gray-800 font-medium ml-auto text-right">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+                <span className="flex items-center gap-2 text-sm text-gray-500 shrink-0">
+                  <Globe2 size={18} className="text-[#00bfe6] shrink-0" />
+                  {t('contact.info.phone')}
+                </span>
+                <span className="text-sm text-gray-800 font-medium sm:ml-auto sm:text-right">
                   <EditableText path="contact.info.phoneValue" locale={language}>{t('contact.info.phoneValue')}</EditableText>
                 </span>
               </div>
-              <div className="flex items-center gap-3">
-                <Clock size={18} className="text-[#00bfe6] shrink-0" />
-                <span className="text-sm text-gray-500">{t('contact.info.availability')}</span>
-                <span className="flex items-center gap-1.5 text-sm text-gray-800 font-medium ml-auto">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+                <span className="flex items-center gap-2 text-sm text-gray-500 shrink-0">
+                  <Clock size={18} className="text-[#00bfe6] shrink-0" />
+                  {t('contact.info.availability')}
+                </span>
+                <span className="flex items-center gap-1.5 text-sm text-gray-800 font-medium sm:ml-auto sm:text-right">
                   <motion.span
-                    className="w-2 h-2 rounded-full bg-green-500"
+                    className="w-2 h-2 rounded-full bg-green-500 shrink-0"
                     animate={{ opacity: [1, 0.4, 1] }}
                     transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                   />

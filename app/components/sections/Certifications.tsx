@@ -191,12 +191,12 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
                               onClick={() => toggleExpand(index)}
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
-                              className="p-2 bg-[#00bfe6]/20 rounded-lg hover:bg-[#00bfe6]/30 transition-colors duration-300 ease-out"
+                              className="p-2 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 ease-out"
                             >
                               {isExpanded ? (
-                                <ChevronUp size={20} className="text-[#00bfe6]" />
+                                <ChevronUp size={20} className="text-white" />
                               ) : (
-                                <ChevronDown size={20} className="text-[#00bfe6]" />
+                                <ChevronDown size={20} className="text-white" />
                               )}
                             </motion.button>
                           )}

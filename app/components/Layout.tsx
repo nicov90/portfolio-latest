@@ -68,8 +68,12 @@ export const Layout: React.FC<LayoutProps> = ({
               </motion.h2>
             </div>
 
-            {/* Navigation Items */}
-            <div className="hidden md:flex items-center gap-2">
+            {/* Navigation Items: needs xl+ to fit all six labels on one line in every supported
+                language — Spanish labels ("Certificaciones", "Mis Habilidades") are noticeably
+                longer than English ones and still wrap at lg (1024px), blowing up the pill's
+                height and overlapping the section below it. Confirmed fitting cleanly from
+                ~1200px in Spanish (the longest-label locale), so xl (1280px) leaves real margin. */}
+            <div className="hidden xl:flex items-center gap-2">
               {navItems.map((item, index) => (
                 <motion.button
                   key={item.key}
@@ -109,7 +113,7 @@ export const Layout: React.FC<LayoutProps> = ({
             >
               <div className="flex items-center gap-1.5 sm:gap-2">
                 {/* Mobile socials: left of language selector */}
-                <div className="flex items-center gap-1.5 sm:gap-2 md:hidden">
+                <div className="flex items-center gap-1.5 sm:gap-2 xl:hidden">
                   <a
                     href="https://github.com"
                     target="_blank"
@@ -144,7 +148,7 @@ export const Layout: React.FC<LayoutProps> = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.4 }}
         onClick={() => setDrawerOpen(true)}
-        className="md:hidden fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-white/55 backdrop-blur-xl border border-white/60 shadow-2xl flex items-center justify-center"
+        className="xl:hidden fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-white/55 backdrop-blur-xl border border-white/60 shadow-2xl flex items-center justify-center"
         aria-label="Open navigation"
       >
         <Menu className="text-gray-800" />
@@ -155,7 +159,7 @@ export const Layout: React.FC<LayoutProps> = ({
         {drawerOpen && (
           <>
             <motion.div
-              className="md:hidden fixed inset-0 z-40 bg-black/15"
+              className="xl:hidden fixed inset-0 z-40 bg-black/15"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -165,7 +169,7 @@ export const Layout: React.FC<LayoutProps> = ({
 
             {/* Bottom Drawer */}
             <motion.div
-              className="md:hidden fixed left-1/2 -translate-x-1/2 bottom-0 z-50 w-[94vw] max-w-md"
+              className="xl:hidden fixed left-1/2 -translate-x-1/2 bottom-0 z-50 w-[94vw] max-w-md"
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}

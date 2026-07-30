@@ -20,6 +20,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@getbrevo/brevo": "^3.0.1",
     "@hookform/resolvers": "^5.5.7",
+    "@lottiefiles/dotlottie-react": "^0.19.12",
     "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",

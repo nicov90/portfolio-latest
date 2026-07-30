@@ -67,7 +67,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onComplete, defaultLan
           </motion.p>
           
           <motion.div
-            className="absolute top-full mt-8"
+            className="hidden lg:block absolute top-full mt-14"
             initial={{ opacity: 0 }}
             animate={{ opacity: animationEnded ? 1 : 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}

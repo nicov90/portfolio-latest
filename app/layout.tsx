@@ -30,9 +30,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="overflow-x-hidden">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        // overflow-x-hidden is defensive, not decorative: sections throughout the site use
+        // Framer's `initial={{ x: ±50/100 }}` slide-in entrances, driven by scroll/inView
+        // triggers — while a section hasn't been scrolled into view yet, its cards sit at that
+        // untransformed offset (e.g. translateX(100px)), which pushes the page's real scrollable
+        // width past the viewport even though nothing is ever visually poking out on screen.
+        // Set on <html> too: body's overflow-x doesn't reliably suppress real (wheel/programmatic)
+        // horizontal scroll on the viewport by itself — confirmed via Playwright that scrollX could
+        // still reach ~70px with only body clipped, even though nothing visibly overflowed.
+        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
       >
         <QueryProvider>
           <EditModeProvider>

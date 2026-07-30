@@ -1,5 +1,5 @@
 "use client";
-import { Star } from 'lucide-react';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
 import React from 'react';
 
@@ -65,19 +65,28 @@ export const CreativeRoleCard: React.FC<CreativeRoleCardProps> = ({
           className="flex flex-col items-center text-center space-y-4 relative z-10"
           style={{ transform: 'translateZ(40px)' }}
         >
-          <div className="relative">
+          <div className="relative -mt-3 mb-1">
             <motion.div
               initial={{ scale: 0, rotate: 90 }}
               animate={isVisible ? { scale: 1, rotate: 0 } : { scale: 0, rotate: 90 }}
               transition={{ duration: 0.7, delay: 1 }}
-              className="w-24 h-24 flex items-center justify-center rounded-2xl bg-gradient-to-br from-[#00bfe6] to-[#0096c7] shadow-xl ring-4 ring-white/40"
+              // className="w-48"
+              // style={{ aspectRatio: '1400 / 990' }}
             >
-              <Star size={48} className="text-white drop-shadow" />
+              <DotLottieReact
+                src="/animations/Coding.json"
+                loop
+                autoplay
+                style={{ width: '100%', height: '100%' }}
+              />
             </motion.div>
           </div>
-          <h3 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-[#004e92] to-[#000428] bg-clip-text text-transparent">
-            {title} • {suffix}
-          </h3>
+          <div>
+            <h3 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-[#004e92] to-[#000428] bg-clip-text text-transparent">
+              {title}
+            </h3>
+            <p className="text-sm font-medium text-[#0096c7] mt-1">{suffix}</p>
+          </div>
           <p className="text-gray-700 leading-relaxed text-sm">{tagline}</p>
           <div className="flex gap-3 pt-2 flex-wrap justify-center">
             {chips.map((pill, i) => (

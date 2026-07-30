@@ -165,24 +165,6 @@ export const WhatIBring: React.FC<WhatIBringProps> = React.memo(({ isVisible }) 
           })}
         </div>
       </div>
-
-      {/* Section Transition */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: 0.8, delay: 1.8 }}
-        className="text-center mt-32 px-4 sm:px-6"
-      >
-        <p className="text-2xl text-gray-500 italic">
-          <EditableText path="whatIBring.transition" locale={language}>{t('whatIBring.transition')}</EditableText>
-        </p>
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={isVisible ? { scaleX: 1 } : { scaleX: 0 }}
-          transition={{ duration: 1, delay: 2 }}
-          className="h-0.5 w-48 bg-gradient-to-r from-transparent via-[#00bfe6] to-transparent mx-auto mt-4"
-        />
-      </motion.div>
     </div>
   );
 });

@@ -10,8 +10,8 @@
     "description": "Actualmente enfocado en arquitecturas modernas y automatización de flujos, integrando IA y N8N para optimizar procesos. Interesado en seguir profundizando en desarrollo front-end y full-stack, aplicando buenas prácticas de diseño, escalabilidad y usabilidad.",
     "mainCard": {
       "title": "Desarrollador Full Stack",
-      "suffix": "Soluciones con impacto",
-      "tagline": "Diseño, construyo y refino experiencias web escalables con mentalidad de producto y amor por el código limpio.",
+      "suffix": "Automatización, IA y arquitecturas modernas",
+      "tagline": "De sistemas internos a flujos automatizados con IA: diseño cada solución para que escale sin fricción.",
       "pills": {
         "frontend": "Frontend",
         "backend": "Backend",
@@ -55,8 +55,7 @@
         "title": "Metodologías",
         "description": "Git • Metodología Scrum • Validaciones con Zod/Yup. Trabajo colaborativo siguiendo mejores prácticas y estándares de la industria."
       }
-    },
-    "transition": "Explora los proyectos en los que he trabajado..."
+    }
   },
   "experience": {
     "title": "Experiencia",
@@ -87,9 +86,9 @@
     "title": "Proyectos",
     "subtitle": "Una selección de proyectos destacados que demuestran mi experiencia en desarrollo full stack y arquitecturas modernas.",
     "technologies": "Tecnologías",
-    "viewCode": "Ver Código",
-    "liveDemo": "Demo en Vivo",
-    "watchVideo": "Ver Video",
+    "viewCode": "Ver código",
+    "liveDemo": "Demo en vivo",
+    "watchVideo": "Ver video",
     "items": [
       {
         "title": "Plataforma de Cursos Corporativa",

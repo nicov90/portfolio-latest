@@ -15,8 +15,10 @@ export const EditModeToolbar: React.FC = () => {
 
   return (
     <>
-      {/* Desktop: one dedicated floating button per action */}
-      <div className="hidden md:flex flex-col gap-4 fixed bottom-6 right-6 z-[998]">
+      {/* Desktop: one dedicated floating button per action. Kept in sync with Layout.tsx's own
+          xl breakpoint for its nav FAB — both live at fixed bottom-6 right-6, so if these split
+          from the site nav's mobile/desktop switch, the two stacks overlap. */}
+      <div className="hidden xl:flex flex-col gap-4 fixed bottom-6 right-6 z-[998]">
         <button
           type="button"
           onClick={() => setEditMode(!editMode)}
@@ -53,12 +55,13 @@ export const EditModeToolbar: React.FC = () => {
         </button>
       </div>
 
-      {/* Mobile: a single button that expands into the same actions */}
-      <div className="md:hidden">
+      {/* Mobile/tablet: a single button that expands into the same actions. Sits above the site
+          nav's own FAB (fixed bottom-6 right-6, h-14) since both are visible below lg. */}
+      <div className="xl:hidden">
         <button
           type="button"
           onClick={() => setMobileMenuOpen((v) => !v)}
-          className={`fixed bottom-6 right-6 z-[998] rounded-full h-12 w-12 flex items-center justify-center shadow-lg text-white transition-colors ${
+          className={`fixed bottom-24 right-6 z-[998] rounded-full h-12 w-12 flex items-center justify-center shadow-lg text-white transition-colors ${
             editMode ? 'bg-gradient-to-r from-[#00bfe6] to-[#0096c7]' : 'bg-gray-700'
           }`}
           title="Modo edición"
@@ -67,7 +70,7 @@ export const EditModeToolbar: React.FC = () => {
         </button>
 
         {mobileMenuOpen && (
-          <div className="fixed bottom-24 right-6 z-[999] bg-white rounded-xl shadow-xl border p-2 w-56">
+          <div className="fixed bottom-40 right-6 z-[999] bg-white rounded-xl shadow-xl border p-2 w-56">
             <button
               onClick={() => { setEditMode(!editMode); setMobileMenuOpen(false); }}
               className="w-full text-left px-3 py-2 rounded hover:bg-gray-50 flex items-center gap-2 text-sm"
