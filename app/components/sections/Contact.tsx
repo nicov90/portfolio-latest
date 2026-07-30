@@ -269,7 +269,7 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
                 </span>
               </a>
               <a
-                href={`tel:${t('contact.direct.phone').replace(/\s+/g, '')}`}
+                href={`tel:${t('contact.direct.phone').replace(/[\s-]+/g, '')}`}
                 className="flex items-center gap-3 p-3 rounded-xl bg-white/40 border border-white/40 hover:bg-white/60 transition-colors duration-300 ease-out group"
               >
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300 ease-out">

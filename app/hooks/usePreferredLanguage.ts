@@ -15,21 +15,33 @@ function normalizeToSupported(code: string | null | undefined): SupportedLang {
   return 'en';
 }
 
-export function usePreferredLanguage() {
-  const [language, setLanguageState] = useState<SupportedLang>('en');
+// Reads a previously explicit choice, if any, without subscribing to changes — used by things
+// that only care about "what was already chosen before this page load" (e.g. the intro's
+// rotating greeting), not live updates.
+export function getSavedLanguage(): SupportedLang | null {
+  try {
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('lang') : null;
+    return saved ? normalizeToSupported(saved) : null;
+  } catch {
+    return null;
+  }
+}
+
+// `initialDefault` comes from a server-side IP/region lookup (see app/page.tsx), so the very
+// first client render already matches what the server sent — no navigator.language guess, no
+// post-mount flash. A saved explicit choice in localStorage still wins over the regional default.
+export function usePreferredLanguage(initialDefault: SupportedLang = 'en') {
+  const [language, setLanguageState] = useState<SupportedLang>(initialDefault);
 
   useEffect(() => {
     try {
       const saved = typeof window !== 'undefined' ? localStorage.getItem('lang') : null;
       if (saved) {
         setLanguageState(normalizeToSupported(saved));
-        return;
       }
-      const nav = typeof navigator !== 'undefined' ? (navigator.language || (navigator as any).userLanguage) : 'en';
-      setLanguageState(normalizeToSupported(nav));
+      // No saved preference: keep the server-resolved regional default already in state.
     } catch {
-      // Fallback silently
-      setLanguageState('en');
+      // Fallback silently — state already holds the server-resolved default.
     }
   }, []);
 

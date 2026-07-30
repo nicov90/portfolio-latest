@@ -1,13 +1,15 @@
 "use client";
-import { FolderKanban, LogOut, Pencil, PencilOff, X } from 'lucide-react';
+import { BarChart3, FolderKanban, LogOut, Pencil, PencilOff, X } from 'lucide-react';
 import React, { useState } from 'react';
 import { useEditMode } from '../../contexts/editModeContext';
 import { ContentStudioPanel } from './ContentStudioPanel';
+import { StatsPanel } from './StatsPanel';
 
 export const EditModeToolbar: React.FC = () => {
   const { isAdmin, checkingSession, editMode, setEditMode, logout } = useEditMode();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [studioOpen, setStudioOpen] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
 
   if (checkingSession || !isAdmin) return null;
 
@@ -35,6 +37,14 @@ export const EditModeToolbar: React.FC = () => {
         </button>
         <button
           type="button"
+          onClick={() => setStatsOpen(true)}
+          className="rounded-full h-12 w-12 flex items-center justify-center shadow-lg text-white bg-gray-700 hover:bg-gray-600 transition-colors"
+          title="Estadísticas de visitas"
+        >
+          <BarChart3 size={20} />
+        </button>
+        <button
+          type="button"
           onClick={logout}
           className="rounded-full h-12 w-12 flex items-center justify-center shadow-lg text-white bg-red-600 hover:bg-red-500 transition-colors"
           title="Cerrar sesión"
@@ -43,7 +53,7 @@ export const EditModeToolbar: React.FC = () => {
         </button>
       </div>
 
-      {/* Mobile: a single button that expands into the same three actions */}
+      {/* Mobile: a single button that expands into the same actions */}
       <div className="md:hidden">
         <button
           type="button"
@@ -73,6 +83,13 @@ export const EditModeToolbar: React.FC = () => {
               Gestionar proyectos y certificados
             </button>
             <button
+              onClick={() => { setStatsOpen(true); setMobileMenuOpen(false); }}
+              className="w-full text-left px-3 py-2 rounded hover:bg-gray-50 flex items-center gap-2 text-sm"
+            >
+              <BarChart3 size={16} />
+              Estadísticas de visitas
+            </button>
+            <button
               onClick={() => { logout(); setMobileMenuOpen(false); }}
               className="w-full text-left px-3 py-2 rounded hover:bg-gray-50 flex items-center gap-2 text-sm text-red-600"
             >
@@ -84,6 +101,7 @@ export const EditModeToolbar: React.FC = () => {
       </div>
 
       <ContentStudioPanel open={studioOpen} onOpenChange={setStudioOpen} />
+      <StatsPanel open={statsOpen} onOpenChange={setStatsOpen} />
     </>
   );
 };

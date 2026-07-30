@@ -136,7 +136,7 @@
       "availabilityValue": "Abierto a nuevas oportunidades"
     },
     "cta": {"title": "¿Tienes un proyecto en mente?", "subtitle": "Trabajemos juntos para hacerlo realidad"},
-    "direct": {"title": "Contacto Directo", "email": "nico_v99@hotmail.com", "phone": "+54 11 28477792"}
+    "direct": {"title": "Contacto Directo", "email": "nico_v99@hotmail.com", "phone": "+54 9 11 2847-7792"}
   },
   "certifications": {
     "title": "Certificaciones",
@@ -180,6 +180,7 @@
     "transition": "¿Listo para trabajar juntos?"
   },
   "navigation": {
+    "home": "Inicio",
     "aboutMe": "Sobre Mí",
     "experience": "Experiencia",
     "skills": "Mis Habilidades",

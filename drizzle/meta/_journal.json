@@ -57,6 +57,20 @@
       "when": 1785376158287,
       "tag": "0007_heavy_princess_powerful",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1785431301893,
+      "tag": "0008_bored_luke_cage",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1785433213644,
+      "tag": "0009_eager_power_pack",
+      "breakpoints": true
     }
   ]
 }

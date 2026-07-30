@@ -74,18 +74,25 @@ export const Layout: React.FC<LayoutProps> = ({
                 <motion.button
                   key={item.key}
                   onClick={() => onSectionChange(item.key)}
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.4 + (index * 0.1) }}
+                  initial={{ opacity: 0, y: -20, backgroundColor: 'rgba(255, 255, 255, 0)' }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                    backgroundColor: currentSection === item.key ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0)',
+                  }}
+                  transition={{
+                    opacity: { duration: 0.4, delay: 0.4 + (index * 0.1) },
+                    y: { duration: 0.4, delay: 0.4 + (index * 0.1) },
+                    backgroundColor: { duration: 0.2, ease: 'easeOut' },
+                  }}
                   whileHover={{
-                    scale: 1.05,
                     backgroundColor: "rgba(255, 255, 255, 0.3)",
                     transition: { duration: 0.15, ease: 'easeOut' }
                   }}
-                  whileTap={{ scale: 0.95, transition: { duration: 0.1 } }}
-                  className={`px-4 py-2 rounded-xl font-medium cursor-pointer transition-colors duration-300 ${
+                  whileTap={{ scale: 0.97, transition: { duration: 0.1 } }}
+                  className={`px-4 py-2 rounded-xl font-medium cursor-pointer transition-[color] duration-300 ${
                     currentSection === item.key
-                      ? 'bg-white/30 text-blue-600 shadow-lg'
+                      ? 'text-blue-600 shadow-lg'
                       : 'text-gray-700 hover:text-gray-900'
                   }`}
                 >

@@ -136,7 +136,7 @@
       "availabilityValue": "新しい仕事を探しています"
     },
     "cta": {"title": "プロジェクトのアイデアがありますか？", "subtitle": "一緒に頑張りましょう！"},
-    "direct": {"title": "直接連絡", "email": "nico_v99@hotmail.com", "phone": "+54 11 28477792"}
+    "direct": {"title": "直接連絡", "email": "nico_v99@hotmail.com", "phone": "+54 9 11 2847-7792"}
   },
   "certifications": {
     "title": "資格",
@@ -180,6 +180,7 @@
     "transition": "一緒に働く準備はできていますか？"
   },
   "navigation": {
+    "home": "ホーム",
     "aboutMe": "自己紹介",
     "experience": "職歴",
     "skills": "スキル",

@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, serial, text, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
+import { boolean, index, integer, pgTable, serial, text, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
 
 export const projects = pgTable('projects', {
   id: serial('id').primaryKey(),
@@ -121,3 +121,25 @@ export const experienceItemTranslations = pgTable('experience_item_translations'
 }));
 
 export type ExperienceItemTranslation = typeof experienceItemTranslations.$inferSelect;
+
+// One row per qualifying page load (real visitors only — localhost and logged-in admin sessions
+// are filtered out before insert, see app/page.tsx). Deliberately not deduplicated at write time:
+// keeping every event lets stats queries compute "unique IPs" via COUNT(DISTINCT ip) over
+// whatever date range is requested, rather than baking in a single all-time notion of "unique".
+export const pageVisits = pgTable('page_visits', {
+  id: serial('id').primaryKey(),
+  // Server-generated UUID handed to the client so it can report back how long the visit lasted
+  // (see /api/track-duration) without exposing or relying on the auto-increment id.
+  visitId: varchar('visit_id', { length: 36 }).unique(),
+  ip: varchar('ip', { length: 64 }).notNull(),
+  country: varchar('country', { length: 8 }),
+  durationSeconds: integer('duration_seconds'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+}, (t) => ({
+  createdAtIdx: index('page_visits_created_at_idx').on(t.createdAt),
+  countryIdx: index('page_visits_country_idx').on(t.country),
+  visitIdIdx: index('page_visits_visit_id_idx').on(t.visitId),
+}));
+
+export type PageVisit = typeof pageVisits.$inferSelect;
+export type NewPageVisit = typeof pageVisits.$inferInsert;

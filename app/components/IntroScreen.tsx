@@ -2,15 +2,18 @@
 import { motion } from 'motion/react';
 import React, { useState } from 'react';
 import { useI18n } from '../contexts/i18nContext';
-import { AnimatedTextWord, TypewriterText } from './AnimatedText';
+import type { SupportedLang } from '../hooks/usePreferredLanguage';
+import { AnimatedTextWord } from './AnimatedText';
 import { CirclesBackground } from './CirclesBackground';
 import { LanguageSelector } from './LanguageSelector';
+import { RotatingGreeting } from './RotatingGreeting';
 
 interface IntroScreenProps {
   onComplete: () => void;
+  defaultLanguage: SupportedLang;
 }
 
-export const IntroScreen: React.FC<IntroScreenProps> = ({ onComplete }) => {
+export const IntroScreen: React.FC<IntroScreenProps> = ({ onComplete, defaultLanguage }) => {
   const { t } = useI18n();
   const [startExitAnimation, setStartExitAnimation] = useState(false);
   const [animationEnded, setAnimationEnded] = useState(false);
@@ -46,25 +49,16 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onComplete }) => {
           transition={{ duration: 0.8, delay: 0.5 }}
         >
           <div className="flex flex-col items-center">
-            <motion.h5
-              className="text-4xl md:text-5xl font-light text-gray-800"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 1 }}
-            >
-              {t('intro.hiIm')}&nbsp;
-            </motion.h5>
-            
-            <div className="relative">
-              <TypewriterText 
-                text="Nicolás Valdez" 
-                className="text-4xl md:text-5xl font-light mt-2"
-              />
-            </div>
+            <RotatingGreeting
+              active={!startExitAnimation}
+              initialLanguage={defaultLanguage}
+              hiImClassName="text-4xl md:text-5xl font-light text-gray-600"
+              nameClassName="text-4xl md:text-5xl font-normal mt-2 text-black"
+            />
           </div>
-          
+
           <motion.p
-            className="text-xl md:text-2xl font-light select-none text-gray-700"
+            className="text-lg md:text-xl font-light uppercase tracking-[0.2em] select-none text-gray-500"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.5 }}

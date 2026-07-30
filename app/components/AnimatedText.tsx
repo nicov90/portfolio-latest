@@ -30,7 +30,7 @@ export const AnimatedTextWord: React.FC<AnimatedTextProps> = ({
             delay: delay + index * 0.1,
             ease: "easeOut"
           }}
-          className="mr-2"
+          className="mr-1"
         >
           {word}
         </motion.span>

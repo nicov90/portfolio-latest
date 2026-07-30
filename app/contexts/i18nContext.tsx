@@ -1,6 +1,6 @@
 "use client";
 import React, { createContext, ReactNode, useContext } from 'react';
-import { usePreferredLanguage } from '../hooks/usePreferredLanguage';
+import { type SupportedLang, usePreferredLanguage } from '../hooks/usePreferredLanguage';
 import { useSiteContentMap, type SiteContentMap } from '../hooks/useSiteContent';
 import en from '../locales/en/common.json';
 import es from '../locales/es/common.json';
@@ -47,8 +47,8 @@ function deepApplyOverrides(value: any, prefix: string, overrides: SiteContentMa
   return value;
 }
 
-export const I18nProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { language, setLanguage } = usePreferredLanguage();
+export const I18nProvider: React.FC<{ children: ReactNode; defaultLanguage?: SupportedLang }> = ({ children, defaultLanguage }) => {
+  const { language, setLanguage } = usePreferredLanguage(defaultLanguage);
   const { data: overrides } = useSiteContentMap(language);
 
   const t = (key: string): any => {

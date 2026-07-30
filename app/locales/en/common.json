@@ -136,7 +136,7 @@
       "availabilityValue": "Open to new opportunities"
     },
     "cta": {"title": "Have a project in mind?", "subtitle": "Let's work together to make it happen"},
-    "direct": {"title": "Direct Contact", "email": "nico_v99@hotmail.com", "phone": "+54 11 28477792"}
+    "direct": {"title": "Direct Contact", "email": "nico_v99@hotmail.com", "phone": "+54 9 11 2847-7792"}
   },
   "certifications": {
     "title": "Certifications",
@@ -180,6 +180,7 @@
     "transition": "Ready to work together?"
   },
   "navigation": {
+    "home": "Home",
     "aboutMe": "About Me",
     "experience": "Experience",
     "skills": "Tech Stack",
