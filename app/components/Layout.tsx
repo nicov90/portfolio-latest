@@ -86,7 +86,7 @@ export const Layout: React.FC<LayoutProps> = ({
                     backgroundColor: { duration: 0.2, ease: 'easeOut' },
                   }}
                   whileHover={{
-                    backgroundColor: "rgba(255, 255, 255, 0.3)",
+                    backgroundColor: "rgba(255, 255, 255, 0.5)",
                     transition: { duration: 0.15, ease: 'easeOut' }
                   }}
                   whileTap={{ scale: 0.97, transition: { duration: 0.1 } }}

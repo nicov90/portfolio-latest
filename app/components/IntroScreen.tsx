@@ -52,13 +52,13 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onComplete, defaultLan
             <RotatingGreeting
               active={!startExitAnimation}
               initialLanguage={defaultLanguage}
-              hiImClassName="text-4xl md:text-5xl font-light text-gray-600"
+              hiImClassName="text-4xl md:text-5xl font-light text-gray-800/85"
               nameClassName="text-4xl md:text-5xl font-normal mt-2 text-black"
             />
           </div>
 
           <motion.p
-            className="text-lg md:text-xl font-light uppercase tracking-[0.2em] select-none text-gray-500"
+            className="text-lg md:text-xl font-light uppercase tracking-[0.2em] select-none text-gray-700/90"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.5 }}
@@ -76,7 +76,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onComplete, defaultLan
               text={t('intro.clickToContinue')}
               delay={0}
               speed={0.75}
-              className="text-lg font-semibold cursor-pointer hover:text-blue-600 transition-colors duration-300 text-gray-600"
+              className="text-md font-medium cursor-pointer hover:text-blue-600 transition-colors duration-300 text-gray-700/70"
             />
           </motion.div>
         </motion.div>
