@@ -5,7 +5,7 @@
     "clickToContinue": "Click para continuar"
   },
   "about": {
-    "title": "Sobre Mí",
+    "title": "Sobre mí",
     "subtitle": "Apasionado por la tecnología y en constante búsqueda de mejora, me enfoco en crear soluciones sólidas, escalables y mantenibles que aporten valor real.",
     "description": "Actualmente enfocado en arquitecturas modernas y automatización de flujos, integrando IA y N8N para optimizar procesos. Interesado en seguir profundizando en desarrollo front-end y full-stack, aplicando buenas prácticas de diseño, escalabilidad y usabilidad.",
     "mainCard": {
@@ -109,7 +109,7 @@
   },
   "contact": {
     "title": "Pongámonos en contacto",
-    "subtitle": "Estoy siempre abierto a nuevas oportunidades y proyectos interesantes. ¡Conectemos!",
+    "subtitle": "Escríbeme si tienes una consulta, una propuesta de trabajo o un proyecto en mente.",
     "form": {
       "title": "Envíame un mensaje",
       "name": "Nombre",
@@ -128,13 +128,12 @@
     "info": {
       "title": "Información de Contacto",
       "location": "Ubicación",
-      "locationValue": "Argentina",
+      "locationValue": "Buenos Aires, Argentina",
       "phone": "Idiomas",
       "phoneValue": "Español (Nativo) • Inglés (C1) • Japonés (N4)",
       "availability": "Disponibilidad",
       "availabilityValue": "Abierto a nuevas oportunidades"
     },
-    "cta": {"title": "¿Tienes un proyecto en mente?", "subtitle": "Trabajemos juntos para hacerlo realidad"},
     "direct": {"title": "Contacto Directo", "email": "nico_v99@hotmail.com", "phone": "+54 9 11 2847-7792"}
   },
   "certifications": {
@@ -180,7 +179,7 @@
   },
   "navigation": {
     "home": "Inicio",
-    "aboutMe": "Sobre Mí",
+    "aboutMe": "Sobre mí",
     "experience": "Experiencia",
     "skills": "Mis Habilidades",
     "projects": "Proyectos",

@@ -14,8 +14,8 @@ interface Greeting {
 // this line is in Japanese. "です" is folded into the name line itself since hiIm/name render as
 // two separate stacked lines rather than one concatenated sentence.
 const GREETINGS: Greeting[] = [
-  { code: 'es', hiIm: 'Hola, soy', name: 'Nicolás Valdez' },
-  { code: 'en', hiIm: "Hi, I'm", name: 'Nicolás Valdez' },
+  { code: 'es', hiIm: 'Hola, soy', name: 'Nicolas Valdez' },
+  { code: 'en', hiIm: "Hi, I'm", name: 'Nicolas Valdez' },
   { code: 'ja', hiIm: 'こんにちは、', name: 'ニコラス・バルデスです' },
 ];
 

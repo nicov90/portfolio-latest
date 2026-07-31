@@ -6,6 +6,8 @@ import {
 import { motion } from 'motion/react';
 import React, { useEffect, useState } from 'react';
 import { useI18n } from '../../contexts/i18nContext';
+import { EditableText } from '../admin/EditableText';
+import { SectionHeader, StaggeredText } from '../animations';
 import { ImageStackCarousel } from '../ImageStackCarousel';
 import { SimpleImageCarousel } from '../SimpleImageCarousel';
 
@@ -160,23 +162,13 @@ export const Projects: React.FC<ProjectsProps> = React.memo(({ isVisible }) => {
     <div className="w-full">
       {/* Header - centered with whitespace around */}
       <div className="min-h-[80vh] flex items-center justify-center py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h1
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={isVisible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="text-4xl sm:text-5xl md:text-6xl leading-tight font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6"
-          >
-            {t('projects.title')}
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed"
-          >
-            {t('projects.subtitle')}
-          </motion.p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            isVisible={isVisible}
+            className="text-center"
+            title={<EditableText path="projects.title" locale={language}>{t('projects.title')}</EditableText>}
+            subtitle={<EditableText path="projects.subtitle" locale={language} multiline>{t('projects.subtitle')}</EditableText>}
+          />
         </div>
       </div>
 
@@ -226,7 +218,7 @@ export const Projects: React.FC<ProjectsProps> = React.memo(({ isVisible }) => {
                   transition={{ delay: 0.3, duration: 0.6 }}
                 >
                   <div>
-                    <h2 className="text-4xl font-bold mb-4">{project.title}</h2>
+                    <h2 className="text-4xl font-bold mb-4"><StaggeredText text={project.title} /></h2>
                     <div className="h-1 w-20 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] rounded-full mb-6" />
                     {renderDescription(project.description)}
                   </div>

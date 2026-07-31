@@ -21,7 +21,7 @@ const geistMono = Geist_Mono({
 // the two never dedupe — the browser always keeps whichever <title> is first in the document,
 // which would permanently be this one, never updating no matter what DocumentTitleUpdater renders.
 export const metadata: Metadata = {
-  description: "Portfolio de Nicolás Valdez, desarrollador Full Stack.",
+  description: "Portfolio de Nicolas Valdez, desarrollador Full Stack.",
 };
 
 export default function RootLayout({

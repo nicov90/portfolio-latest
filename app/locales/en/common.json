@@ -109,7 +109,7 @@
   },
   "contact": {
     "title": "Let's get in touch!",
-    "subtitle": "I'm always open to new opportunities and interesting projects. Let's connect!",
+    "subtitle": "Write to me if you have a question, a work proposal, or a project in mind.",
     "form": {
       "title": "Send me a message",
       "name": "Name",
@@ -128,13 +128,12 @@
     "info": {
       "title": "Contact Information",
       "location": "Location",
-      "locationValue": "Argentina",
+      "locationValue": "Buenos Aires, Argentina",
       "phone": "Languages",
       "phoneValue": "Spanish (Native) • English (C1) • Japanese (N4)",
       "availability": "Availability",
       "availabilityValue": "Open to new opportunities"
     },
-    "cta": {"title": "Have a project in mind?", "subtitle": "Let's work together to make it happen"},
     "direct": {"title": "Direct Contact", "email": "nico_v99@hotmail.com", "phone": "+54 9 11 2847-7792"}
   },
   "certifications": {

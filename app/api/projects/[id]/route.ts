@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '../../../../db';
 import { projects, projectTranslations } from '../../../../db/schema';
@@ -64,19 +64,32 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (translations && typeof translations === 'object') {
       for (const locale of Object.keys(translations)) {
         const tr = translations[locale] || {};
+        const localeLower = locale.toLowerCase();
+        // A PATCH is often partial — merge onto the existing row instead of blindly nulling
+        // out fields the caller didn't mention (that previously wiped translated titles
+        // whenever only a description update was sent).
+        const [existing] = await db
+          .select()
+          .from(projectTranslations)
+          .where(and(eq(projectTranslations.projectId, projectId), eq(projectTranslations.locale, localeLower)));
+
+        const merged = {
+          title: tr.title !== undefined ? (tr.title || null) : (existing?.title ?? null),
+          description: tr.description !== undefined ? (tr.description || null) : (existing?.description ?? null),
+        };
+
         await db
           .insert(projectTranslations)
           .values({
             projectId,
-            locale: locale.toLowerCase(),
-            title: tr.title ?? null,
-            description: tr.description ?? null,
+            locale: localeLower,
+            ...merged,
             createdAt: now,
             updatedAt: now,
           })
           .onConflictDoUpdate({
             target: [projectTranslations.projectId, projectTranslations.locale],
-            set: { title: tr.title ?? null, description: tr.description ?? null, updatedAt: now },
+            set: { ...merged, updatedAt: now },
           });
       }
     }

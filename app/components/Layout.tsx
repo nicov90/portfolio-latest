@@ -2,8 +2,10 @@ import { Github, Linkedin, Menu } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import React, { useState } from 'react';
 import { useI18n } from '../contexts/i18nContext';
+import { getSiteOwnerName } from '../../lib/siteOwner';
 import { DynamicBackground } from './DynamicBackground';
 import { LanguageSelector } from './LanguageSelector';
+import { LocalizedFade, StaggeredText } from './animations';
 import { ScrollProgressBar } from './ScrollProgressBar';
 import { SocialSidebar } from './SocialSidebar';
 import { StarsBackground } from './StarsBackground';
@@ -21,7 +23,7 @@ export const Layout: React.FC<LayoutProps> = ({
   currentSection, 
   onSectionChange 
 }) => {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const navItems: { key: Section; label: string }[] = [
@@ -56,7 +58,12 @@ export const Layout: React.FC<LayoutProps> = ({
       >
         <div className="bg-white/25 backdrop-blur-xl rounded-2xl border border-white/30 shadow-2xl px-3 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2">
-            {/* Logo: a soft shine sweeps across the gradient text on hover instead of scaling up */}
+            {/* Logo: a soft shine sweeps across the gradient text on hover instead of scaling up.
+                Uses LocalizedFade, not StaggeredText like the nav labels below - animating many
+                individually-transformed letter spans inside this bg-clip-text gradient caused a
+                real (if obscure) rendering glitch: the text would render visibly cut off/missing
+                its top portion for a few frames during a language switch. A single fading element
+                doesn't hit whatever compositing edge case that per-letter one does. */}
             <div className="cursor-pointer" onClick={() => onSectionChange('about-me')}>
               <motion.h2
                 className="text-lg sm:text-2xl font-bold tracking-tight sm:tracking-normal whitespace-nowrap bg-gradient-to-r from-blue-600 via-purple-500 via-45% to-blue-600 bg-clip-text text-transparent"
@@ -64,7 +71,7 @@ export const Layout: React.FC<LayoutProps> = ({
                 whileHover={{ backgroundPosition: '100% center' }}
                 transition={{ duration: 0.7, ease: 'easeInOut' }}
               >
-                Nicolás Valdez
+                <LocalizedFade as="span">{getSiteOwnerName(language)}</LocalizedFade>
               </motion.h2>
             </div>
 
@@ -100,7 +107,7 @@ export const Layout: React.FC<LayoutProps> = ({
                       : 'text-gray-700 hover:text-gray-900'
                   }`}
                 >
-                  {item.label}
+                  <StaggeredText text={item.label} />
                 </motion.button>
               ))}
             </div>
@@ -201,7 +208,9 @@ export const Layout: React.FC<LayoutProps> = ({
                           : 'bg-white/25 text-gray-800'
                       }`}
                     >
-                      <span className="block text-base font-medium">{item.label}</span>
+                      <span className="block text-base font-medium">
+                        <StaggeredText text={item.label} />
+                      </span>
                     </motion.button>
                   ))}
                 </div>

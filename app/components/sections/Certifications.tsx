@@ -3,6 +3,8 @@ import { motion } from 'motion/react';
 import React, { useEffect, useState } from 'react';
 import { useI18n } from '../../contexts/i18nContext';
 import { useCertificates } from '../../hooks/useCertificates';
+import { EditableText } from '../admin/EditableText';
+import { SectionHeader, StaggeredText } from '../animations';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 
 interface CertificationsProps {
@@ -78,30 +80,11 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="text-center mb-16"
-      >
-        <motion.h1
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={isVisible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-          transition={{ duration: 1, delay: 0.2 }}
-          className="text-4xl sm:text-5xl md:text-6xl leading-tight font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6"
-        >
-          {t('certifications.title')}
-        </motion.h1>
-        
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed"
-        >
-          {t('certifications.subtitle')}
-        </motion.p>
-      </motion.div>
+      <SectionHeader
+        isVisible={isVisible}
+        title={<EditableText path="certifications.title" locale={language}>{t('certifications.title')}</EditableText>}
+        subtitle={<EditableText path="certifications.subtitle" locale={language} multiline>{t('certifications.subtitle')}</EditableText>}
+      />
 
       {/* Timeline Container */}
       <div className="relative max-w-6xl mx-auto">
@@ -159,13 +142,20 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
                       whileHover={{ y: -5 }}
                       className="relative bg-white/30 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/40 shadow-2xl will-change-transform"
                     >
-                      {/* Image */}
+                      {/* Image: falls back to a branded placeholder instead of an empty `src`,
+                          which React warns about and browsers may re-request as the page URL. */}
                       <div className="relative h-48 overflow-hidden">
-                        <ImageWithFallback
-                          src={cert.image}
-                          alt={cert.title}
-                          className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                        />
+                        {cert.image ? (
+                          <ImageWithFallback
+                            src={cert.image}
+                            alt={cert.title}
+                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-[#00bfe6]/40 to-[#0096c7]/40 flex items-center justify-center">
+                            <Award size={48} className="text-white/80" />
+                          </div>
+                        )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                         
                         {/* Badge */}
@@ -182,9 +172,9 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
 
                       {/* Content */}
                       <div className="p-6">
-                        <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-start justify-between mb-1">
                           <h3 className="text-2xl font-bold text-gray-900">
-                            {cert.title}
+                            <StaggeredText text={cert.title} />
                           </h3>
                           {hasActions && (
                             <motion.button
@@ -203,7 +193,7 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
                         </div>
 
                         {(cert.subtitle || cert.date) && (
-                          <p className="text-gray-600 mb-4">{cert.subtitle || cert.date}</p>
+                          <p className="text-sm text-gray-500 mb-4">{cert.subtitle || cert.date}</p>
                         )}
 
                         {cert.description && (

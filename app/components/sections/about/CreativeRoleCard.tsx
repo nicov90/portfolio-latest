@@ -65,18 +65,26 @@ export const CreativeRoleCard: React.FC<CreativeRoleCardProps> = ({
           className="flex flex-col items-center text-center space-y-4 relative z-10"
           style={{ transform: 'translateZ(40px)' }}
         >
-          <div className="relative -mt-3 mb-1">
+          <div className="relative -mt-5 mb-1">
             <motion.div
               initial={{ scale: 0, rotate: 90 }}
               animate={isVisible ? { scale: 1, rotate: 0 } : { scale: 0, rotate: 90 }}
               transition={{ duration: 0.7, delay: 1 }}
-              // className="w-48"
-              // style={{ aspectRatio: '1400 / 990' }}
+              className="w-48"
+              style={{ aspectRatio: '1400 / 990' }}
             >
               <DotLottieReact
                 src="/animations/Coding.json"
                 loop
                 autoplay
+                // `renderConfig.autoResize` never actually resized the underlying <canvas>'s
+                // width/height attributes in testing — it stayed at the browser's 300x150 canvas
+                // default (a 2:1 ratio) while CSS stretched it to fit our 1400:990 box, distorting
+                // the animation horizontally. Passing width/height directly sets the canvas's real
+                // pixel buffer to the source's exact aspect ratio (scaled down 2.5x, still sharp
+                // at this display size), so nothing needs to stretch unevenly.
+                width={560}
+                height={396}
                 style={{ width: '100%', height: '100%' }}
               />
             </motion.div>

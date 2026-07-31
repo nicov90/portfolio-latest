@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useEditMode } from '../../contexts/editModeContext';
 import { useUpdateSiteContent } from '../../hooks/useSiteContent';
+import { LocalizedFade, StaggeredText } from '../animations';
 
 interface EditableTextProps {
   /** Full i18n dot-path matching the `t()` key, e.g. "about.title". Ignored if `onSave` is provided. */
@@ -30,9 +31,21 @@ export const EditableText: React.FC<EditableTextProps> = ({
   const [draft, setDraft] = useState('');
 
   const Tag = as;
+  // Letter-by-letter stagger only makes sense for short, single-line strings — a multiline
+  // paragraph animating in one character at a time would be slow and read as a gimmick rather
+  // than a transition, so it gets the plain block fade instead. Never both on the same text:
+  // nesting LocalizedFade's block-level opacity/y tween around StaggeredText's own per-letter
+  // one produced two independent, differently-timed animations compositing into a confusing
+  // "flickers once, then plays properly" mess.
+  let content: React.ReactNode = children;
+  if (typeof children === 'string') {
+    content = multiline
+      ? <LocalizedFade as="span">{children}</LocalizedFade>
+      : <StaggeredText text={children} />;
+  }
 
   if (!isAdmin || !editMode) {
-    return <Tag className={className}>{children}</Tag>;
+    return <Tag className={className}>{content}</Tag>;
   }
 
   const startEditing = () => {
@@ -88,7 +101,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
       onClick={startEditing}
       title="Clic para editar"
     >
-      {children}
+      {content}
     </Tag>
   );
 };

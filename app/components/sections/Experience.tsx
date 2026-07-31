@@ -6,6 +6,7 @@ import { useI18n } from '../../contexts/i18nContext';
 import { useCreateExperienceItem, useDeleteExperienceItem, useExperienceItems, useUpdateExperienceItem } from '../../hooks/useExperience';
 import { EditableList } from '../admin/EditableList';
 import { EditableText } from '../admin/EditableText';
+import { SectionHeader } from '../animations';
 
 interface ExperienceProps {
   isVisible: boolean;
@@ -82,30 +83,11 @@ export const Experience: React.FC<ExperienceProps> = React.memo(({ isVisible }) 
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="text-center mb-16"
-      >
-        <motion.h1
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={isVisible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-          transition={{ duration: 1, delay: 0.2 }}
-          className="text-4xl sm:text-5xl md:text-6xl leading-tight font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6"
-        >
-          <EditableText path="experience.title" locale={language}>{t('experience.title')}</EditableText>
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed"
-        >
-          <EditableText path="experience.subtitle" locale={language} multiline>{t('experience.subtitle')}</EditableText>
-        </motion.p>
-      </motion.div>
+      <SectionHeader
+        isVisible={isVisible}
+        title={<EditableText path="experience.title" locale={language}>{t('experience.title')}</EditableText>}
+        subtitle={<EditableText path="experience.subtitle" locale={language} multiline>{t('experience.subtitle')}</EditableText>}
+      />
 
       {/* Timeline Container */}
       <div className="relative">

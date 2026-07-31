@@ -109,7 +109,7 @@
   },
   "contact": {
     "title": "連絡してみましょう！",
-    "subtitle": "新しい仕事や面白いプロジェクトにいつでも興味があります。連絡を待っています！",
+    "subtitle": "ご質問やお仕事のご相談、プロジェクトのアイデアがあれば、お気軽にご連絡ください。",
     "form": {
       "title": "メッセージを送る",
       "name": "名前",
@@ -128,13 +128,12 @@
     "info": {
       "title": "連絡先情報",
       "location": "場所",
-      "locationValue": "アルゼンチン",
+      "locationValue": "ブエノスアイレス、アルゼンチン",
       "phone": "言語",
       "phoneValue": "スペイン語（母語）・英語（C1）・日本語（N4）",
       "availability": "空き状況",
       "availabilityValue": "新しい仕事を探しています"
     },
-    "cta": {"title": "プロジェクトのアイデアがありますか？", "subtitle": "一緒に頑張りましょう！"},
     "direct": {"title": "直接連絡", "email": "nico_v99@hotmail.com", "phone": "+54 9 11 2847-7792"}
   },
   "certifications": {

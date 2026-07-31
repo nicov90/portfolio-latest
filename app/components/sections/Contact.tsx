@@ -1,8 +1,9 @@
-import { Clock, Globe2, Mail, MapPin, MessageSquare, Phone, Send, Sparkles } from 'lucide-react';
+import { Clock, Globe2, Mail, MapPin, MessageSquare, Phone, Send } from 'lucide-react';
 import { motion } from 'motion/react';
 import React, { useState } from 'react';
 import { useI18n } from '../../contexts/i18nContext';
 import { EditableText } from '../admin/EditableText';
+import { SectionHeader } from '../animations';
 
 interface ContactProps {
   isVisible: boolean;
@@ -65,30 +66,11 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="text-center mb-16"
-      >
-        <motion.h1
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={isVisible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-          transition={{ duration: 1, delay: 0.2 }}
-          className="text-4xl sm:text-5xl md:text-6xl leading-tight font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6"
-        >
-          {t('contact.title')}
-        </motion.h1>
-        
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed"
-        >
-          {t('contact.subtitle')}
-        </motion.p>
-      </motion.div>
+      <SectionHeader
+        isVisible={isVisible}
+        title={<EditableText path="contact.title" locale={language}>{t('contact.title')}</EditableText>}
+        subtitle={<EditableText path="contact.subtitle" locale={language} multiline>{t('contact.subtitle')}</EditableText>}
+      />
 
       <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto items-start">
         {/* Contact Form */}
@@ -106,12 +88,8 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
               transition={{ duration: 0.6, delay: 0.8 }}
               className="flex items-center gap-3 mb-8"
             >
-              <motion.div
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.8 }}
-                className="w-12 h-12 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] rounded-xl flex items-center justify-center"
-              >
-                <MessageSquare size={24} className="text-white" />
+              <motion.div whileHover={{ rotate: 15 }} transition={{ duration: 0.4 }} className="shrink-0 flex items-center">
+                <MessageSquare size={26} className="text-[#0096c7]" strokeWidth={2} />
               </motion.div>
               <h3 className="text-2xl font-bold text-gray-800">
                 {t('contact.form.title')}
@@ -262,16 +240,7 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
           className="relative"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-[#667eea]/20 to-[#00bfe6]/20 rounded-3xl blur-xl" />
-          <div className="relative bg-white/25 backdrop-blur-xl rounded-3xl p-8 border border-white/30 shadow-2xl space-y-8">
-            {/* CTA */}
-            <div>
-              <div className="flex items-center gap-2 text-[#0096c7] font-semibold mb-2">
-                <Sparkles size={18} />
-                <span className="text-sm uppercase tracking-wide">{t('contact.cta.title')}</span>
-              </div>
-              <p className="text-gray-700 leading-relaxed">{t('contact.cta.subtitle')}</p>
-            </div>
-
+          <div className="relative bg-white/25 backdrop-blur-xl rounded-3xl p-8 sm:p-10 border border-white/30 shadow-2xl space-y-10">
             {/* Direct contact */}
             <div className="space-y-3">
               <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">{t('contact.direct.title')}</h4>
@@ -304,7 +273,7 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
                 the value, so it couldn't shrink or wrap — a long value (e.g. three languages)
                 just overflowed the card instead. Stacking on mobile gives the value the full
                 row width to wrap into naturally. */}
-            <div className="space-y-3 pt-2 border-t border-white/30">
+            <div className="space-y-3 pt-5 border-t border-white/30">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
                 <span className="flex items-center gap-2 text-sm text-gray-500 shrink-0">
                   <MapPin size={18} className="text-[#00bfe6] shrink-0" />

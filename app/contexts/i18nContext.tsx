@@ -49,6 +49,15 @@ function deepApplyOverrides(value: any, prefix: string, overrides: SiteContentMa
 
 export const I18nProvider: React.FC<{ children: ReactNode; defaultLanguage?: SupportedLang }> = ({ children, defaultLanguage }) => {
   const { language, setLanguage } = usePreferredLanguage(defaultLanguage);
+
+  // `t()` resolves against `language` directly - no artificial lag. Text-transition timing (the
+  // dip-then-settle on a language switch) is handled per-element by StaggeredText/LocalizedFade
+  // via AnimatePresence, keyed off their own resolved text, not coordinated through a shared
+  // "is the language currently changing" flag here. An earlier design used a lagged
+  // `renderLanguage` plus setTimeout chains to swap text while hidden, but that timing
+  // coordination proved unreliable (a "flashes to full opacity, then plays properly" glitch that
+  // showed up for some text elements and not others). Letting each component own its own
+  // exit-then-enter via Framer's AnimatePresence removed the need for this lag entirely.
   const { data: overrides } = useSiteContentMap(language);
 
   const t = (key: string): any => {

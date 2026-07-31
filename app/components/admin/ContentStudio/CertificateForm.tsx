@@ -11,6 +11,11 @@ import { Label } from '../../ui/label';
 import { Textarea } from '../../ui/textarea';
 import { ImageManager } from './ImageManager';
 
+const TRANSLATABLE_LOCALES = [
+  { code: 'es', label: 'Español' },
+  { code: 'ja', label: '日本語' },
+] as const;
+
 const schema = z.object({
   title: z.string().min(1, 'El título es obligatorio'),
   subtitle: z.string().optional(),
@@ -21,6 +26,9 @@ const schema = z.object({
   esTitle: z.string().optional(),
   esSubtitle: z.string().optional(),
   esDescription: z.string().optional(),
+  jaTitle: z.string().optional(),
+  jaSubtitle: z.string().optional(),
+  jaDescription: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -54,6 +62,9 @@ const emptyDefaults: FormValues = {
   esTitle: '',
   esSubtitle: '',
   esDescription: '',
+  jaTitle: '',
+  jaSubtitle: '',
+  jaDescription: '',
 };
 
 export const CertificateForm: React.FC<CertificateFormProps> = ({ open, onClose, certificate }) => {
@@ -63,6 +74,7 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({ open, onClose,
     defaultValues: emptyDefaults,
   });
   const [images, setImages] = useState<string[]>([]);
+  const [translationLocale, setTranslationLocale] = useState<'es' | 'ja'>('es');
   const { mutateAsync: createCertificate } = useCreateCertificate();
   const { mutateAsync: updateCertificate } = useUpdateCertificate();
   const { mutateAsync: deleteCertificate } = useDeleteCertificate();
@@ -82,12 +94,16 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({ open, onClose,
         esTitle: certificate.translations?.es?.title || '',
         esSubtitle: certificate.translations?.es?.subtitle || '',
         esDescription: certificate.translations?.es?.description || '',
+        jaTitle: certificate.translations?.ja?.title || '',
+        jaSubtitle: certificate.translations?.ja?.subtitle || '',
+        jaDescription: certificate.translations?.ja?.description || '',
       });
       setImages(certificate.imageUrl ? [certificate.imageUrl] : []);
     } else {
       reset(emptyDefaults);
       setImages([]);
     }
+    setTranslationLocale('es');
     setError(null);
   }, [open, certificate, reset]);
 
@@ -103,14 +119,19 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({ open, onClose,
         verifyUrl: data.verifyUrl || null,
         downloadUrl: data.downloadUrl || null,
       };
-      const translations = (data.esTitle || data.esSubtitle || data.esDescription)
-        ? { es: { title: data.esTitle || undefined, subtitle: data.esSubtitle || undefined, description: data.esDescription || undefined } }
-        : undefined;
+      const translations: Record<string, { title?: string; subtitle?: string; description?: string }> = {};
+      if (data.esTitle || data.esSubtitle || data.esDescription) {
+        translations.es = { title: data.esTitle || undefined, subtitle: data.esSubtitle || undefined, description: data.esDescription || undefined };
+      }
+      if (data.jaTitle || data.jaSubtitle || data.jaDescription) {
+        translations.ja = { title: data.jaTitle || undefined, subtitle: data.jaSubtitle || undefined, description: data.jaDescription || undefined };
+      }
+      const translationsPayload = Object.keys(translations).length > 0 ? translations : undefined;
 
       if (isEditing && certificate) {
-        await updateCertificate({ id: certificate.id, certificate: payload, translations });
+        await updateCertificate({ id: certificate.id, certificate: payload, translations: translationsPayload });
       } else {
-        await createCertificate({ certificate: payload, translations });
+        await createCertificate({ certificate: payload, translations: translationsPayload });
       }
       onClose();
     } catch (e: any) {
@@ -141,16 +162,16 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({ open, onClose,
         <div className="flex-1 overflow-y-auto px-4 pb-4">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl mx-auto">
             <div className="space-y-2">
-              <Label htmlFor="title">Título</Label>
+              <Label htmlFor="title">Título (EN)</Label>
               <Input id="title" {...register('title')} />
               {errors.title && <p className="text-sm text-red-600">{errors.title.message}</p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="subtitle">Subtítulo (fecha, nivel, etc.)</Label>
+              <Label htmlFor="subtitle">Subtítulo (EN) — fecha, nivel, etc.</Label>
               <Input id="subtitle" {...register('subtitle')} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="description">Descripción</Label>
+              <Label htmlFor="description">Descripción (EN)</Label>
               <Textarea id="description" rows={4} {...register('description')} />
             </div>
             <div className="space-y-2">
@@ -175,10 +196,36 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({ open, onClose,
             </div>
 
             <div className="border-t pt-4 space-y-2">
-              <h3 className="font-semibold text-sm">Traducción (Español)</h3>
-              <Input {...register('esTitle')} placeholder="Título en español" />
-              <Input {...register('esSubtitle')} placeholder="Subtítulo en español" />
-              <Textarea rows={3} {...register('esDescription')} placeholder="Descripción en español" />
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-sm">Traducción</h3>
+                <div className="flex gap-1 rounded-lg bg-muted p-1">
+                  {TRANSLATABLE_LOCALES.map((loc) => (
+                    <button
+                      key={loc.code}
+                      type="button"
+                      onClick={() => setTranslationLocale(loc.code)}
+                      className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                        translationLocale === loc.code ? 'bg-white shadow text-foreground' : 'text-muted-foreground'
+                      }`}
+                    >
+                      {loc.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {translationLocale === 'es' ? (
+                <React.Fragment key="es">
+                  <Input {...register('esTitle')} placeholder="Título en español" />
+                  <Input {...register('esSubtitle')} placeholder="Subtítulo en español" />
+                  <Textarea rows={3} {...register('esDescription')} placeholder="Descripción en español" />
+                </React.Fragment>
+              ) : (
+                <React.Fragment key="ja">
+                  <Input {...register('jaTitle')} placeholder="タイトル（日本語）" />
+                  <Input {...register('jaSubtitle')} placeholder="サブタイトル（日本語）" />
+                  <Textarea rows={3} {...register('jaDescription')} placeholder="説明（日本語）" />
+                </React.Fragment>
+              )}
             </div>
 
             {error && <p className="text-sm text-red-600">{error}</p>}

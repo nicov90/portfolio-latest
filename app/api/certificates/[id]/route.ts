@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '../../../../db';
 import { certificateTranslations, certificates } from '../../../../db/schema';
@@ -67,20 +67,32 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (translations && typeof translations === 'object') {
       for (const locale of Object.keys(translations)) {
         const tr = translations[locale] || {};
+        const localeLower = locale.toLowerCase();
+        // A PATCH is often partial (e.g. only `description`) — merge onto the existing row
+        // instead of blindly nulling out fields the caller didn't mention.
+        const [existing] = await db
+          .select()
+          .from(certificateTranslations)
+          .where(and(eq(certificateTranslations.certificateId, certificateId), eq(certificateTranslations.locale, localeLower)));
+
+        const merged = {
+          title: tr.title !== undefined ? (tr.title || null) : (existing?.title ?? null),
+          subtitle: tr.subtitle !== undefined ? (tr.subtitle || null) : (existing?.subtitle ?? null),
+          description: tr.description !== undefined ? (tr.description || null) : (existing?.description ?? null),
+        };
+
         await db
           .insert(certificateTranslations)
           .values({
             certificateId,
-            locale: locale.toLowerCase(),
-            title: tr.title ?? null,
-            subtitle: tr.subtitle ?? null,
-            description: tr.description ?? null,
+            locale: localeLower,
+            ...merged,
             createdAt: now,
             updatedAt: now,
           })
           .onConflictDoUpdate({
             target: [certificateTranslations.certificateId, certificateTranslations.locale],
-            set: { title: tr.title ?? null, subtitle: tr.subtitle ?? null, description: tr.description ?? null, updatedAt: now },
+            set: { ...merged, updatedAt: now },
           });
       }
     }

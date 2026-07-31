@@ -49,7 +49,7 @@ export const ContentStudioPanel: React.FC<ContentStudioPanelProps> = ({ open, on
   const [tab, setTab] = useState<'projects' | 'certificates'>('projects');
   const [activeForm, setActiveForm] = useState<ActiveForm>(null);
   const { data: projects } = useProjects();
-  const { data: certificates } = useCertificates();
+  const { data: certificates } = useCertificates(undefined, { allLocales: true });
   const { mutate: updateProject } = useUpdateProject();
   const { mutate: updateCertificate } = useUpdateCertificate();
 

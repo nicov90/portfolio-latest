@@ -10,6 +10,7 @@ import {
 import { motion } from 'motion/react';
 import React from 'react';
 import { EditableText } from '../admin/EditableText';
+import { SectionHeader } from '../animations';
 import { useI18n } from '../../contexts/i18nContext';
 
 interface WhatIBringProps {
@@ -68,37 +69,20 @@ export const WhatIBring: React.FC<WhatIBringProps> = React.memo(({ isVisible }) 
     <div className="w-full">
       {/* Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.8 }}
+        <SectionHeader
+          isVisible={isVisible}
+          as="h2"
           className="text-center"
+          title={<EditableText path="whatIBring.title" locale={language}>{t('whatIBring.title')}</EditableText>}
+          subtitle={<EditableText path="whatIBring.subtitle" locale={language} multiline>{t('whatIBring.subtitle')}</EditableText>}
         >
-          <motion.h2
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={isVisible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="text-4xl sm:text-5xl md:text-6xl leading-tight font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6"
-          >
-            <EditableText path="whatIBring.title" locale={language}>{t('whatIBring.title')}</EditableText>
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed"
-          >
-            <EditableText path="whatIBring.subtitle" locale={language} multiline>{t('whatIBring.subtitle')}</EditableText>
-          </motion.p>
-          
           <motion.div
             initial={{ scaleX: 0 }}
             animate={isVisible ? { scaleX: 1 } : { scaleX: 0 }}
             transition={{ duration: 1, delay: 0.6 }}
             className="h-1 w-32 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] rounded-full mx-auto mt-8"
           />
-        </motion.div>
+        </SectionHeader>
       </div>
 
       {/* Services Grid */}

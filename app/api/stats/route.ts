@@ -1,4 +1,4 @@
-import { and, gte, lte, sql } from 'drizzle-orm';
+import { and, gte, isNotNull, lte, sql } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '../../../db';
 import { pageVisits } from '../../../db/schema';
@@ -21,25 +21,28 @@ export async function GET(request: NextRequest) {
     const from = fromParam ? new Date(fromParam) : null;
     const to = toParam ? new Date(toParam) : null;
 
-    const conditions = [];
+    // A duration only ever gets written once the client-side beacon fires (see
+    // VisitDurationTracker), which requires the browser to actually execute React and hydrate —
+    // something the vast majority of bots/crawlers/scrapers never do, even the ones that spoof a
+    // convincing User-Agent to slip past the check in app/page.tsx. A visit stuck on NULL forever
+    // is the strongest signal available that no real browser session happened, so it's excluded
+    // unconditionally rather than only when a date range is given.
+    const conditions = [isNotNull(pageVisits.durationSeconds)];
     if (from && !isNaN(from.getTime())) conditions.push(gte(pageVisits.createdAt, from));
     if (to && !isNaN(to.getTime())) conditions.push(lte(pageVisits.createdAt, to));
-    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+    const whereClause = and(...conditions);
 
     const uniqueIpCount = sql<number>`count(distinct ${pageVisits.ip})`;
-    // avg() ignores NULLs by default in Postgres, so visits that never reported a duration
-    // (e.g. the tab was killed before any beacon fired) don't drag the average toward zero.
     const avgDuration = sql<number | null>`avg(${pageVisits.durationSeconds})`;
 
-    const totalQuery = db.select({ count: uniqueIpCount, avgDuration }).from(pageVisits);
-    const [totalRow] = whereClause ? await totalQuery.where(whereClause) : await totalQuery;
+    const [totalRow] = await db.select({ count: uniqueIpCount, avgDuration }).from(pageVisits).where(whereClause);
 
-    const byCountryQuery = db
+    const byCountryRows = await db
       .select({ country: pageVisits.country, count: uniqueIpCount, avgDuration })
-      .from(pageVisits);
-    const byCountryRows = whereClause
-      ? await byCountryQuery.where(whereClause).groupBy(pageVisits.country).orderBy(sql`count(distinct ${pageVisits.ip}) desc`)
-      : await byCountryQuery.groupBy(pageVisits.country).orderBy(sql`count(distinct ${pageVisits.ip}) desc`);
+      .from(pageVisits)
+      .where(whereClause)
+      .groupBy(pageVisits.country)
+      .orderBy(sql`count(distinct ${pageVisits.ip}) desc`);
 
     const toAvgSeconds = (v: number | string | null | undefined) =>
       v === null || v === undefined ? null : Math.round(Number(v));

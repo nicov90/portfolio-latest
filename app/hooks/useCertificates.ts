@@ -19,11 +19,14 @@ export type CertificateTranslations = Record<string, {
   description?: string;
 }>;
 
-export function useCertificates(lang?: string) {
+export function useCertificates(lang?: string, opts?: { allLocales?: boolean }) {
+  const allLocales = Boolean(opts?.allLocales);
   return useQuery({
-    queryKey: ['certificates', lang || 'en'],
+    queryKey: allLocales ? ['certificates', 'allLocales'] : ['certificates', lang || 'en'],
     queryFn: async () => {
-      const url = lang ? `/api/certificates?lang=${encodeURIComponent(lang)}` : '/api/certificates';
+      const url = allLocales
+        ? '/api/certificates?allLocales=1'
+        : lang ? `/api/certificates?lang=${encodeURIComponent(lang)}` : '/api/certificates';
       const res = await fetch(url);
       if (!res.ok) throw new Error('Failed to fetch certificates');
       return res.json();
