@@ -1,17 +1,17 @@
 import {
-  ArrowRight,
-  Blocks,
-  Palette,
-  Shield,
-  Smartphone,
-  Users,
-  Zap
+    ArrowRight,
+    Blocks,
+    Palette,
+    Shield,
+    Smartphone,
+    Users,
+    Zap
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import React from 'react';
+import { useI18n } from '../../contexts/i18nContext';
 import { EditableText } from '../admin/EditableText';
 import { SectionHeader } from '../animations';
-import { useI18n } from '../../contexts/i18nContext';
 
 interface WhatIBringProps {
   isVisible: boolean;
@@ -73,7 +73,7 @@ export const WhatIBring: React.FC<WhatIBringProps> = React.memo(({ isVisible }) 
           isVisible={isVisible}
           as="h2"
           className="text-center"
-          title={<EditableText path="whatIBring.title" locale={language}>{t('whatIBring.title')}</EditableText>}
+          title={<EditableText path="whatIBring.title" locale={language} hoverGlow glowColor={[201, 60, 183]} liftOnHover={false}>{t('whatIBring.title')}</EditableText>}
           subtitle={<EditableText path="whatIBring.subtitle" locale={language} multiline>{t('whatIBring.subtitle')}</EditableText>}
         >
           <motion.div

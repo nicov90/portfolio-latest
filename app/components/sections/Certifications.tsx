@@ -14,6 +14,9 @@ interface CertificationsProps {
 export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVisible }) => {
   const { t, language } = useI18n() as any;
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  // True once the expand animation has fully settled (only one card can be expanded at a time,
+  // so a single flag is enough). See the overflow note on the actions container below.
+  const [expandSettled, setExpandSettled] = useState(false);
   const { data: certsData } = useCertificates(language);
   const backendCerts = React.useMemo(() => (Array.isArray(certsData) ? certsData : []), [certsData]);
   const [prefixAssets, setPrefixAssets] = useState<Record<string, { images: string[] }>>({});
@@ -75,6 +78,7 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
     : i18nCerts;
 
   const toggleExpand = (index: number) => {
+    setExpandSettled(false);
     setExpandedIndex(expandedIndex === index ? null : index);
   };
 
@@ -82,7 +86,7 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <SectionHeader
         isVisible={isVisible}
-        title={<EditableText path="certifications.title" locale={language}>{t('certifications.title')}</EditableText>}
+        title={<EditableText path="certifications.title" locale={language} hoverGlow glowColor={[201, 60, 183]} liftOnHover={false}>{t('certifications.title')}</EditableText>}
         subtitle={<EditableText path="certifications.subtitle" locale={language} multiline>{t('certifications.subtitle')}</EditableText>}
       />
 
@@ -174,7 +178,7 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
                       <div className="p-6">
                         <div className="flex items-start justify-between mb-1">
                           <h3 className="text-2xl font-bold text-gray-900">
-                            <StaggeredText text={cert.title} />
+                            <StaggeredText text={cert.title} hoverGlow />
                           </h3>
                           {hasActions && (
                             <motion.button
@@ -209,7 +213,15 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
                             initial={false}
                             animate={isExpanded ? { height: 'auto', opacity: 1 } : { height: 0, opacity: 0 }}
                             transition={{ type: 'spring', stiffness: 280, damping: 26 }}
-                            style={{ overflow: 'hidden' }}
+                            // overflow:hidden is only needed while the height animation is in
+                            // flight (it's what clips the sliding content). Left on permanently,
+                            // it also clips the Download button's edges whenever its hover scale
+                            // (1.05) pushes it past this container's bounds — so once the expand
+                            // has fully settled, switch to visible and let the hover zoom breathe.
+                            style={{ overflow: isExpanded && expandSettled ? 'visible' : 'hidden' }}
+                            onAnimationComplete={() => {
+                              if (isExpanded) setExpandSettled(true);
+                            }}
                             className="mt-6"
                           >
                             <div className="pt-6 border-t border-gray-300/50 flex flex-wrap gap-3">

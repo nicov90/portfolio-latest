@@ -1,4 +1,5 @@
 "use client";
+import { motion, MotionConfig } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ClickRipple } from './components/ClickRipple';
 import { DocumentTitleUpdater } from './components/DocumentTitleUpdater';
@@ -49,6 +50,26 @@ export default function AppClient({ defaultLanguage, visitId }: AppClientProps) 
   const handleIntroComplete = () => {
     setCurrentSection('about-me');
   };
+
+  // Mirrors the intro→content transition in reverse: the whole content fades out over the same
+  // 750ms the intro uses for its own exit, and only then does the branch below swap back to the
+  // intro — which plays its usual entrance (fade in + typewriter restarting from the beginning).
+  const [leavingToIntro, setLeavingToIntro] = useState(false);
+  const handleReturnToIntro = useCallback(() => {
+    setLeavingToIntro((alreadyLeaving) => {
+      if (alreadyLeaving) return alreadyLeaving;
+      setTimeout(() => {
+        setLeavingToIntro(false);
+        // Reset so every section replays its entrance when the user comes back in, exactly like
+        // a fresh visit — matching how the observer re-tracks them from scratch.
+        setVisibleSections(new Set());
+        setCurrentSection('intro');
+        history.replaceState(null, '', window.location.pathname);
+        window.scrollTo(0, 0);
+      }, 750);
+      return true;
+    });
+  }, []);
 
   const scrollToSection = (section: Section) => {
     // Reflect active state immediately for mobile drawer highlight
@@ -164,83 +185,97 @@ export default function AppClient({ defaultLanguage, visitId }: AppClientProps) 
   // VisitDurationTracker keeps a single continuous elapsed-time clock across the intro→content
   // transition instead of remounting and losing the time spent on the intro screen.
   return (
-    <I18nProvider defaultLanguage={defaultLanguage}>
-      <VisitDurationTracker visitId={visitId} />
-      <DocumentTitleUpdater currentSection={currentSection} />
+    // reducedMotion="user" (not "always"): defers entirely to the OS-level "reduce motion"
+    // setting rather than forcing it off for everyone. When that preference is on, Framer
+    // automatically strips translate/scale/rotate from every motion.* component site-wide —
+    // opacity fades still play (so content doesn't just snap/pop in), but the sliding,
+    // scaling, bouncing entrances this site leans on heavily are skipped. One flag covers
+    // every motion component in the tree (intro included), no per-component opt-out needed.
+    <MotionConfig reducedMotion="user">
+      <I18nProvider defaultLanguage={defaultLanguage}>
+        <VisitDurationTracker visitId={visitId} />
+        <DocumentTitleUpdater currentSection={currentSection} />
 
-      {currentSection === 'intro' ? (
-        <div className="size-full">
-          <IntroScreen onComplete={handleIntroComplete} defaultLanguage={defaultLanguage} />
-        </div>
-      ) : (
-        <div className="size-full" style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}>
-          <ClickRipple />
-          <Layout
-            currentSection={currentSection}
-            onSectionChange={scrollToSection}
+        {currentSection === 'intro' ? (
+          <div className="size-full">
+            <IntroScreen onComplete={handleIntroComplete} defaultLanguage={defaultLanguage} />
+          </div>
+        ) : (
+          <motion.div
+            className={`size-full ${leavingToIntro ? 'pointer-events-none' : ''}`}
+            style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
+            animate={{ opacity: leavingToIntro ? 0 : 1 }}
+            transition={{ duration: 0.75, ease: 'easeInOut' }}
           >
-            <div ref={sectionsRef} className="relative">
-              <section
-                id="about-me"
-                data-section="about-me"
-                className="flex items-center justify-center py-20 relative -mt-28 pt-48 scroll-mt-28"
-                style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
-              >
-                {/* Gradient overlay - starts white at the top and fades down (top half only) */}
-                <div className="absolute -top-24 left-0 right-0 bottom-0 bg-gradient-to-b from-[#f0f6fe]/70 from-0% via-[#f0f6fe]/70 via-30% to-transparent to-100% backdrop-blur-sm pointer-events-none" />
-                <div className="relative z-10 w-full px-2 sm:px-0">
-                  <AboutMe isVisible={visibleSections.has('about-me')} />
-                </div>
-              </section>
-
-              <section
-                id="experience"
-                data-section="experience"
-                className="flex items-center justify-center py-20 scroll-mt-28"
-                style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
-              >
-                <Experience isVisible={visibleSections.has('experience')} />
-              </section>
-
-              <section
-                id="skills"
-                data-section="skills"
-                className="flex items-center justify-center py-20 scroll-mt-28"
-                style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
-              >
-                <WhatIBring isVisible={visibleSections.has('skills')} />
-              </section>
-
-              <section
-                id="projects"
-                data-section="projects"
-                className="scroll-mt-28"
-                style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
-              >
-                <Projects isVisible={visibleSections.has('projects')} />
-              </section>
-
-              <section
-                id="certifications"
-                data-section="certifications"
-                className="flex items-center justify-center py-20 scroll-mt-28"
-                style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
-              >
-                <Certifications isVisible={visibleSections.has('certifications')} />
-              </section>
-
-              <section
-                id="contact"
-                data-section="contact"
-                className="flex items-center justify-center py-20 scroll-mt-28"
-                style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
-              >
-                <Contact isVisible={visibleSections.has('contact')} />
-              </section>
-            </div>
-          </Layout>
-        </div>
-      )}
-    </I18nProvider>
+            <ClickRipple />
+            <Layout
+              currentSection={currentSection}
+              onSectionChange={scrollToSection}
+              onLogoClick={handleReturnToIntro}
+            >
+              <div ref={sectionsRef} className="relative">
+                <section
+                  id="about-me"
+                  data-section="about-me"
+                  className="flex items-center justify-center py-20 relative -mt-28 pt-48 scroll-mt-28"
+                  style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
+                >
+                  {/* Gradient overlay - starts white at the top and fades down (top half only) */}
+                  <div className="absolute -top-24 left-0 right-0 bottom-0 bg-gradient-to-b from-[#f0f6fe]/70 from-0% via-[#f0f6fe]/70 via-30% to-transparent to-100% backdrop-blur-sm pointer-events-none" />
+                  <div className="relative z-10 w-full px-2 sm:px-0">
+                    <AboutMe isVisible={visibleSections.has('about-me')} />
+                  </div>
+                </section>
+  
+                <section
+                  id="experience"
+                  data-section="experience"
+                  className="flex items-center justify-center py-20 scroll-mt-28"
+                  style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
+                >
+                  <Experience isVisible={visibleSections.has('experience')} />
+                </section>
+  
+                <section
+                  id="skills"
+                  data-section="skills"
+                  className="flex items-center justify-center py-20 scroll-mt-28"
+                  style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
+                >
+                  <WhatIBring isVisible={visibleSections.has('skills')} />
+                </section>
+  
+                <section
+                  id="projects"
+                  data-section="projects"
+                  className="scroll-mt-28"
+                  style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
+                >
+                  <Projects isVisible={visibleSections.has('projects')} />
+                </section>
+  
+                <section
+                  id="certifications"
+                  data-section="certifications"
+                  className="flex items-center justify-center py-20 scroll-mt-28"
+                  style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
+                >
+                  <Certifications isVisible={visibleSections.has('certifications')} />
+                </section>
+  
+                <section
+                  id="contact"
+                  data-section="contact"
+                  className="flex items-center justify-center py-20 scroll-mt-28"
+                  style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
+                >
+                  <Contact isVisible={visibleSections.has('contact')} />
+                </section>
+              </div>
+            </Layout>
+          </motion.div>
+        )}
+      </I18nProvider>
+    </MotionConfig>
   );
 }

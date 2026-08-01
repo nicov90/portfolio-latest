@@ -1,4 +1,4 @@
-import { Clock, Globe2, Mail, MapPin, MessageSquare, Phone, Send } from 'lucide-react';
+import { Clock, Globe2, Mail, MapPin, MessageSquare, Send } from 'lucide-react';
 import { motion } from 'motion/react';
 import React, { useState } from 'react';
 import { useI18n } from '../../contexts/i18nContext';
@@ -68,7 +68,7 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <SectionHeader
         isVisible={isVisible}
-        title={<EditableText path="contact.title" locale={language}>{t('contact.title')}</EditableText>}
+        title={<EditableText path="contact.title" locale={language} hoverGlow glowColor={[201, 60, 183]} liftOnHover={false}>{t('contact.title')}</EditableText>}
         subtitle={<EditableText path="contact.subtitle" locale={language} multiline>{t('contact.subtitle')}</EditableText>}
       />
 
@@ -241,29 +241,20 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
         >
           <div className="absolute inset-0 bg-gradient-to-br from-[#667eea]/20 to-[#00bfe6]/20 rounded-3xl blur-xl" />
           <div className="relative bg-white/25 backdrop-blur-xl rounded-3xl p-8 sm:p-10 border border-white/30 shadow-2xl space-y-10">
-            {/* Direct contact */}
+            {/* Direct contact: sized as a standalone CTA (larger icon/padding/text) now that
+                email is the only direct method here — it needs to carry the block on its own
+                rather than read like one row from a list that lost its neighbor. */}
             <div className="space-y-3">
               <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">{t('contact.direct.title')}</h4>
               <a
                 href={`mailto:${t('contact.direct.email')}`}
-                className="flex items-center gap-3 p-3 rounded-xl bg-white/40 border border-white/40 hover:bg-white/60 transition-colors duration-300 ease-out group"
+                className="flex items-center gap-4 p-4 rounded-xl bg-white/40 border border-white/40 hover:bg-white/60 transition-colors duration-300 ease-out group"
               >
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#00bfe6] to-[#0096c7] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300 ease-out">
-                  <Mail size={18} className="text-white" />
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#00bfe6] to-[#0096c7] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300 ease-out">
+                  <Mail size={22} className="text-white" />
                 </div>
-                <span className="text-gray-800 font-medium truncate">
+                <span className="text-gray-800 font-medium text-lg truncate">
                   <EditableText path="contact.direct.email" locale={language}>{t('contact.direct.email')}</EditableText>
-                </span>
-              </a>
-              <a
-                href={`tel:${t('contact.direct.phone').replace(/[\s-]+/g, '')}`}
-                className="flex items-center gap-3 p-3 rounded-xl bg-white/40 border border-white/40 hover:bg-white/60 transition-colors duration-300 ease-out group"
-              >
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300 ease-out">
-                  <Phone size={18} className="text-white" />
-                </div>
-                <span className="text-gray-800 font-medium">
-                  <EditableText path="contact.direct.phone" locale={language}>{t('contact.direct.phone')}</EditableText>
                 </span>
               </a>
             </div>

@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
 import { motion } from 'motion/react';
 import React, { useEffect, useMemo, useState } from 'react';
-import { EditableText } from '../admin/EditableText';
 import { useI18n } from '../../contexts/i18nContext';
+import { EditableText } from '../admin/EditableText';
 import { CreativeRoleCard } from './about/CreativeRoleCard';
 import { QuickStats } from './about/QuickStats';
 
@@ -90,7 +90,7 @@ export const AboutMe: React.FC<AboutMeProps> = React.memo(({ isVisible }) => {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <h1 className="text-4xl sm:text-5xl md:text-6xl leading-tight font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-4">
-              <EditableText path="about.title" locale={language}>{t('about.title')}</EditableText>
+              <EditableText path="about.title" locale={language} hoverGlow glowColor={[201, 60, 183]} liftOnHover={false}>{t('about.title')}</EditableText>
             </h1>
             <div className="h-1 w-32 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] rounded-full mb-6"></div>
           </motion.div>

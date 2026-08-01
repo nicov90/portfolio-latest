@@ -1,7 +1,7 @@
 import {
-  ExternalLink,
-  Github,
-  Play
+    ExternalLink,
+    Github,
+    Play
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import React, { useEffect, useState } from 'react';
@@ -166,7 +166,7 @@ export const Projects: React.FC<ProjectsProps> = React.memo(({ isVisible }) => {
           <SectionHeader
             isVisible={isVisible}
             className="text-center"
-            title={<EditableText path="projects.title" locale={language}>{t('projects.title')}</EditableText>}
+            title={<EditableText path="projects.title" locale={language} hoverGlow glowColor={[201, 60, 183]} liftOnHover={false}>{t('projects.title')}</EditableText>}
             subtitle={<EditableText path="projects.subtitle" locale={language} multiline>{t('projects.subtitle')}</EditableText>}
           />
         </div>
@@ -218,7 +218,7 @@ export const Projects: React.FC<ProjectsProps> = React.memo(({ isVisible }) => {
                   transition={{ delay: 0.3, duration: 0.6 }}
                 >
                   <div>
-                    <h2 className="text-4xl font-bold mb-4"><StaggeredText text={project.title} /></h2>
+                    <h2 className="text-4xl font-bold mb-4"><StaggeredText text={project.title} hoverGlow /></h2>
                     <div className="h-1 w-20 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] rounded-full mb-6" />
                     {renderDescription(project.description)}
                   </div>

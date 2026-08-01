@@ -35,6 +35,15 @@ export function useIntersectionObserver({
   useEffect(() => {
     if (!enabled) return;
 
+    // Start every (re)activation from a clean slate. This ref outlives disable/enable cycles
+    // (returning to the intro disables the observer while the consumer resets its own visibility
+    // state), so stale entries here would make the first compute() below silently skip the
+    // "became visible" notification for sections already on screen — their entrance animations
+    // would then never fire until the user scrolled them out and back in. Re-notifying a section
+    // the consumer already tracks as visible is harmless (the consumer no-ops on no-change), so
+    // resetting is always safe.
+    visibleIdsRef.current = new Set();
+
     let rafId: number | null = null;
     const compute = () => {
       rafId = null;

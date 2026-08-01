@@ -14,6 +14,13 @@ interface EditableTextProps {
   as?: 'span' | 'p' | 'div';
   multiline?: boolean;
   className?: string;
+  /** Forwarded to StaggeredText (single-line text only): per-letter hover lift + glow. */
+  hoverGlow?: boolean;
+  /** Forwarded to StaggeredText: overrides the glow's default brand-cyan. */
+  glowColor?: [number, number, number];
+  /** Forwarded to StaggeredText: set false for bg-clip-text gradient titles (see StaggeredText's
+   * whileHover comment for why a per-letter transform breaks those). */
+  liftOnHover?: boolean;
 }
 
 export const EditableText: React.FC<EditableTextProps> = ({
@@ -24,6 +31,9 @@ export const EditableText: React.FC<EditableTextProps> = ({
   as = 'span',
   multiline = false,
   className,
+  hoverGlow = false,
+  glowColor,
+  liftOnHover,
 }) => {
   const { isAdmin, editMode } = useEditMode();
   const { mutate: updateContent } = useUpdateSiteContent();
@@ -41,7 +51,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
   if (typeof children === 'string') {
     content = multiline
       ? <LocalizedFade as="span">{children}</LocalizedFade>
-      : <StaggeredText text={children} />;
+      : <StaggeredText text={children} hoverGlow={hoverGlow} glowColor={glowColor} liftOnHover={liftOnHover} />;
   }
 
   if (!isAdmin || !editMode) {

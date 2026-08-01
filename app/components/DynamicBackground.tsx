@@ -1,5 +1,7 @@
-import { motion, useScroll, useTransform } from 'motion/react';
-import React from 'react';
+import type { MotionValue } from 'motion/react';
+import { animate as animateValue, motion, useMotionValue, useScroll, useTransform } from 'motion/react';
+import React, { useEffect, useRef } from 'react';
+import { useIsScrolling } from '../hooks/useIsScrolling';
 
 interface DynamicBackgroundProps {
   section: string;
@@ -57,8 +59,136 @@ const sectionColorSchemes = {
   }
 };
 
+// Each circle's drift, expressed as individual numeric transform axes (Framer's optimized,
+// independently-animatable transform shorthands) rather than a single `transform` CSS string —
+// see the note on Circle below for why that distinction is what makes pausing actually work.
+// Axes not listed default to their CSS identity (0 for x/y/rotate, 1 for scale/scaleX/scaleY) and
+// are simply never animated, matching the original `translate/scale/rotate(...)` strings exactly.
+interface Axes {
+  x?: number;
+  y?: number;
+  scale?: number;
+  scaleX?: number;
+  scaleY?: number;
+  rotate?: number;
+}
+
+interface CircleConfig {
+  className: string;
+  style: React.CSSProperties;
+  from: Axes;
+  to: Axes;
+  duration: number;
+}
+
+const CIRCLES: CircleConfig[] = [
+  {
+    className: 'absolute rounded-full',
+    style: { width: 'calc(50vw + 50px)', height: '96vh', filter: 'blur(80px)', left: 'calc(50vw - 175px)', top: 0 },
+    from: { y: 0, scale: 1, rotate: 0 },
+    to: { y: 50, scale: 0.75, rotate: -15 }, // translateY(50px) scale(0.75) rotate(-15deg)
+    duration: 4.25,
+  },
+  {
+    className: 'absolute rounded-full',
+    style: { maxWidth: '600px', width: 'calc(50vw + 50px)', height: '700px', filter: 'blur(80px)', top: 'calc(50vh - 25vw)', left: 'calc(25vw - 50px)' },
+    from: { x: 0, scaleX: 1, scaleY: 1, rotate: 0 },
+    // translateX(-225px) scale(1.1) scaleX(1.2) rotate(-15deg): CSS scale() and scaleX() compound
+    // multiplicatively, so the net per-axis scale is scaleX: 1.1*1.2=1.32, scaleY: 1.1.
+    to: { x: -225, scaleX: 1.32, scaleY: 1.1, rotate: -15 },
+    duration: 4.25,
+  },
+  {
+    className: 'absolute rounded-full',
+    style: { width: '400px', height: '400px', filter: 'blur(80px)', top: '20vh', right: '10vw' },
+    from: { scale: 0, rotate: 0 },
+    to: { scale: 1, rotate: 180 }, // scale(1) rotate(180deg)
+    duration: 6,
+  },
+];
+
+interface CircleProps {
+  config: CircleConfig;
+  background: string;
+  opacity: number;
+  isScrolling: MotionValue<boolean>;
+}
+
+// One of the three ambient blur circles. `background`/`opacity` stay on the ordinary declarative
+// `animate` prop (cheap, only actually transitions for 0.8s right after a section change,
+// entirely unrelated to scroll). The infinite drift is different: it needs to be pausable
+// mid-flight, without jumping, which ruled out two earlier approaches tried here —
+// - A `transform` CSS *string* (e.g. "translateY(50px) scale(0.75) rotate(-15deg)") animated via
+//   AnimationControls: calling `.start()` again to resume always restarted from the first
+//   keyframe instead of resuming from wherever the string-interpolated value currently was,
+//   producing a visible jump back to the start position every time a scroll began.
+// - Passing `animate={controls}` at all conflicts with also wanting a separate, independently
+//   reactive `animate={{background, opacity}}` on the same element — Framer only takes one
+//   `animate` source per component.
+// The fix: one plain `useMotionValue` per numeric transform axis this circle actually uses (x,
+// y, scale, rotate, ...), each driven by its own standalone `animate()` call (the imported
+// function, not a hook) bound directly into `style`. That returns real WAAPI-style playback
+// controls with `.pause()`/`.play()` — pause freezes the value exactly where it is, play resumes
+// from there, no restart and no jump — and because these motion values are separate from the
+// `animate` prop entirely, they don't conflict with the background/opacity animation at all.
+const Circle: React.FC<CircleProps> = ({ config, background, opacity, isScrolling }) => {
+  const x = useMotionValue(config.from.x ?? 0);
+  const y = useMotionValue(config.from.y ?? 0);
+  const scale = useMotionValue(config.from.scale ?? 1);
+  const scaleX = useMotionValue(config.from.scaleX ?? 1);
+  const scaleY = useMotionValue(config.from.scaleY ?? 1);
+  const rotate = useMotionValue(config.from.rotate ?? 0);
+
+  const playbackRef = useRef<ReturnType<typeof animateValue>[]>([]);
+
+  useEffect(() => {
+    const axisPairs: Array<[typeof x, number, number]> = [
+      [x, config.from.x ?? 0, config.to.x ?? 0],
+      [y, config.from.y ?? 0, config.to.y ?? 0],
+      [scale, config.from.scale ?? 1, config.to.scale ?? 1],
+      [scaleX, config.from.scaleX ?? 1, config.to.scaleX ?? 1],
+      [scaleY, config.from.scaleY ?? 1, config.to.scaleY ?? 1],
+      [rotate, config.from.rotate ?? 0, config.to.rotate ?? 0],
+    ];
+    playbackRef.current = axisPairs
+      // Skip axes this circle doesn't actually move on — nothing to animate, and it keeps
+      // idle circles (e.g. circle 3 never touches x/y) from holding pointless playback handles.
+      .filter(([, from, to]) => from !== to)
+      .map(([motionValue, from, to]) =>
+        animateValue(motionValue, [from, to], {
+          duration: config.duration,
+          repeat: Infinity,
+          repeatType: 'reverse',
+          ease: [0.47, 0, 0.745, 0.715],
+        })
+      );
+    return () => playbackRef.current.forEach((playback) => playback.stop());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // Subscribing directly to the MotionValue (not reading it as a React prop/state value) is
+    // what makes this reaction synchronous with the scroll instead of waiting on a render —
+    // see useIsScrolling's docs for why that distinction is the whole fix here.
+    return isScrolling.on('change', (scrolling) => {
+      playbackRef.current.forEach((playback) => (scrolling ? playback.pause() : playback.play()));
+    });
+  }, [isScrolling]);
+
+  return (
+    <motion.div
+      className={config.className}
+      style={{ ...config.style, x, y, scale, scaleX, scaleY, rotate }}
+      initial={{ background, opacity: 0 }}
+      animate={{ background, opacity }}
+      transition={{ duration: 0.8, ease: 'easeInOut' }}
+    />
+  );
+};
+
 export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({ section }) => {
   const colors = sectionColorSchemes[section as keyof typeof sectionColorSchemes] || sectionColorSchemes['about-me'];
+  const isScrolling = useIsScrolling();
 
   // Drifts the background gently as the page scrolls. `useScroll`/`useTransform` write directly
   // to a motion value and update the DOM outside React's render cycle, so this doesn't add any
@@ -76,122 +206,11 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({ section })
   // uncovered. Circle positions below are unchanged and stay pixel-identical to before at rest.
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden">
-    <motion.div className="absolute inset-x-0 top-0" style={{ y: parallaxY, height: `calc(100% + ${PARALLAX_RANGE}px)` }}>
-      {/* First Circle */}
-      <motion.div
-        className="absolute rounded-full"
-        style={{
-          width: 'calc(50vw + 50px)',
-          height: '96vh',
-          filter: 'blur(90px)',
-          left: 'calc(50vw - 175px)',
-          top: 0,
-        }}
-        initial={{
-          background: colors.circle1,
-          transform: 'translateX(0) rotate(0)',
-          opacity: 0
-        }}
-        animate={{
-          background: colors.circle1,
-          transform: 'translateY(50px) scale(0.75) rotate(-15deg)',
-          opacity: colors.opacity1,
-        }}
-        transition={{
-          background: {
-            duration: 0.8,
-            ease: "easeInOut"
-          },
-          transform: {
-            duration: 4.25,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: [0.47, 0, 0.745, 0.715]
-          },
-          opacity: {
-            duration: 0.8,
-            ease: "easeInOut"
-          }
-        }}
-      />
-
-      {/* Second Circle */}
-      <motion.div
-        className="absolute rounded-full"
-        style={{
-          maxWidth: '600px',
-          width: 'calc(50vw + 50px)',
-          height: '700px',
-          filter: 'blur(90px)',
-          top: 'calc(50vh - 25vw)',
-          left: 'calc(25vw - 50px)',
-        }}
-        initial={{
-          background: colors.circle2,
-          transform: 'translateX(0) rotate(0)',
-          opacity: 0
-        }}
-        animate={{
-          background: colors.circle2,
-          transform: 'translateX(-225px) scale(1.1) scaleX(1.2) rotate(-15deg)',
-          opacity: colors.opacity2,
-        }}
-        transition={{
-          background: {
-            duration: 0.8,
-            ease: "easeInOut"
-          },
-          transform: {
-            duration: 4.25,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: [0.47, 0, 0.745, 0.715]
-          },
-          opacity: {
-            duration: 0.8,
-            ease: "easeInOut"
-          }
-        }}
-      />
-
-      {/* Third Circle */}
-      <motion.div
-        className="absolute rounded-full"
-        style={{
-          width: '400px',
-          height: '400px',
-          filter: 'blur(80px)',
-          top: '20vh',
-          right: '10vw',
-        }}
-        initial={{
-          background: colors.circle3,
-          transform: 'scale(0) rotate(0)',
-          opacity: 0
-        }}
-        animate={{
-          background: colors.circle3,
-          transform: 'scale(1) rotate(180deg)',
-          opacity: colors.opacity3,
-        }}
-        transition={{
-          background: {
-            duration: 0.8,
-            ease: "easeInOut"
-          },
-          transform: {
-            duration: 6,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: [0.47, 0, 0.745, 0.715]
-          },
-          opacity: {
-            duration: 0.8,
-            ease: "easeInOut"
-          }
-        }}
-      />
-    </motion.div>
+      <motion.div className="absolute inset-x-0 top-0" style={{ y: parallaxY, height: `calc(100% + ${PARALLAX_RANGE}px)` }}>
+        <Circle config={CIRCLES[0]} background={colors.circle1} opacity={colors.opacity1} isScrolling={isScrolling} />
+        <Circle config={CIRCLES[1]} background={colors.circle2} opacity={colors.opacity2} isScrolling={isScrolling} />
+        <Circle config={CIRCLES[2]} background={colors.circle3} opacity={colors.opacity3} isScrolling={isScrolling} />
+      </motion.div>
     </div>
   );
 };

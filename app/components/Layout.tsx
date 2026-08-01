@@ -1,11 +1,11 @@
 import { Github, Linkedin, Menu } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import React, { useState } from 'react';
-import { useI18n } from '../contexts/i18nContext';
 import { getSiteOwnerName } from '../../lib/siteOwner';
+import { useI18n } from '../contexts/i18nContext';
+import { LocalizedFade, StaggeredText } from './animations';
 import { DynamicBackground } from './DynamicBackground';
 import { LanguageSelector } from './LanguageSelector';
-import { LocalizedFade, StaggeredText } from './animations';
 import { ScrollProgressBar } from './ScrollProgressBar';
 import { SocialSidebar } from './SocialSidebar';
 import { StarsBackground } from './StarsBackground';
@@ -16,12 +16,15 @@ interface LayoutProps {
   children: React.ReactNode;
   currentSection: Section;
   onSectionChange: (section: Section) => void;
+  /** Fired when the user clicks the name/logo — returns to the intro screen. */
+  onLogoClick: () => void;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ 
-  children, 
-  currentSection, 
-  onSectionChange 
+export const Layout: React.FC<LayoutProps> = ({
+  children,
+  currentSection,
+  onSectionChange,
+  onLogoClick,
 }) => {
   const { t, language } = useI18n();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -64,7 +67,7 @@ export const Layout: React.FC<LayoutProps> = ({
                 real (if obscure) rendering glitch: the text would render visibly cut off/missing
                 its top portion for a few frames during a language switch. A single fading element
                 doesn't hit whatever compositing edge case that per-letter one does. */}
-            <div className="cursor-pointer" onClick={() => onSectionChange('about-me')}>
+            <div className="cursor-pointer" onClick={onLogoClick} title={t('navigation.home')}>
               <motion.h2
                 className="text-lg sm:text-2xl font-bold tracking-tight sm:tracking-normal whitespace-nowrap bg-gradient-to-r from-blue-600 via-purple-500 via-45% to-blue-600 bg-clip-text text-transparent"
                 style={{ backgroundSize: '220% auto', backgroundPosition: '0% center' }}
@@ -75,12 +78,12 @@ export const Layout: React.FC<LayoutProps> = ({
               </motion.h2>
             </div>
 
-            {/* Navigation Items: needs xl+ to fit all six labels on one line in every supported
-                language — Spanish labels ("Certificaciones", "Mis Habilidades") are noticeably
-                longer than English ones and still wrap at lg (1024px), blowing up the pill's
-                height and overlapping the section below it. Confirmed fitting cleanly from
-                ~1200px in Spanish (the longest-label locale), so xl (1280px) leaves real margin. */}
-            <div className="hidden xl:flex items-center gap-2">
+            {/* Navigation Items: visible from lg (1024px) so laptops get the real navbar instead
+                of the mobile FAB. Spanish labels ("Certificaciones", "Mis Habilidades") are the
+                longest of the supported locales and used to wrap at lg with the roomier xl
+                sizing, blowing up the pill's height — so lg uses tighter padding + text-sm and
+                only from xl (1280px) does it relax to the full size. */}
+            <div className="hidden lg:flex items-center gap-1 xl:gap-2">
               {navItems.map((item, index) => (
                 <motion.button
                   key={item.key}
@@ -101,7 +104,7 @@ export const Layout: React.FC<LayoutProps> = ({
                     transition: { duration: 0.15, ease: 'easeOut' }
                   }}
                   whileTap={{ scale: 0.97, transition: { duration: 0.1 } }}
-                  className={`px-4 py-2 rounded-xl font-medium cursor-pointer transition-[color] duration-300 ${
+                  className={`px-2.5 xl:px-4 py-2 rounded-xl text-sm xl:text-base font-medium cursor-pointer transition-[color] duration-300 ${
                     currentSection === item.key
                       ? 'text-blue-600 shadow-lg'
                       : 'text-gray-700 hover:text-gray-900'
@@ -118,9 +121,10 @@ export const Layout: React.FC<LayoutProps> = ({
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4, delay: 0.8 }}
             >
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                {/* Mobile socials: left of language selector */}
-                <div className="flex items-center gap-1.5 sm:gap-2 xl:hidden">
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                {/* Mobile/tablet socials: left of language selector (desktop gets the floating
+                    sidebar instead from lg up) */}
+                <div className="flex items-center gap-2.5 sm:gap-3 lg:hidden">
                   <a
                     href="https://github.com"
                     target="_blank"
@@ -155,7 +159,7 @@ export const Layout: React.FC<LayoutProps> = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.4 }}
         onClick={() => setDrawerOpen(true)}
-        className="xl:hidden fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-white/55 backdrop-blur-xl border border-white/60 shadow-2xl flex items-center justify-center"
+        className="lg:hidden fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-white/55 backdrop-blur-xl border border-white/60 shadow-2xl flex items-center justify-center"
         aria-label="Open navigation"
       >
         <Menu className="text-gray-800" />
@@ -166,7 +170,7 @@ export const Layout: React.FC<LayoutProps> = ({
         {drawerOpen && (
           <>
             <motion.div
-              className="xl:hidden fixed inset-0 z-40 bg-black/15"
+              className="lg:hidden fixed inset-0 z-40 bg-black/15"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -176,7 +180,7 @@ export const Layout: React.FC<LayoutProps> = ({
 
             {/* Bottom Drawer */}
             <motion.div
-              className="xl:hidden fixed left-1/2 -translate-x-1/2 bottom-0 z-50 w-[94vw] max-w-md"
+              className="lg:hidden fixed left-1/2 -translate-x-1/2 bottom-0 z-50 w-[94vw] max-w-md"
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
@@ -221,9 +225,46 @@ export const Layout: React.FC<LayoutProps> = ({
       </AnimatePresence>
 
       {/* Main Content */}
-      <main className="pt-24 pb-32 md:pb-8">
+      <main className="pt-24">
         {children}
       </main>
+
+      {/* Minimal footer: a hairline over glass, name + socials. Bottom padding clears the
+          mobile FAB (bottom-6 + 56px tall) so the FAB never covers the links. */}
+      <footer className="relative z-10 pb-28 lg:pb-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          {/* justify-between from sm (splits copyright/icons to opposite edges) but back to
+              -center from lg: the icons div hides at that breakpoint (sidebar takes over), and
+              -between with a single remaining child left-aligns it — a lone line of text sitting
+              off to the left reads as unbalanced, so it's re-centered once it's on its own. */}
+          <div className="border-t border-white/40 pt-6 flex flex-col sm:flex-row items-center justify-center sm:justify-between lg:justify-center gap-3 text-sm text-gray-600">
+            <span>© {new Date().getFullYear()} {getSiteOwnerName(language)}</span>
+            {/* Hidden from lg up: the floating SocialSidebar already covers those breakpoints,
+                so showing both would just be the same two icons twice on the same screen. Below
+                lg the sidebar is hidden, making this the only place they appear. */}
+            <div className="flex items-center gap-4 lg:hidden">
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub"
+                className="text-gray-600 hover:text-gray-900 transition-colors duration-200"
+              >
+                <Github className="h-4 w-4" />
+              </a>
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+                className="text-gray-600 hover:text-gray-900 transition-colors duration-200"
+              >
+                <Linkedin className="h-4 w-4" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

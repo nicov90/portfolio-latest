@@ -75,6 +75,13 @@ export const RotatingGreeting: React.FC<RotatingGreetingProps> = ({
     if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
   }, []);
 
+  // Going inactive (the user clicked to leave the intro) freezes the loop wherever it is: an
+  // already-armed hold timer would otherwise fire mid-exit and start erasing the name while the
+  // screen fades, which reads as the animation reacting to the click.
+  useEffect(() => {
+    if (!active && holdTimerRef.current) clearTimeout(holdTimerRef.current);
+  }, [active]);
+
   const handleTypingComplete = () => {
     if (!active || phase !== 'typing' || !canFireRef.current) return;
     canFireRef.current = false;
@@ -114,7 +121,11 @@ export const RotatingGreeting: React.FC<RotatingGreetingProps> = ({
           className={`absolute top-0 left-0 ${nameClassName}`}
           style={{ overflow: 'hidden', whiteSpace: 'nowrap', borderRight: '2px solid black' }}
           initial={{ width: '0%' }}
-          animate={{ width: active && phase === 'typing' ? '100%' : '0%' }}
+          // `active` deliberately NOT part of the width target: when the user clicks to leave the
+          // intro mid-typing, flipping the target to 0% would visibly reverse the line right as
+          // the screen fades out. Instead the in-flight tween finishes untouched and `active`
+          // only stops the loop from scheduling its NEXT phase (checked in the handlers below).
+          animate={{ width: phase === 'typing' ? '100%' : '0%' }}
           transition={{
             duration: phase === 'typing' ? TYPE_DURATION_S : ERASE_DURATION_S,
             ease: phase === 'typing' ? 'linear' : 'easeIn',

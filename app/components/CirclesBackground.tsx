@@ -1,5 +1,5 @@
-import React from 'react';
 import { motion } from 'motion/react';
+import React from 'react';
 
 interface CirclesBackgroundProps {
   exitAnimation?: boolean;
@@ -17,7 +17,7 @@ export const CirclesBackground: React.FC<CirclesBackgroundProps> = ({
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           width: 'calc(50vw + 50px)',
           height: '96vh',
-          filter: 'blur(90px)',
+          filter: 'blur(80px)',
           left: 'calc(50vw - 175px)',
           top: 0,
           opacity: 0.8
@@ -52,7 +52,7 @@ export const CirclesBackground: React.FC<CirclesBackgroundProps> = ({
           maxWidth: '600px',
           width: 'calc(50vw + 50px)',
           height: '700px',
-          filter: 'blur(90px)',
+          filter: 'blur(80px)',
           top: 'calc(50vh - 25vw)',
           left: 'calc(25vw - 50px)',
           opacity: 0.8

@@ -85,7 +85,7 @@ export const Experience: React.FC<ExperienceProps> = React.memo(({ isVisible }) 
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <SectionHeader
         isVisible={isVisible}
-        title={<EditableText path="experience.title" locale={language}>{t('experience.title')}</EditableText>}
+        title={<EditableText path="experience.title" locale={language} hoverGlow glowColor={[201, 60, 183]} liftOnHover={false}>{t('experience.title')}</EditableText>}
         subtitle={<EditableText path="experience.subtitle" locale={language} multiline>{t('experience.subtitle')}</EditableText>}
       />
 
