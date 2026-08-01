@@ -176,7 +176,12 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
 
                       {/* Content */}
                       <div className="p-6">
-                        <div className="flex items-start justify-between mb-1">
+                        {/* gap-3 guarantees breathing room between the title and the toggle
+                            regardless of how justify-between distributes space — without it, a
+                            title that happens to wrap right up to the row's edge sits flush
+                            against the button. shrink-0 keeps the button from being squeezed by
+                            a long title instead of the title wrapping around it. */}
+                        <div className="flex items-start justify-between gap-3 mb-1">
                           <h3 className="text-2xl font-bold text-gray-900">
                             <StaggeredText text={cert.title} hoverGlow />
                           </h3>
@@ -185,7 +190,7 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
                               onClick={() => toggleExpand(index)}
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
-                              className="p-2 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 ease-out"
+                              className="p-2 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 ease-out shrink-0"
                             >
                               {isExpanded ? (
                                 <ChevronUp size={20} className="text-white" />

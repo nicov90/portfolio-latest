@@ -58,7 +58,14 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onComplete, defaultLan
           </div>
 
           <motion.p
-            className="text-lg md:text-xl font-light uppercase tracking-[0.2em] select-none text-gray-700/90"
+            // tracking-[0.2em] at this font-size is wide enough that on narrow phones (~320-360px)
+            // Chromium's line-wrap check and its actual glyph-paint width disagree — the browser
+            // decides the line fits without wrapping, then paints it wider than that, so it
+            // overflows the viewport evenly on both sides instead of wrapping to a second line
+            // (confirmed by reproducing/fixing it directly: halving the letter-spacing alone was
+            // enough to bring the painted width back under the container). A tighter tracking on
+            // the smallest breakpoint sidesteps the mismatch instead of chasing the browser bug.
+            className="text-lg md:text-xl font-light uppercase tracking-[0.1em] sm:tracking-[0.2em] select-none text-gray-700/90"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.5 }}
