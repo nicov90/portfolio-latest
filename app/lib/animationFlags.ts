@@ -10,36 +10,31 @@ import { useIsTabletOrBelow } from '../hooks/useIsTabletOrBelow';
 // `master: true` is an escape hatch that makes tablet/mobile behave exactly like desktop again
 // (ignores every per-category flag below) — flip this instead of hand-restoring every flag once
 // the investigation concludes.
-// Round 2: with EVERYTHING off, the artifact was confirmed gone on real hardware (S24 Ultra +
-// tablet). Re-enabling now, safest first — categories below are event-triggered or fire-once
-// (a tap, a language switch, a section transition), never continuously re-running while the user
-// is mid-scroll, so they're the least likely to be the actual cause:
-// - textEntrances: only runs on a language switch or the one-time intro typewriter — nothing to
-//   do with scrolling at all.
-// - clickRipple: only spawns on an explicit tap, self-removes after 1.2s, never touches scroll.
-// - navDrawer: only animates when the FAB/drawer is explicitly opened/closed — closed (not
-//   rendered) during ordinary scrolling.
-// - backgroundColorFade: a single 0.8s crossfade when the active section changes, not re-run on
-//   every scroll frame the way the drift/parallax were.
-// Still OFF: backgroundDrift, backgroundParallax, stars, sectionReveal, cardEntrances, carousel,
-// microInteractions — these are the ones that either run continuously in the background or are
-// literally driven by the scroll position/IntersectionObserver, so they stay off until the safer
-// batch above is confirmed clean on-device.
+// Round 2 result: enabling {textEntrances, clickRipple, navDrawer, backgroundColorFade} together
+// brought the artifact BACK on real hardware. That's surprising for three of the four (none of
+// them touch scroll — a tap-triggered ripple, a closed drawer, a language-switch fade), which
+// makes backgroundColorFade the prime suspect of the batch: unlike the other three, it animates
+// the `background` CSS property (a gradient string) on DynamicBackground's three huge, permanently
+// blurred, fixed full-viewport layers. Animating `background` — as opposed to transform/opacity —
+// is NOT compositor-only, it forces a real repaint of that entire layer on every tick of its 0.8s
+// crossfade, and that crossfade fires exactly when the active section changes, which is to say
+// almost always while the user is mid-scroll (that's how you reach a new section). Isolating it
+// alone this round to confirm before touching anything else.
 export const MOBILE_ANIMATIONS = {
   master: false,
 
   backgroundDrift: false,      // DynamicBackground: circles' continuous drift motion
   backgroundParallax: false,   // DynamicBackground: fixed layer's scroll-linked translateY
-  backgroundColorFade: true,   // DynamicBackground: circle color/opacity crossfade on section change
+  backgroundColorFade: true,   // DynamicBackground: circle color/opacity crossfade on section change — PRIME SUSPECT, isolating this round
   stars: false,                // StarsBackground sparkle animation
 
   sectionReveal: false,        // AppClient: per-section scroll-triggered fade/slide-in
   cardEntrances: false,        // whileInView fade-ups on individual cards (Experience, Certifications, Projects, WhatIBring, AboutMe)
-  textEntrances: true,         // IntroScreen, StaggeredText, RotatingGreeting, AnimatedText, LocalizedFade
+  textEntrances: false,        // IntroScreen, StaggeredText, RotatingGreeting, AnimatedText, LocalizedFade
 
   carousel: false,             // Project image carousels' slide/fade transitions
-  clickRipple: true,           // Layout: click ripple effect
-  navDrawer: true,             // Layout: mobile nav drawer slide
+  clickRipple: false,          // Layout: click ripple effect
+  navDrawer: false,            // Layout: mobile nav drawer slide
   microInteractions: false,    // hover/tap scales, pulsing dots, small icon animations, lightbox, language selector, scroll progress bar
 } as const;
 
