@@ -44,6 +44,20 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* Cheaper backdrop-blur on mobile only (desktop untouched): real-device testing (S24 Ultra,
+   Chrome mobile) showed GPU-compositor tearing/artifacts during scroll, traced to the cost of
+   compositing many simultaneous backdrop-blur layers (navbar, cards, drawers, carousels — ~30
+   usages sitewide). Tailwind v4 utilities reference these as CSS vars (`blur(var(--blur-xl))`),
+   so overriding them here scales every `backdrop-blur-*` usage down at once without touching each
+   component or changing the glassmorphism look on desktop, where GPU headroom isn't the bottleneck. */
+@media (max-width: 767px) {
+  :root {
+    --blur-md: 8px;
+    --blur-xl: 12px;
+    --blur-2xl: 16px;
+  }
+}
+
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
