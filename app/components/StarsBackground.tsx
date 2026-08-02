@@ -1,6 +1,7 @@
 "use client";
 import { motion } from 'motion/react';
 import React, { useMemo } from 'react';
+import { useIsMobile } from './ui/use-mobile';
 
 interface Star {
   id: number;
@@ -74,10 +75,17 @@ function generateStars(count: number): Star[] {
  * at its peak, so it shimmers instead of trying to out-brighten white.
  */
 export const StarsBackground: React.FC = () => {
-  const stars = useMemo(() => generateStars(40), []);
+  // Mobile hardware is where all this ambient motion (this + the blur circles + backdrop-blur
+  // cards) actually struggles to keep up during scroll — fewer independently-animating stars is
+  // the cheap remaining lever after making each one itself cheaper (see the filter note below).
+  const isMobile = useIsMobile();
+  const stars = useMemo(() => generateStars(isMobile ? 18 : 40), [isMobile]);
 
+  // h-[100lvh] (large viewport height, not dvh) — see DynamicBackground's note on why the
+  // dynamic unit still lagged a beat behind Chrome mobile's address bar animation, and why
+  // permanently sizing to the largest-possible viewport sidesteps that timing question entirely.
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+    <div className="fixed inset-x-0 top-0 h-[100lvh] -z-10 overflow-hidden pointer-events-none">
       {stars.map((star) => (
         <motion.svg
           key={star.id}
@@ -88,25 +96,49 @@ export const StarsBackground: React.FC = () => {
             left: `${star.left}%`,
             width: star.size,
             height: star.size,
+            // A static filter, set once and never touched again, instead of animating between
+            // "dim" and "peak" drop-shadow strings — see the perf note below for why that
+            // switch mattered. This lands roughly at the peak look permanently: not as dramatic
+            // as the old bloom at its brightest instant, but the twinkle itself (still fully
+            // animated via opacity/scale) carries the effect on its own well enough that the
+            // difference barely reads, while the cost difference doesn't.
+            filter: `drop-shadow(0 0 0.5px rgba(15,23,42,0.25)) drop-shadow(0 0 ${star.size}px rgba(56,189,248,${star.peakOpacity * 0.7}))`,
           }}
-          animate={{
-            opacity: [0.25, 0.25, star.peakOpacity, star.peakOpacity, 0.25],
-            scale: [0.85, 0.85, 1.3, 1.3, 0.85],
-            filter: [
-              'drop-shadow(0 0 0.4px rgba(15,23,42,0.18)) drop-shadow(0 0 1px rgba(56,189,248,0.15))',
-              'drop-shadow(0 0 0.4px rgba(15,23,42,0.18)) drop-shadow(0 0 1px rgba(56,189,248,0.15))',
-              `drop-shadow(0 0 0.5px rgba(15,23,42,0.3)) drop-shadow(0 0 ${star.size * 1.6}px rgba(56,189,248,${star.peakOpacity})) drop-shadow(0 0 ${star.size * 0.8}px rgba(255,255,255,0.85))`,
-              `drop-shadow(0 0 0.5px rgba(15,23,42,0.3)) drop-shadow(0 0 ${star.size * 1.6}px rgba(56,189,248,${star.peakOpacity})) drop-shadow(0 0 ${star.size * 0.8}px rgba(255,255,255,0.85))`,
-              'drop-shadow(0 0 0.4px rgba(15,23,42,0.18)) drop-shadow(0 0 1px rgba(56,189,248,0.15))',
-            ],
-          }}
-          transition={{
-            duration: star.duration,
-            times: [0, 0.35, 0.55, 0.8, 1],
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: star.delay,
-          }}
+          // Animating `filter` here — 40 of these, independently, forever — used to interpolate
+          // between full multi-layer drop-shadow() strings every frame. Unlike opacity/transform
+          // (compositor-only, effectively free once GPU-promoted), a `filter` change forces a
+          // repaint of the element's own layer on every tick it's actively managed by Framer,
+          // regardless of whether the two keyframes it's holding between are identical — this was
+          // one of the bigger contributors to scroll-time jank on real mobile hardware (much more
+          // pronounced there than in desktop profiling, where the GPU headroom hides it). Keeping
+          // the filter static and animating only opacity/scale keeps the twinkle but drops that
+          // ongoing repaint cost to zero.
+          //
+          // On mobile, animate isn't even passed a target — the star just renders at its
+          // brightest, biggest state permanently (no twinkle loop at all). The twinkle is a nice
+          // touch but the LEAST important of the ambient background pieces; parked here rather
+          // than animated at all is one less thing running continuously in the background while
+          // real, structural mobile jank (the section-entrance burst, the address-bar gap) gets
+          // sorted out.
+          animate={
+            isMobile
+              ? { opacity: star.peakOpacity, scale: 1.3 }
+              : {
+                  opacity: [0.25, 0.25, star.peakOpacity, star.peakOpacity, 0.25],
+                  scale: [0.85, 0.85, 1.3, 1.3, 0.85],
+                }
+          }
+          transition={
+            isMobile
+              ? undefined
+              : {
+                  duration: star.duration,
+                  times: [0, 0.35, 0.55, 0.8, 1],
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                  delay: star.delay,
+                }
+          }
         >
           <path d={SPARKLE_PATH} fill="white" />
         </motion.svg>

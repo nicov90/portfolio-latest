@@ -209,7 +209,7 @@ export const Experience: React.FC<ExperienceProps> = React.memo(({ isVisible }) 
                           initial={{ scale: 0 }}
                           animate={isVisible ? { scale: 1 } : { scale: 0 }}
                           transition={{ duration: 0.5, delay: 1.8 + (index * 0.2) }}
-                          className="mt-1 whitespace-nowrap shrink-0 px-3 py-1 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] text-white text-xs font-semibold rounded-full"
+                          className="ml-1 mt-1 whitespace-nowrap shrink-0 px-3 py-1 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] text-white text-xs font-semibold rounded-full"
                         >
                           <EditableText path="experience.current" locale={language}>{t('experience.current')}</EditableText>
                         </motion.div>

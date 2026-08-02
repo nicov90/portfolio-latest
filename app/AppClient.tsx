@@ -1,6 +1,7 @@
 "use client";
 import { motion, MotionConfig } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { ClickRipple } from './components/ClickRipple';
 import { DocumentTitleUpdater } from './components/DocumentTitleUpdater';
 import { IntroScreen } from './components/IntroScreen';
@@ -22,6 +23,39 @@ interface AppClientProps {
   defaultLanguage: SupportedLang;
   visitId: string | null;
 }
+
+// Shared by most content sections below. `contentVisibility: 'auto'` tells the browser to skip
+// layout/style/paint work entirely for a section's subtree while it's far from the viewport —
+// every section here is mounted simultaneously (nothing is virtualized/lazy-mounted), each with
+// its own tree of Framer Motion entrance animations, so without this the browser is maintaining
+// render state for ALL six sections' worth of animated content at all times, on every scroll
+// frame, even though at most one or two are ever visible. `containIntrinsicSize` gives the
+// browser a placeholder size to reserve for a skipped section so the page's scrollable height
+// doesn't jump around as sections pop in/out of "skipped" status — a one-viewport-tall estimate
+// is close enough here (measured 10-25% off across About/Experience/Skills/Certifications/
+// Contact) that content-visibility's own lookahead margin absorbs the difference with no visible
+// jump. Chrome-only today; other browsers just ignore both properties and render normally, so
+// this is a strict progressive enhancement, not a risk.
+const SECTION_STYLE: CSSProperties = {
+  minHeight: 'calc(var(--vh, 1vh) * 100)',
+  contentVisibility: 'auto',
+  containIntrinsicSize: 'auto calc(var(--vh, 1vh) * 100)',
+};
+
+// Projects and Certifications deliberately do NOT get contentVisibility: both render a
+// data-driven list of full-size cards (however many projects/certificates actually exist), so
+// their true height has nothing to do with a single viewport — measured 4320px and 3676px fully
+// rendered against this same one-viewport (900px) estimate. A placeholder that far off would make
+// the scrollable page height (and therefore the scrollbar/scroll position) visibly jump the
+// moment content-visibility flips from skipped to rendered, trading the jank this is meant to fix
+// for a worse, more jarring one. Confirmed the other five sections don't have this problem by
+// measuring each one's height before/after scrolling it into view — all matched within a normal
+// entrance-animation's worth of difference, not off by thousands of pixels. Both sections' own
+// cards already animate in/out individually via their own whileInView triggers, which covers
+// part of the same "don't animate what's off-screen" goal this is going for elsewhere.
+const VARIABLE_HEIGHT_SECTION_STYLE: CSSProperties = {
+  minHeight: 'calc(var(--vh, 1vh) * 100)',
+};
 
 export default function AppClient({ defaultLanguage, visitId }: AppClientProps) {
   const [currentSection, setCurrentSection] = useState<Section>('intro');
@@ -186,11 +220,14 @@ export default function AppClient({ defaultLanguage, visitId }: AppClientProps) 
   // transition instead of remounting and losing the time spent on the intro screen.
   return (
     // reducedMotion="user" (not "always"): defers entirely to the OS-level "reduce motion"
-    // setting rather than forcing it off for everyone. When that preference is on, Framer
-    // automatically strips translate/scale/rotate from every motion.* component site-wide —
-    // opacity fades still play (so content doesn't just snap/pop in), but the sliding,
-    // scaling, bouncing entrances this site leans on heavily are skipped. One flag covers
-    // every motion component in the tree (intro included), no per-component opt-out needed.
+    // setting rather than forcing it off for everyone. Tried forcing "always" for mobile at both
+    // the app level and scoped to just <main> (the section content) as a fix for the
+    // section-entrance animation cost — reverted both: even scoped to <main>, it also flattened
+    // the Projects carousels' slide transitions (they live inside <main> too) into a hard cut
+    // instead of a slide, and didn't net out to feeling faster overall. The entrance cost is
+    // handled instead by more targeted fixes at the source (memoized sections, carousels pausing
+    // their autoplay off-screen, a single pulsing timeline dot instead of one per item) rather
+    // than a blanket "skip all transforms" hammer.
     <MotionConfig reducedMotion="user">
       <I18nProvider defaultLanguage={defaultLanguage}>
         <VisitDurationTracker visitId={visitId} />
@@ -218,7 +255,7 @@ export default function AppClient({ defaultLanguage, visitId }: AppClientProps) 
                   id="about-me"
                   data-section="about-me"
                   className="flex items-center justify-center py-20 relative -mt-28 pt-48 scroll-mt-28"
-                  style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
+                  style={SECTION_STYLE}
                 >
                   {/* Gradient overlay - starts white at the top and fades down (top half only) */}
                   <div className="absolute -top-24 left-0 right-0 bottom-0 bg-gradient-to-b from-[#f0f6fe]/70 from-0% via-[#f0f6fe]/70 via-30% to-transparent to-100% backdrop-blur-sm pointer-events-none" />
@@ -231,7 +268,7 @@ export default function AppClient({ defaultLanguage, visitId }: AppClientProps) 
                   id="experience"
                   data-section="experience"
                   className="flex items-center justify-center py-20 scroll-mt-28"
-                  style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
+                  style={SECTION_STYLE}
                 >
                   <Experience isVisible={visibleSections.has('experience')} />
                 </section>
@@ -240,7 +277,7 @@ export default function AppClient({ defaultLanguage, visitId }: AppClientProps) 
                   id="skills"
                   data-section="skills"
                   className="flex items-center justify-center py-20 scroll-mt-28"
-                  style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
+                  style={SECTION_STYLE}
                 >
                   <WhatIBring isVisible={visibleSections.has('skills')} />
                 </section>
@@ -249,7 +286,7 @@ export default function AppClient({ defaultLanguage, visitId }: AppClientProps) 
                   id="projects"
                   data-section="projects"
                   className="scroll-mt-28"
-                  style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
+                  style={VARIABLE_HEIGHT_SECTION_STYLE}
                 >
                   <Projects isVisible={visibleSections.has('projects')} />
                 </section>
@@ -258,7 +295,7 @@ export default function AppClient({ defaultLanguage, visitId }: AppClientProps) 
                   id="certifications"
                   data-section="certifications"
                   className="flex items-center justify-center py-20 scroll-mt-28"
-                  style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
+                  style={VARIABLE_HEIGHT_SECTION_STYLE}
                 >
                   <Certifications isVisible={visibleSections.has('certifications')} />
                 </section>
@@ -267,7 +304,7 @@ export default function AppClient({ defaultLanguage, visitId }: AppClientProps) 
                   id="contact"
                   data-section="contact"
                   className="flex items-center justify-center py-20 scroll-mt-28"
-                  style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
+                  style={SECTION_STYLE}
                 >
                   <Contact isVisible={visibleSections.has('contact')} />
                 </section>

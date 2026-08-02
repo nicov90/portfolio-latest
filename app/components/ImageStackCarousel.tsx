@@ -1,6 +1,7 @@
 "use client";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState, type MouseEvent, type TouchEvent } from "react";
+import { useInViewport } from "../hooks/useInViewport";
 import { ImageLightbox } from "./ImageLightbox";
 
 interface ImageStackCarouselProps {
@@ -31,6 +32,16 @@ export const ImageStackCarousel = ({ images, autoPlayDelay = 5000 }: ImageStackC
   const [isDragging, setIsDragging] = useState(false);
   const dragStartX = useRef(0);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  // Autoplay used to run unconditionally the whole time this component was mounted — which, since
+  // every project card on the page is mounted simultaneously (not virtualized), meant every
+  // project's carousel kept firing its own setInterval forever, including ones scrolled far out
+  // of view. On a page with several projects that's several independent timers all doing
+  // React state updates + a Framer transition on every tick, competing for the main thread with
+  // whatever the user is actually looking at (traced directly to extra jank on the sections
+  // *after* Projects, not Projects itself). Gating on viewport visibility stops a carousel's
+  // clock the moment it's scrolled away and only restarts it once it's back in view.
+  const isInViewport = useInViewport(containerRef);
 
   const nextImage = useCallback(() => {
     setDirection(1);
@@ -76,7 +87,7 @@ export const ImageStackCarousel = ({ images, autoPlayDelay = 5000 }: ImageStackC
   };
 
   useEffect(() => {
-    if (!isHovered && images.length > 1) {
+    if (!isHovered && isInViewport && images.length > 1) {
       autoPlayRef.current = setInterval(nextImage, autoPlayDelay);
     }
 
@@ -85,7 +96,7 @@ export const ImageStackCarousel = ({ images, autoPlayDelay = 5000 }: ImageStackC
         clearInterval(autoPlayRef.current);
       }
     };
-  }, [isHovered, currentIndex, images.length, autoPlayDelay, nextImage]);
+  }, [isHovered, isInViewport, currentIndex, images.length, autoPlayDelay, nextImage]);
 
   if (images.length === 0) return null;
 
@@ -97,6 +108,7 @@ export const ImageStackCarousel = ({ images, autoPlayDelay = 5000 }: ImageStackC
     return (
       <>
         <div
+          ref={containerRef}
           className="relative w-full"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
@@ -175,6 +187,7 @@ export const ImageStackCarousel = ({ images, autoPlayDelay = 5000 }: ImageStackC
   return (
     <>
       <div
+        ref={containerRef}
         className="relative w-full h-full flex items-center justify-center perspective-1000"
         style={{ perspective: "1000px" }}
         onMouseEnter={() => setIsHovered(true)}

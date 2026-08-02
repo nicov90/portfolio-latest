@@ -124,11 +124,18 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
                   transition={{ duration: 0.5, delay: 0.8 + (index * 0.2), type: "spring", bounce: 0.5 }}
                   className="hidden md:block absolute md:left-1/2 transform md:-translate-x-1/2 w-6 h-6 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] rounded-full border-4 border-white shadow-lg z-10"
                 >
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="w-full h-full rounded-full bg-[#00bfe6]/50"
-                  />
+                  {/* Pulse only on the first dot (matches Experience's timeline) — this is
+                      `hidden md:block` and invisible on mobile regardless, but Framer doesn't
+                      check CSS visibility before running an `animate` loop: one `repeat: Infinity`
+                      scale animation per certificate meant every card kept its own infinite JS
+                      loop running forever, all invisible on mobile, purely wasted work. */}
+                  {index === 0 && (
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="w-full h-full rounded-full bg-[#00bfe6]/50"
+                    />
+                  )}
                 </motion.div>
 
                 {/* Empty space for timeline alignment on desktop */}

@@ -129,6 +129,13 @@
 
   body {
     @apply bg-background text-foreground;
+    /* Overrides bg-background (pure white) specifically for the page's own base paint — not
+       --background itself, which stays white for cards/surfaces elsewhere. This is what's
+       visible for an instant through any gap around the fixed background layers (e.g. Chrome
+       mobile's address-bar show/hide animation outrunning their own resize for a frame). A pure
+       white flash reads as a glitch against this page's pale blue/purple wash; matching that
+       tone instead makes the same brief gap visually disappear regardless of its exact cause. */
+    background-color: #f0f6fe;
   }
 }
 

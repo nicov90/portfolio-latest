@@ -205,7 +205,19 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({ section })
   // upward drift its bottom edge still reaches the outer box's bottom edge — nothing is ever left
   // uncovered. Circle positions below are unchanged and stay pixel-identical to before at rest.
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden">
+    // h-[100lvh] (large viewport height — the size WITHOUT the address bar, i.e. the maximum the
+    // viewport can ever be), not h-dvh. dvh was the first attempt: `top/bottom:0` (inset-0) relies
+    // on the browser recomputing that against whatever the CURRENT viewport height is, and dvh is
+    // the unit built to track that live — but confirmed directly on-device that Chrome mobile only
+    // resolves dvh once the address bar's show/hide animation actually settles, not continuously
+    // during it: mid-scroll, while the bar is animating away, this stayed sized for the smaller
+    // (bar-visible) viewport and only snapped to the correct size after scrolling stopped —
+    // visible the whole time as a bare page-background strip along the bottom. Since this is
+    // `position: fixed` anyway (it doesn't scroll with content, it only ever needs to cover
+    // whatever's currently on screen), permanently sizing it to the LARGEST possible viewport
+    // sidesteps the timing question entirely — it's already big enough for the bar-hidden state
+    // before the bar even starts hiding, so there's nothing to catch up on.
+    <div className="fixed inset-x-0 top-0 h-[100lvh] -z-10 overflow-hidden">
       <motion.div className="absolute inset-x-0 top-0" style={{ y: parallaxY, height: `calc(100% + ${PARALLAX_RANGE}px)` }}>
         <Circle config={CIRCLES[0]} background={colors.circle1} opacity={colors.opacity1} isScrolling={isScrolling} />
         <Circle config={CIRCLES[1]} background={colors.circle2} opacity={colors.opacity2} isScrolling={isScrolling} />

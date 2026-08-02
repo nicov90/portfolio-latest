@@ -1,6 +1,7 @@
 "use client";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState, type MouseEvent, type TouchEvent } from "react";
+import { useInViewport } from "../hooks/useInViewport";
 import { ImageLightbox } from "./ImageLightbox";
 
 interface SimpleImageCarouselProps {
@@ -17,6 +18,11 @@ export const SimpleImageCarousel = ({ images, autoPlayDelay = 5000 }: SimpleImag
   const [isDragging, setIsDragging] = useState(false);
   const dragStartX = useRef(0);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  // See ImageStackCarousel's note on the same fix: autoplay used to run the whole time this
+  // component was mounted, regardless of scroll position — every project's carousel kept ticking
+  // even scrolled far out of view, competing with whatever the user was actually looking at.
+  const isInViewport = useInViewport(containerRef);
 
   const nextImage = useCallback(() => {
     setDirection(1);
@@ -58,19 +64,20 @@ export const SimpleImageCarousel = ({ images, autoPlayDelay = 5000 }: SimpleImag
   };
 
   useEffect(() => {
-    if (!isHovered && images.length > 1) {
+    if (!isHovered && isInViewport && images.length > 1) {
       autoPlayRef.current = setInterval(nextImage, autoPlayDelay);
     }
     return () => {
       if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     };
-  }, [isHovered, images.length, autoPlayDelay, nextImage]);
+  }, [isHovered, isInViewport, images.length, autoPlayDelay, nextImage]);
 
   if (!images || images.length === 0) return null;
 
   return (
     <>
       <div
+        ref={containerRef}
         className="relative w-full"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
