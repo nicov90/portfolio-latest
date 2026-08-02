@@ -1,31 +1,31 @@
 "use client";
 import { useIsTabletOrBelow } from '../hooks/useIsTabletOrBelow';
 
-// Bisection switchboard for the real-device (S24 Ultra + tablet) scroll-tearing investigation.
-// Desktop is never affected by any of this — every flag here only applies below TABLET_BREAKPOINT
-// (see useIsTabletOrBelow). Start everything OFF (fully static page, nothing animates) to confirm
-// the artifact disappears entirely, then flip categories back on ONE AT A TIME and re-test on a
-// real device after each to find which category is actually responsible.
+// Bisection switchboard used to track down a real-device (S24 Ultra + tablet) scroll-tearing
+// artifact. Desktop was never affected by any of this — every flag here only applies below
+// TABLET_BREAKPOINT (see useIsTabletOrBelow).
+//
+// RESOLVED: root cause was `backgroundColorFade` — DynamicBackground used to animate the
+// `background` CSS property (a gradient string) directly on its three huge, permanently-blurred,
+// fixed full-viewport circles when the active section changed. Interpolating `background` isn't
+// compositor-only like transform/opacity: it forces a real repaint of that whole layer on every
+// tick of the 0.8s crossfade, and that crossfade fires almost always while the user is mid-scroll
+// (that's how a new section is reached). Confirmed by isolating every other category (all ON) with
+// only backgroundColorFade OFF — artifact gone; then only backgroundColorFade ON — artifact back.
+// Fixed at the source in DynamicBackground.tsx's `Circle`: the crossfade is now two stacked layers
+// each holding ONE fixed (never-animated) gradient, cross-fading via `opacity` only. Everything is
+// back on below, including backgroundColorFade with its new, cheap implementation.
 //
 // `master: true` is an escape hatch that makes tablet/mobile behave exactly like desktop again
-// (ignores every per-category flag below) — flip this instead of hand-restoring every flag once
-// the investigation concludes.
-// Round 2 result: enabling {textEntrances, clickRipple, navDrawer, backgroundColorFade} together
-// brought the artifact BACK on real hardware. That's surprising for three of the four (none of
-// them touch scroll — a tap-triggered ripple, a closed drawer, a language-switch fade), which
-// makes backgroundColorFade the prime suspect of the batch: unlike the other three, it animates
-// the `background` CSS property (a gradient string) on DynamicBackground's three huge, permanently
-// blurred, fixed full-viewport layers. Animating `background` — as opposed to transform/opacity —
-// is NOT compositor-only, it forces a real repaint of that entire layer on every tick of its 0.8s
-// crossfade, and that crossfade fires exactly when the active section changes, which is to say
-// almost always while the user is mid-scroll (that's how you reach a new section). Isolating it
-// alone this round to confirm before touching anything else.
+// (ignores every per-category flag below) — kept for convenience even now that everything is on.
+// If a similar artifact ever resurfaces, flip everything back to `false` and re-bisect the same
+// way: one category at a time, re-test on a real device after each.
 export const MOBILE_ANIMATIONS = {
   master: false,
 
   backgroundDrift: true,      // DynamicBackground: circles' continuous drift motion
   backgroundParallax: true,   // DynamicBackground: fixed layer's scroll-linked translateY
-  backgroundColorFade: false,   // DynamicBackground: circle color/opacity crossfade on section change — PRIME SUSPECT, isolating this round
+  backgroundColorFade: true,  // DynamicBackground: circle color crossfade on section change (now opacity-only, see resolution note above)
   stars: true,                // StarsBackground sparkle animation
 
   sectionReveal: true,        // AppClient: per-section scroll-triggered fade/slide-in

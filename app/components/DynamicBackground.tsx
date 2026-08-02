@@ -1,5 +1,5 @@
 import type { MotionValue } from 'motion/react';
-import { animate as animateValue, motion, useMotionValue, useScroll, useTransform } from 'motion/react';
+import { AnimatePresence, animate as animateValue, motion, useMotionValue, useScroll, useTransform } from 'motion/react';
 import React, { useEffect, useRef } from 'react';
 import { useIsScrolling } from '../hooks/useIsScrolling';
 import { useAnimEnabled } from '../lib/animationFlags';
@@ -117,10 +117,17 @@ interface CircleProps {
   colorFadeEnabled: boolean;
 }
 
-// One of the three ambient blur circles. `background`/`opacity` stay on the ordinary declarative
-// `animate` prop (cheap, only actually transitions for 0.8s right after a section change,
-// entirely unrelated to scroll). The infinite drift is different: it needs to be pausable
-// mid-flight, without jumping, which ruled out two earlier approaches tried here —
+// One of the three ambient blur circles. The color crossfade on section change (confirmed root
+// cause of the real-device scroll-tearing artifact — see animationFlags.ts) used to animate the
+// `background` CSS property directly: interpolating a gradient string is NOT compositor-only like
+// transform/opacity, so it forced a full repaint of this huge, permanently-blurred, fixed
+// full-viewport layer on every tick of its 0.8s transition — and that transition fires almost
+// always while the user is mid-scroll (that's how a new section is reached). Fixed by never
+// animating `background` at all: two stacked layers, each holding ONE fixed (never-animated)
+// gradient for its whole lifetime, cross-fade via `opacity` only (`AnimatePresence`, default
+// "sync" mode so both play simultaneously) — same visual crossfade, but every tick is a pure
+// compositor op instead of a repaint. The infinite drift is a separate concern: it needs to be
+// pausable mid-flight, without jumping, which ruled out two earlier approaches tried here —
 // - A `transform` CSS *string* (e.g. "translateY(50px) scale(0.75) rotate(-15deg)") animated via
 //   AnimationControls: calling `.start()` again to resume always restarted from the first
 //   keyframe instead of resuming from wherever the string-interpolated value currently was,
@@ -185,12 +192,23 @@ const Circle: React.FC<CircleProps> = ({ config, background, opacity, isScrollin
 
   return (
     <motion.div
-      className={config.className}
+      className={`${config.className} overflow-hidden`}
       style={{ ...config.style, x, y, scale, scaleX, scaleY, rotate }}
-      initial={{ background, opacity: 0 }}
-      animate={{ background, opacity }}
-      transition={colorFadeEnabled ? { duration: 0.8, ease: 'easeInOut' } : { duration: 0 }}
-    />
+    >
+      <AnimatePresence>
+        <motion.div
+          key={background}
+          className="absolute inset-0 rounded-full"
+          // `background` is a plain, never-animated inline style on each instance — only
+          // `opacity` (below) is ever driven by Framer, which is what keeps this compositor-only.
+          style={{ background }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity }}
+          exit={{ opacity: 0 }}
+          transition={colorFadeEnabled ? { duration: 0.8, ease: 'easeInOut' } : { duration: 0 }}
+        />
+      </AnimatePresence>
+    </motion.div>
   );
 };
 
