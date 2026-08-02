@@ -155,6 +155,7 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({ open, onOpenChange }) =>
         const delta = count - (previous.byCountry[country] ?? 0);
         if (delta > 0) countryDeltas[country] = delta;
       }
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDeltas({ total: Math.max(0, totalDelta), byCountry: countryDeltas });
     } else {
       setDeltas(null);

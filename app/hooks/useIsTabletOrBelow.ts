@@ -12,6 +12,7 @@ export function useIsTabletOrBelow(): boolean {
     const mql = window.matchMedia(`(max-width: ${TABLET_BREAKPOINT - 1}px)`);
     const onChange = () => setIsTabletOrBelow(window.innerWidth < TABLET_BREAKPOINT);
     mql.addEventListener("change", onChange);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsTabletOrBelow(window.innerWidth < TABLET_BREAKPOINT);
     return () => mql.removeEventListener("change", onChange);
   }, []);

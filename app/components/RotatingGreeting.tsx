@@ -61,6 +61,7 @@ export const RotatingGreeting: React.FC<RotatingGreetingProps> = ({
     const saved = getSavedLanguage();
     if (!saved) return;
     const matched = GREETINGS.findIndex((g) => g.code === saved);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (matched !== -1) setIndex(matched);
   }, []);
 

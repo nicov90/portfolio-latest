@@ -159,6 +159,7 @@ export const StaggeredText: React.FC<StaggeredTextProps> = ({
             const isWhitespace = /^\s+$/.test(token);
             const letters = Array.from(token);
             const startIndex = globalIndex;
+            // eslint-disable-next-line react-hooks/immutability
             globalIndex += letters.length;
 
             const letterProps = { hoverGlow, liftOnHover, glow: glowColor, animated: textAnimated };

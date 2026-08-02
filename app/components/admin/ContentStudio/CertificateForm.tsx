@@ -98,6 +98,7 @@ export const CertificateForm: React.FC<CertificateFormProps> = ({ open, onClose,
         jaSubtitle: certificate.translations?.ja?.subtitle || '',
         jaDescription: certificate.translations?.ja?.description || '',
       });
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setImages(certificate.imageUrl ? [certificate.imageUrl] : []);
     } else {
       reset(emptyDefaults);

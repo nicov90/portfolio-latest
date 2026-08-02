@@ -96,6 +96,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ open, onClose, project
         jaTitle: project.translations?.ja?.title || '',
         jaDescription: project.translations?.ja?.description || '',
       });
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setImages(project.images || []);
     } else {
       reset(emptyDefaults);

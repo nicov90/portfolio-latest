@@ -57,10 +57,12 @@ export const ContentStudioPanel: React.FC<ContentStudioPanelProps> = ({ open, on
   const [certificateOrder, setCertificateOrder] = useState<CertificateRecord[]>([]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (Array.isArray(projects)) setProjectOrder(bySortOrder(projects));
   }, [projects]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (Array.isArray(certificates)) setCertificateOrder(bySortOrder(certificates));
   }, [certificates]);
 

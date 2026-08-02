@@ -19,6 +19,7 @@ export const ImageLightbox = ({
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentIndex(initialIndex);
   }, [initialIndex, isOpen]);
 

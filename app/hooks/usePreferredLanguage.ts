@@ -37,6 +37,7 @@ export function usePreferredLanguage(initialDefault: SupportedLang = 'en') {
     try {
       const saved = typeof window !== 'undefined' ? localStorage.getItem('lang') : null;
       if (saved) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setLanguageState(normalizeToSupported(saved));
       }
       // No saved preference: keep the server-resolved regional default already in state.

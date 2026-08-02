@@ -4,7 +4,7 @@ import { SESSION_COOKIE_NAME, verifySessionToken } from './lib/auth';
 const PROTECTED_PREFIXES = ['/api/projects', '/api/certificates', '/api/experience', '/api/upload', '/api/site-content'];
 const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isProtectedPath = PROTECTED_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
