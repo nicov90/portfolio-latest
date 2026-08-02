@@ -1,6 +1,6 @@
 "use client";
 import { motion, MotionConfig } from 'motion/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { ClickRipple } from './components/ClickRipple';
 import { DocumentTitleUpdater } from './components/DocumentTitleUpdater';
@@ -12,12 +12,26 @@ import { Contact } from './components/sections/Contact';
 import { Experience } from './components/sections/Experience';
 import { Projects } from './components/sections/Projects';
 import { WhatIBring } from './components/sections/WhatIBring';
+import { useIsMobile } from './components/ui/use-mobile';
 import { VisitDurationTracker } from './components/VisitDurationTracker';
 import { I18nProvider } from './contexts/i18nContext';
 import { useInitialHashNavigation } from './hooks/useInitialHashNavigation';
 import { useIntersectionObserver } from './hooks/useIntersectionObserver';
 import type { SupportedLang } from './hooks/usePreferredLanguage';
 import { smoothScrollToElement } from './lib/smoothScroll';
+
+// Easy on/off switch for testing whether the scroll-triggered reveal animations (each section
+// fading/sliding in via its own `isVisible` prop, driven by useIntersectionObserver below) are
+// the source of the visual artifacts reported specifically on real mobile hardware — flip this
+// to `true` to bypass that gating on mobile ONLY: every section's `isVisible` becomes `true` from
+// the moment it mounts, so instead of each section animating in individually as it's scrolled
+// into view, all of them settle into their final state in one pass right when the main content
+// mounts (entering from the intro), and scrolling itself never re-triggers anything. Desktop is
+// untouched either way. This does NOT disable the observer's OTHER job (tracking which section is
+// "current" for nav highlighting / the URL hash) — that's a handful of getBoundingClientRect()
+// reads per scroll frame, cheap, and not implicated by anything measured so far; only the
+// consequence of ITS visibility output (the per-section `isVisible` prop) is what's being tested.
+const DISABLE_SCROLL_REVEAL_ON_MOBILE = true;
 
 interface AppClientProps {
   defaultLanguage: SupportedLang;
@@ -63,6 +77,15 @@ export default function AppClient({ defaultLanguage, visitId }: AppClientProps) 
   // which also starts empty — otherwise a section that begins off-screen would be marked "already
   // revealed" before it's ever actually been seen, skipping its first genuine entrance animation.
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
+  const isMobile = useIsMobile();
+  const bypassScrollReveal = DISABLE_SCROLL_REVEAL_ON_MOBILE && isMobile;
+  // What every section's `isVisible` prop actually reads — either the observer's live tracking,
+  // or (mobile + the flag above) unconditionally visible. Recomputed only when its inputs change,
+  // not a fresh closure/Set on every render, since it's called once per section per render.
+  const isSectionVisible = useMemo(
+    () => (id: string) => bypassScrollReveal || visibleSections.has(id),
+    [bypassScrollReveal, visibleSections]
+  );
   const [preferredSection, setPreferredSection] = useState<Section | null>(null);
   const sectionsRef = useRef<HTMLDivElement>(null);
   const currentSectionRef = useRef<Section>('intro');
@@ -260,7 +283,7 @@ export default function AppClient({ defaultLanguage, visitId }: AppClientProps) 
                   {/* Gradient overlay - starts white at the top and fades down (top half only) */}
                   <div className="absolute -top-24 left-0 right-0 bottom-0 bg-gradient-to-b from-[#f0f6fe]/70 from-0% via-[#f0f6fe]/70 via-30% to-transparent to-100% backdrop-blur-sm pointer-events-none" />
                   <div className="relative z-10 w-full px-2 sm:px-0">
-                    <AboutMe isVisible={visibleSections.has('about-me')} />
+                    <AboutMe isVisible={isSectionVisible('about-me')} />
                   </div>
                 </section>
   
@@ -270,7 +293,7 @@ export default function AppClient({ defaultLanguage, visitId }: AppClientProps) 
                   className="flex items-center justify-center py-20 scroll-mt-28"
                   style={SECTION_STYLE}
                 >
-                  <Experience isVisible={visibleSections.has('experience')} />
+                  <Experience isVisible={isSectionVisible('experience')} />
                 </section>
   
                 <section
@@ -279,7 +302,7 @@ export default function AppClient({ defaultLanguage, visitId }: AppClientProps) 
                   className="flex items-center justify-center py-20 scroll-mt-28"
                   style={SECTION_STYLE}
                 >
-                  <WhatIBring isVisible={visibleSections.has('skills')} />
+                  <WhatIBring isVisible={isSectionVisible('skills')} />
                 </section>
   
                 <section
@@ -288,7 +311,7 @@ export default function AppClient({ defaultLanguage, visitId }: AppClientProps) 
                   className="scroll-mt-28"
                   style={VARIABLE_HEIGHT_SECTION_STYLE}
                 >
-                  <Projects isVisible={visibleSections.has('projects')} />
+                  <Projects isVisible={isSectionVisible('projects')} />
                 </section>
   
                 <section
@@ -297,7 +320,7 @@ export default function AppClient({ defaultLanguage, visitId }: AppClientProps) 
                   className="flex items-center justify-center py-20 scroll-mt-28"
                   style={VARIABLE_HEIGHT_SECTION_STYLE}
                 >
-                  <Certifications isVisible={visibleSections.has('certifications')} />
+                  <Certifications isVisible={isSectionVisible('certifications')} />
                 </section>
   
                 <section
@@ -306,7 +329,7 @@ export default function AppClient({ defaultLanguage, visitId }: AppClientProps) 
                   className="flex items-center justify-center py-20 scroll-mt-28"
                   style={SECTION_STYLE}
                 >
-                  <Contact isVisible={visibleSections.has('contact')} />
+                  <Contact isVisible={isSectionVisible('contact')} />
                 </section>
               </div>
             </Layout>
