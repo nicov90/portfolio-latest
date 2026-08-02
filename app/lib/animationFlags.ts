@@ -23,16 +23,16 @@ import { useIsTabletOrBelow } from '../hooks/useIsTabletOrBelow';
 export const MOBILE_ANIMATIONS = {
   master: false,
 
-  backgroundDrift: false,      // DynamicBackground: circles' continuous drift motion
-  backgroundParallax: false,   // DynamicBackground: fixed layer's scroll-linked translateY
+  backgroundDrift: true,      // DynamicBackground: circles' continuous drift motion
+  backgroundParallax: true,   // DynamicBackground: fixed layer's scroll-linked translateY
   backgroundColorFade: false,   // DynamicBackground: circle color/opacity crossfade on section change — PRIME SUSPECT, isolating this round
   stars: true,                // StarsBackground sparkle animation
 
-  sectionReveal: false,        // AppClient: per-section scroll-triggered fade/slide-in
-  cardEntrances: false,        // whileInView fade-ups on individual cards (Experience, Certifications, Projects, WhatIBring, AboutMe)
+  sectionReveal: true,        // AppClient: per-section scroll-triggered fade/slide-in
+  cardEntrances: true,        // whileInView fade-ups on individual cards (Experience, Certifications, Projects, WhatIBring, AboutMe)
   textEntrances: true,        // IntroScreen, StaggeredText, RotatingGreeting, AnimatedText, LocalizedFade
 
-  carousel: false,             // Project image carousels' slide/fade transitions
+  carousel: true,             // Project image carousels' slide/fade transitions
   clickRipple: true,          // Layout: click ripple effect
   navDrawer: true,            // Layout: mobile nav drawer slide
   microInteractions: true,    // hover/tap scales, pulsing dots, small icon animations, lightbox, language selector, scroll progress bar
