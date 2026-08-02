@@ -25,17 +25,17 @@ export const MOBILE_ANIMATIONS = {
 
   backgroundDrift: false,      // DynamicBackground: circles' continuous drift motion
   backgroundParallax: false,   // DynamicBackground: fixed layer's scroll-linked translateY
-  backgroundColorFade: true,   // DynamicBackground: circle color/opacity crossfade on section change — PRIME SUSPECT, isolating this round
-  stars: false,                // StarsBackground sparkle animation
+  backgroundColorFade: false,   // DynamicBackground: circle color/opacity crossfade on section change — PRIME SUSPECT, isolating this round
+  stars: true,                // StarsBackground sparkle animation
 
   sectionReveal: false,        // AppClient: per-section scroll-triggered fade/slide-in
   cardEntrances: false,        // whileInView fade-ups on individual cards (Experience, Certifications, Projects, WhatIBring, AboutMe)
-  textEntrances: false,        // IntroScreen, StaggeredText, RotatingGreeting, AnimatedText, LocalizedFade
+  textEntrances: true,        // IntroScreen, StaggeredText, RotatingGreeting, AnimatedText, LocalizedFade
 
   carousel: false,             // Project image carousels' slide/fade transitions
-  clickRipple: false,          // Layout: click ripple effect
-  navDrawer: false,            // Layout: mobile nav drawer slide
-  microInteractions: false,    // hover/tap scales, pulsing dots, small icon animations, lightbox, language selector, scroll progress bar
+  clickRipple: true,          // Layout: click ripple effect
+  navDrawer: true,            // Layout: mobile nav drawer slide
+  microInteractions: true,    // hover/tap scales, pulsing dots, small icon animations, lightbox, language selector, scroll progress bar
 } as const;
 
 export type AnimationCategory = keyof typeof MOBILE_ANIMATIONS;
