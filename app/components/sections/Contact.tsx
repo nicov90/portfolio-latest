@@ -220,7 +220,7 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
                 transition={entranceTransition({ duration: 0.6, delay: 1.4 })}
                 whileHover={{ scale: isSubmitting ? 1 : 1.05, transition: { duration: 0.2, ease: 'easeOut' } }}
                 whileTap={{ scale: isSubmitting ? 1 : 0.95, transition: { duration: 0.1 } }}
-                className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] text-white font-bold rounded-xl hover:from-[#0096c7] hover:to-[#0077b6] transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="cursor-pointer w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] text-white font-bold rounded-xl hover:from-[#0096c7] hover:to-[#0077b6] transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <motion.div
