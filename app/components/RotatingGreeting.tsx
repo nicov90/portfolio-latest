@@ -2,6 +2,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { getSavedLanguage } from '../hooks/usePreferredLanguage';
+import { useAnimEnabled } from '../lib/animationFlags';
 
 interface Greeting {
   code: string;
@@ -82,14 +83,17 @@ export const RotatingGreeting: React.FC<RotatingGreetingProps> = ({
     if (!active && holdTimerRef.current) clearTimeout(holdTimerRef.current);
   }, [active]);
 
+  // Bisection testing (tablet/mobile): freeze on the first greeting, fully typed, no loop at all.
+  const typewriterAnimated = useAnimEnabled('textEntrances');
+
   const handleTypingComplete = () => {
-    if (!active || phase !== 'typing' || !canFireRef.current) return;
+    if (!typewriterAnimated || !active || phase !== 'typing' || !canFireRef.current) return;
     canFireRef.current = false;
     holdTimerRef.current = setTimeout(() => setPhase('erasing'), HOLD_MS);
   };
 
   const handleErasingComplete = () => {
-    if (!active || phase !== 'erasing' || !canFireRef.current) return;
+    if (!typewriterAnimated || !active || phase !== 'erasing' || !canFireRef.current) return;
     canFireRef.current = false;
     setIndex((prev) => (prev + 1) % GREETINGS.length);
     setPhase('typing');
@@ -108,7 +112,7 @@ export const RotatingGreeting: React.FC<RotatingGreetingProps> = ({
             initial={{ opacity: 0, x: '-50%' }}
             animate={{ opacity: 1, x: '-50%' }}
             exit={{ opacity: 0, x: '-50%' }}
-            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            transition={typewriterAnimated ? { duration: 0.5, ease: 'easeInOut' } : { duration: 0 }}
           >
             {current.hiIm}&nbsp;
           </motion.h5>
@@ -125,11 +129,11 @@ export const RotatingGreeting: React.FC<RotatingGreetingProps> = ({
           // intro mid-typing, flipping the target to 0% would visibly reverse the line right as
           // the screen fades out. Instead the in-flight tween finishes untouched and `active`
           // only stops the loop from scheduling its NEXT phase (checked in the handlers below).
-          animate={{ width: phase === 'typing' ? '100%' : '0%' }}
-          transition={{
+          animate={{ width: typewriterAnimated ? (phase === 'typing' ? '100%' : '0%') : '100%' }}
+          transition={typewriterAnimated ? {
             duration: phase === 'typing' ? TYPE_DURATION_S : ERASE_DURATION_S,
             ease: phase === 'typing' ? 'linear' : 'easeIn',
-          }}
+          } : { duration: 0 }}
           onAnimationComplete={() => {
             if (phase === 'typing') handleTypingComplete();
             else handleErasingComplete();

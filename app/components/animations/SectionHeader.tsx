@@ -1,6 +1,7 @@
 "use client";
 import { motion } from 'motion/react';
 import React from 'react';
+import { useAnimEnabled } from '../../lib/animationFlags';
 
 interface SectionHeaderProps {
   /** Title content. Pass plain text or an already-wrapped node (e.g. an editable/translated
@@ -58,18 +59,20 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
   children,
 }) => {
   const MotionHeading = motion[as];
+  const cardsAnimated = useAnimEnabled('cardEntrances');
+  const entranceTransition = (base: object) => (cardsAnimated ? base : { duration: 0 });
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
       animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-      transition={{ duration: 0.8, ease: 'easeOut' }}
+      transition={entranceTransition({ duration: 0.8, ease: 'easeOut' })}
       className={className}
     >
       <MotionHeading
         initial={{ opacity: 0, scale: 0.9 }}
         animate={isVisible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-        transition={{ duration: 1, delay: 0.2 }}
+        transition={entranceTransition({ duration: 1, delay: 0.2 })}
         className={titleClassName}
       >
         {title}
@@ -79,7 +82,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
+          transition={entranceTransition({ duration: 0.8, delay: 0.4 })}
           className={subtitleClassName}
         >
           {subtitle}

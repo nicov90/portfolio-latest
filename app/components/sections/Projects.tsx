@@ -3,9 +3,11 @@ import {
     Github,
     Play
 } from 'lucide-react';
+import type { TargetAndTransition, VariantLabels } from 'motion/react';
 import { motion } from 'motion/react';
 import React, { useEffect, useState } from 'react';
 import { useI18n } from '../../contexts/i18nContext';
+import { useAnimEnabled } from '../../lib/animationFlags';
 import { EditableText } from '../admin/EditableText';
 import { SectionHeader, StaggeredText } from '../animations';
 import { ImageStackCarousel } from '../ImageStackCarousel';
@@ -27,6 +29,14 @@ interface Project {
 
 export const Projects: React.FC<ProjectsProps> = React.memo(({ isVisible }) => {
   const { t, language } = useI18n() as any;
+  const cardsAnimated = useAnimEnabled('cardEntrances');
+  // Bisection testing (tablet/mobile): whileInView + viewport={{ once: false }} means each project
+  // card runs its OWN Framer IntersectionObserver and replays its entrance every time it scrolls
+  // in/out of view — independent of (and not covered by) the app-level sectionReveal bypass, which
+  // only gates the section header. Disabled here means every card renders in its final, visible
+  // state immediately (no `whileInView` prop passed at all, so Framer never attaches its observer).
+  const inViewProp = (target: TargetAndTransition | VariantLabels, viewport: object = { once: false }) =>
+    (cardsAnimated ? { whileInView: target, viewport } : { animate: target });
   const [allLocaleProjects, setAllLocaleProjects] = useState<any[] | null>(null);
   const [prefixAssets] = useState<Record<string, { images: string[]; video: string | null }>>({});
 
@@ -179,9 +189,8 @@ export const Projects: React.FC<ProjectsProps> = React.memo(({ isVisible }) => {
             key={index}
             className="min-h-screen flex items-center justify-center py-20"
             initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: false, margin: "-100px" }}
-            transition={{ duration: 0.6 }}
+            {...inViewProp({ opacity: 1 }, { once: false, margin: "-100px" })}
+            transition={cardsAnimated ? { duration: 0.6 } : { duration: 0 }}
           >
             <div className="w-full max-w-7xl mx-auto px-4">
               <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -190,9 +199,8 @@ export const Projects: React.FC<ProjectsProps> = React.memo(({ isVisible }) => {
                 <motion.div
                   className="h-[70vh] min-h-[500px] w-[75%] lg:w-full mx-auto hidden md:block"
                   initial={{ x: -50, opacity: 0 }}
-                  whileInView={{ x: 0, opacity: 1 }}
-                  viewport={{ once: false }}
-                  transition={{ delay: 0.2, duration: 0.6 }}
+                  {...inViewProp({ x: 0, opacity: 1 })}
+                  transition={cardsAnimated ? { delay: 0.2, duration: 0.6 } : { duration: 0 }}
                 >
                   {/* Delay distinto por proyecto */}
                   <ImageStackCarousel images={project.images} autoPlayDelay={4500 + (index % 7) * 600} />
@@ -202,9 +210,8 @@ export const Projects: React.FC<ProjectsProps> = React.memo(({ isVisible }) => {
                 <motion.div
                   className="block md:hidden"
                   initial={{ x: -50, opacity: 0 }}
-                  whileInView={{ x: 0, opacity: 1 }}
-                  viewport={{ once: false }}
-                  transition={{ delay: 0.2, duration: 0.6 }}
+                  {...inViewProp({ x: 0, opacity: 1 })}
+                  transition={cardsAnimated ? { delay: 0.2, duration: 0.6 } : { duration: 0 }}
                 >
                   <SimpleImageCarousel images={project.images} autoPlayDelay={4500 + (index % 7) * 600} />
                 </motion.div>
@@ -213,9 +220,8 @@ export const Projects: React.FC<ProjectsProps> = React.memo(({ isVisible }) => {
                 <motion.div
                   className="space-y-6 px-4 sm:px-6 md:px-0"
                   initial={{ x: 50, opacity: 0 }}
-                  whileInView={{ x: 0, opacity: 1 }}
-                  viewport={{ once: false }}
-                  transition={{ delay: 0.3, duration: 0.6 }}
+                  {...inViewProp({ x: 0, opacity: 1 })}
+                  transition={cardsAnimated ? { delay: 0.3, duration: 0.6 } : { duration: 0 }}
                 >
                   <div>
                     <h2 className="text-4xl font-bold mb-4"><StaggeredText text={project.title} hoverGlow /></h2>

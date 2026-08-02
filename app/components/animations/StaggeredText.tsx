@@ -1,6 +1,7 @@
 "use client";
 import { AnimatePresence, motion } from 'motion/react';
 import React from 'react';
+import { useAnimEnabled } from '../../lib/animationFlags';
 
 interface StaggeredTextProps {
   /** The text to render. When this prop changes, the old text animates out and the new one
@@ -33,12 +34,13 @@ interface LetterProps {
   hoverGlow: boolean;
   liftOnHover: boolean;
   glow: [number, number, number];
+  animated: boolean;
 }
 
 // A single animated glyph. Pulled out of StaggeredText itself only because it's now instantiated
 // from two call sites (word groups and standalone space characters, see below) that need to stay
 // pixel-identical.
-const Letter: React.FC<LetterProps> = ({ char, index, hoverGlow, liftOnHover, glow: [gr, gg, gb] }) => (
+const Letter: React.FC<LetterProps> = ({ char, index, hoverGlow, liftOnHover, glow: [gr, gg, gb], animated }) => (
   <motion.span
     aria-hidden="true"
     style={{
@@ -52,8 +54,8 @@ const Letter: React.FC<LetterProps> = ({ char, index, hoverGlow, liftOnHover, gl
     // The stagger delay lives INSIDE the animate target (not the shared `transition` prop) so it
     // only paces the entrance cascade — the shared transition below is what hover-return uses,
     // and a per-letter delay there would make letters visibly lag when settling back after a hover.
-    animate={{ opacity: 1, y: 0, transition: { duration: 0.28, delay: index * LETTER_STAGGER_S, ease: 'easeOut' } }}
-    transition={{ duration: 0.18, ease: 'easeOut' }}
+    animate={{ opacity: 1, y: 0, transition: animated ? { duration: 0.28, delay: index * LETTER_STAGGER_S, ease: 'easeOut' } : { duration: 0 } }}
+    transition={animated ? { duration: 0.18, ease: 'easeOut' } : { duration: 0 }}
     whileHover={
       hoverGlow
         ? {
@@ -141,6 +143,7 @@ export const StaggeredText: React.FC<StaggeredTextProps> = ({
   // ["Let's", " ", "get", " ", "in", " ", "touch!"]. The capturing group in the regex is what
   // makes String.split() keep the whitespace matches in the result instead of discarding them.
   const tokens = text.split(/(\s+)/).filter((token) => token.length > 0);
+  const textAnimated = useAnimEnabled('textEntrances');
 
   let globalIndex = 0;
 
@@ -150,7 +153,7 @@ export const StaggeredText: React.FC<StaggeredTextProps> = ({
         <motion.span
           key={text}
           style={{ display: 'inline-block' }}
-          exit={{ opacity: 0, y: -4, transition: { duration: 0.12, ease: 'easeIn' } }}
+          exit={{ opacity: 0, y: -4, transition: textAnimated ? { duration: 0.12, ease: 'easeIn' } : { duration: 0 } }}
         >
           {tokens.map((token, tokenIndex) => {
             const isWhitespace = /^\s+$/.test(token);
@@ -158,7 +161,7 @@ export const StaggeredText: React.FC<StaggeredTextProps> = ({
             const startIndex = globalIndex;
             globalIndex += letters.length;
 
-            const letterProps = { hoverGlow, liftOnHover, glow: glowColor };
+            const letterProps = { hoverGlow, liftOnHover, glow: glowColor, animated: textAnimated };
 
             if (isWhitespace) {
               // Whitespace stays un-grouped (no word to protect) — each space is its own

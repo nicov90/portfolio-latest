@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import React, { useState } from 'react';
 import { getSiteOwnerName } from '../../lib/siteOwner';
 import { useI18n } from '../contexts/i18nContext';
+import { useAnimEnabled } from '../lib/animationFlags';
 import { LocalizedFade, StaggeredText } from './animations';
 import { DynamicBackground } from './DynamicBackground';
 import { LanguageSelector } from './LanguageSelector';
@@ -28,6 +29,10 @@ export const Layout: React.FC<LayoutProps> = ({
 }) => {
   const { t, language } = useI18n();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const navDrawerAnimated = useAnimEnabled('navDrawer');
+  const microAnimated = useAnimEnabled('microInteractions');
+  const microTransition = (base: object) => (microAnimated ? base : { duration: 0 });
+  const drawerTransition = (base: object) => (navDrawerAnimated ? base : { duration: 0 });
 
   const navItems: { key: Section; label: string }[] = [
     { key: 'about-me', label: t('navigation.aboutMe') },
@@ -56,7 +61,7 @@ export const Layout: React.FC<LayoutProps> = ({
       <motion.nav
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
+        transition={microTransition({ duration: 0.8, delay: 0.2 })}
         className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[90vw] max-w-6xl"
       >
         <div className="bg-white/25 backdrop-blur-xl rounded-2xl border border-white/30 shadow-2xl px-3 sm:px-6 py-3 sm:py-4">
@@ -119,7 +124,7 @@ export const Layout: React.FC<LayoutProps> = ({
             <motion.div
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, delay: 0.8 }}
+              transition={microTransition({ duration: 0.4, delay: 0.8 })}
             >
               <div className="flex items-center gap-2.5 sm:gap-3">
                 {/* Mobile/tablet socials: left of language selector (desktop gets the floating
@@ -157,7 +162,7 @@ export const Layout: React.FC<LayoutProps> = ({
         type="button"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
+        transition={drawerTransition({ duration: 0.6, delay: 0.4 })}
         onClick={() => setDrawerOpen(true)}
         className="lg:hidden fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-white/55 backdrop-blur-xl border border-white/60 shadow-2xl flex items-center justify-center"
         aria-label="Open navigation"
@@ -174,7 +179,7 @@ export const Layout: React.FC<LayoutProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={drawerTransition({ duration: 0.2 })}
               onClick={() => setDrawerOpen(false)}
             />
 
@@ -184,7 +189,7 @@ export const Layout: React.FC<LayoutProps> = ({
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
-              transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+              transition={drawerTransition({ type: 'spring', stiffness: 260, damping: 28 })}
             >
               <div className="bg-white/30 backdrop-blur-xl border border-white/30 shadow-2xl rounded-t-3xl p-4 max-h-[60vh] overflow-auto">
                 {/* Drawer Handle + Close */}
@@ -203,7 +208,7 @@ export const Layout: React.FC<LayoutProps> = ({
                       }}
                       initial={{ opacity: 0, x: 10 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.25, delay: 0.05 * index }}
+                      transition={drawerTransition({ duration: 0.25, delay: 0.05 * index })}
                       whileHover={{ scale: 1.02, transition: { duration: 0.15 } }}
                       whileTap={{ scale: 0.98, transition: { duration: 0.1 } }}
                       className={`w-full text-center px-4 py-4 rounded-xl cursor-pointer transition-colors duration-300 ${

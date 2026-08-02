@@ -1,6 +1,7 @@
 "use client";
 import { AnimatePresence, motion } from 'motion/react';
 import React from 'react';
+import { useAnimEnabled } from '../../lib/animationFlags';
 
 interface LocalizedFadeProps {
   /** The text to render. When it changes, the old copy fades out and the new one fades in. */
@@ -40,6 +41,7 @@ interface LocalizedFadeProps {
  */
 export const LocalizedFade: React.FC<LocalizedFadeProps> = ({ children, className, as = 'div' }) => {
   const MotionTag = motion[as];
+  const animated = useAnimEnabled('textEntrances');
 
   return (
     <AnimatePresence mode="wait" initial={false}>
@@ -47,8 +49,8 @@ export const LocalizedFade: React.FC<LocalizedFadeProps> = ({ children, classNam
         key={children}
         className={className}
         initial={{ opacity: 0, y: -4 }}
-        animate={{ opacity: 1, y: 0, transition: { duration: 0.18, ease: 'easeOut' } }}
-        exit={{ opacity: 0, y: -4, transition: { duration: 0.12, ease: 'easeIn' } }}
+        animate={{ opacity: 1, y: 0, transition: animated ? { duration: 0.18, ease: 'easeOut' } : { duration: 0 } }}
+        exit={{ opacity: 0, y: -4, transition: animated ? { duration: 0.12, ease: 'easeIn' } : { duration: 0 } }}
       >
         {children}
       </MotionTag>

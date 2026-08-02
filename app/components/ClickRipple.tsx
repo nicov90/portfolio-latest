@@ -1,6 +1,7 @@
 "use client";
 import { AnimatePresence, motion } from 'motion/react';
 import React, { useEffect, useState } from 'react';
+import { useAnimEnabled } from '../lib/animationFlags';
 
 interface Ripple {
   id: number;
@@ -10,8 +11,10 @@ interface Ripple {
 
 export const ClickRipple: React.FC = () => {
   const [ripples, setRipples] = useState<Ripple[]>([]);
+  const rippleEnabled = useAnimEnabled('clickRipple');
 
   useEffect(() => {
+    if (!rippleEnabled) return;
     const handleClick = (e: MouseEvent) => {
       // Don't create ripple if clicking on interactive elements
       const target = e.target as HTMLElement;
@@ -47,7 +50,7 @@ export const ClickRipple: React.FC = () => {
     return () => {
       document.removeEventListener('click', handleClick);
     };
-  }, []);
+  }, [rippleEnabled]);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-[9999]">

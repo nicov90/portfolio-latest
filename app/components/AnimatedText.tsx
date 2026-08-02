@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { useAnimEnabled } from '../lib/animationFlags';
 
 interface AnimatedTextProps {
   text: string;
@@ -17,6 +18,7 @@ export const AnimatedTextWord: React.FC<AnimatedTextProps> = ({
   onClick
 }) => {
   const words = text.split(' ');
+  const animated = useAnimEnabled('textEntrances');
 
   return (
     <div className={`flex flex-wrap ${className}`} onClick={onClick}>
@@ -25,11 +27,11 @@ export const AnimatedTextWord: React.FC<AnimatedTextProps> = ({
           key={index}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{
+          transition={animated ? {
             duration: speed,
             delay: delay + index * 0.1,
             ease: "easeOut"
-          }}
+          } : { duration: 0 }}
           className="mr-1"
         >
           {word}

@@ -12,26 +12,13 @@ import { Contact } from './components/sections/Contact';
 import { Experience } from './components/sections/Experience';
 import { Projects } from './components/sections/Projects';
 import { WhatIBring } from './components/sections/WhatIBring';
-import { useIsMobile } from './components/ui/use-mobile';
 import { VisitDurationTracker } from './components/VisitDurationTracker';
 import { I18nProvider } from './contexts/i18nContext';
 import { useInitialHashNavigation } from './hooks/useInitialHashNavigation';
 import { useIntersectionObserver } from './hooks/useIntersectionObserver';
 import type { SupportedLang } from './hooks/usePreferredLanguage';
+import { useAnimEnabled } from './lib/animationFlags';
 import { smoothScrollToElement } from './lib/smoothScroll';
-
-// Easy on/off switch for testing whether the scroll-triggered reveal animations (each section
-// fading/sliding in via its own `isVisible` prop, driven by useIntersectionObserver below) are
-// the source of the visual artifacts reported specifically on real mobile hardware — flip this
-// to `true` to bypass that gating on mobile ONLY: every section's `isVisible` becomes `true` from
-// the moment it mounts, so instead of each section animating in individually as it's scrolled
-// into view, all of them settle into their final state in one pass right when the main content
-// mounts (entering from the intro), and scrolling itself never re-triggers anything. Desktop is
-// untouched either way. This does NOT disable the observer's OTHER job (tracking which section is
-// "current" for nav highlighting / the URL hash) — that's a handful of getBoundingClientRect()
-// reads per scroll frame, cheap, and not implicated by anything measured so far; only the
-// consequence of ITS visibility output (the per-section `isVisible` prop) is what's being tested.
-const DISABLE_SCROLL_REVEAL_ON_MOBILE = true;
 
 interface AppClientProps {
   defaultLanguage: SupportedLang;
@@ -77,11 +64,19 @@ export default function AppClient({ defaultLanguage, visitId }: AppClientProps) 
   // which also starts empty — otherwise a section that begins off-screen would be marked "already
   // revealed" before it's ever actually been seen, skipping its first genuine entrance animation.
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
-  const isMobile = useIsMobile();
-  const bypassScrollReveal = DISABLE_SCROLL_REVEAL_ON_MOBILE && isMobile;
+  // Bisection testing on tablet/mobile: when the `sectionReveal` category is off, every section's
+  // `isVisible` becomes `true` from the moment it mounts instead of waiting on the observer, so
+  // instead of each section animating in individually as it's scrolled into view, all of them
+  // settle into their final state in one pass right when the main content mounts (entering from
+  // the intro), and scrolling itself never re-triggers anything. Desktop is untouched either way.
+  // This does NOT disable the observer's OTHER job (tracking which section is "current" for nav
+  // highlighting / the URL hash) — that's cheap and not implicated by anything measured so far;
+  // only the consequence of ITS visibility output (the per-section `isVisible` prop) is gated.
+  const sectionRevealEnabled = useAnimEnabled('sectionReveal');
+  const bypassScrollReveal = !sectionRevealEnabled;
   // What every section's `isVisible` prop actually reads — either the observer's live tracking,
-  // or (mobile + the flag above) unconditionally visible. Recomputed only when its inputs change,
-  // not a fresh closure/Set on every render, since it's called once per section per render.
+  // or (bypass active) unconditionally visible. Recomputed only when its inputs change, not a
+  // fresh closure/Set on every render, since it's called once per section per render.
   const isSectionVisible = useMemo(
     () => (id: string) => bypassScrollReveal || visibleSections.has(id),
     [bypassScrollReveal, visibleSections]

@@ -2,6 +2,7 @@ import { Clock, Globe2, Mail, MapPin, MessageSquare, Send } from 'lucide-react';
 import { motion } from 'motion/react';
 import React, { useState } from 'react';
 import { useI18n } from '../../contexts/i18nContext';
+import { useAnimEnabled } from '../../lib/animationFlags';
 import { EditableText } from '../admin/EditableText';
 import { SectionHeader } from '../animations';
 
@@ -11,6 +12,10 @@ interface ContactProps {
 
 export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
   const { t, language } = useI18n();
+  const cardsAnimated = useAnimEnabled('cardEntrances');
+  const microAnimated = useAnimEnabled('microInteractions');
+  const entranceTransition = (base: object) => (cardsAnimated ? base : { duration: 0 });
+  const microTransition = (base: object) => (microAnimated ? base : { duration: 0 });
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -77,7 +82,7 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
+          transition={entranceTransition({ duration: 0.8, delay: 0.6 })}
           className="relative"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-[#00bfe6]/20 to-[#0096c7]/20 rounded-3xl blur-xl"></div>
@@ -85,7 +90,7 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.6, delay: 0.8 }}
+              transition={entranceTransition({ duration: 0.6, delay: 0.8 })}
               className="flex items-center gap-3 mb-8"
             >
               <motion.div whileHover={{ rotate: 15 }} transition={{ duration: 0.4 }} className="shrink-0 flex items-center">
@@ -114,7 +119,7 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                  transition={{ duration: 0.6, delay: 1 }}
+                  transition={entranceTransition({ duration: 0.6, delay: 1 })}
                 >
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('contact.form.name')}
@@ -134,7 +139,7 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                  transition={{ duration: 0.6, delay: 1.1 }}
+                  transition={entranceTransition({ duration: 0.6, delay: 1.1 })}
                 >
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('contact.form.email')}
@@ -155,7 +160,7 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                transition={{ duration: 0.6, delay: 1.2 }}
+                transition={entranceTransition({ duration: 0.6, delay: 1.2 })}
               >
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t('contact.form.subject')}
@@ -175,7 +180,7 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                transition={{ duration: 0.6, delay: 1.3 }}
+                transition={entranceTransition({ duration: 0.6, delay: 1.3 })}
               >
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t('contact.form.message')}
@@ -212,15 +217,15 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
                 disabled={isSubmitting}
                 initial={{ opacity: 0, y: 20 }}
                 animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                transition={{ duration: 0.6, delay: 1.4 }}
+                transition={entranceTransition({ duration: 0.6, delay: 1.4 })}
                 whileHover={{ scale: isSubmitting ? 1 : 1.05, transition: { duration: 0.2, ease: 'easeOut' } }}
                 whileTap={{ scale: isSubmitting ? 1 : 0.95, transition: { duration: 0.1 } }}
                 className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] text-white font-bold rounded-xl hover:from-[#0096c7] hover:to-[#0077b6] transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    animate={microAnimated ? { rotate: 360 } : { rotate: 0 }}
+                    transition={microTransition({ duration: 1, repeat: Infinity, ease: "linear" })}
                     className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full"
                   />
                 ) : (
@@ -236,7 +241,7 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
-          transition={{ duration: 0.8, delay: 0.7 }}
+          transition={entranceTransition({ duration: 0.8, delay: 0.7 })}
           className="relative"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-[#667eea]/20 to-[#00bfe6]/20 rounded-3xl blur-xl" />
@@ -291,8 +296,8 @@ export const Contact: React.FC<ContactProps> = React.memo(({ isVisible }) => {
                 <span className="flex items-center gap-1.5 text-sm text-gray-800 font-medium sm:ml-auto sm:text-right">
                   <motion.span
                     className="w-2 h-2 rounded-full bg-green-500 shrink-0"
-                    animate={{ opacity: [1, 0.4, 1] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                    animate={microAnimated ? { opacity: [1, 0.4, 1] } : { opacity: 1 }}
+                    transition={microTransition({ duration: 2, repeat: Infinity, ease: 'easeInOut' })}
                   />
                   <EditableText path="contact.info.availabilityValue" locale={language}>{t('contact.info.availabilityValue')}</EditableText>
                 </span>

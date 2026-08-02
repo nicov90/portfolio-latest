@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import React, { useState } from 'react';
 import { useI18n } from '../contexts/i18nContext';
 import type { SupportedLang } from '../hooks/usePreferredLanguage';
+import { useAnimEnabled } from '../lib/animationFlags';
 import { AnimatedTextWord } from './AnimatedText';
 import { CirclesBackground } from './CirclesBackground';
 import { LanguageSelector } from './LanguageSelector';
@@ -17,6 +18,8 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onComplete, defaultLan
   const { t } = useI18n();
   const [startExitAnimation, setStartExitAnimation] = useState(false);
   const [animationEnded, setAnimationEnded] = useState(false);
+  const textAnimated = useAnimEnabled('textEntrances');
+  const textTransition = (base: object) => (textAnimated ? base : { duration: 0 });
 
   const handleClick = () => {
     if (animationEnded) {
@@ -38,7 +41,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onComplete, defaultLan
         className="flex flex-col items-center justify-center min-h-screen w-full cursor-pointer select-none"
         initial={{ opacity: 0 }}
         animate={{ opacity: startExitAnimation ? 0 : 1 }}
-        transition={{ duration: startExitAnimation ? 0.75 : 1, ease: "easeInOut" }}
+        transition={textTransition({ duration: startExitAnimation ? 0.75 : 1, ease: "easeInOut" })}
         onClick={handleClick}
         onAnimationComplete={() => !startExitAnimation && setAnimationEnded(true)}
       >
@@ -46,7 +49,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onComplete, defaultLan
           className="flex flex-col items-center justify-center relative gap-6"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
+          transition={textTransition({ duration: 0.8, delay: 0.5 })}
         >
           <div className="flex flex-col items-center">
             <RotatingGreeting
@@ -68,7 +71,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onComplete, defaultLan
             className="text-lg md:text-xl font-light uppercase tracking-[0.1em] sm:tracking-[0.2em] select-none text-gray-700/90"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.5 }}
+            transition={textTransition({ duration: 0.6, delay: 1.5 })}
           >
             {t('intro.jobTitle')}
           </motion.p>
@@ -77,7 +80,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onComplete, defaultLan
             className="hidden lg:block absolute top-full mt-14"
             initial={{ opacity: 0 }}
             animate={{ opacity: animationEnded ? 1 : 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
+            transition={textTransition({ duration: 0.6, delay: 0.5 })}
           >
             <AnimatedTextWord
               text={t('intro.clickToContinue')}

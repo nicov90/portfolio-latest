@@ -10,6 +10,7 @@ import {
 import { motion } from 'motion/react';
 import React from 'react';
 import { useI18n } from '../../contexts/i18nContext';
+import { useAnimEnabled } from '../../lib/animationFlags';
 import { EditableText } from '../admin/EditableText';
 import { SectionHeader } from '../animations';
 
@@ -19,6 +20,10 @@ interface WhatIBringProps {
 
 export const WhatIBring: React.FC<WhatIBringProps> = React.memo(({ isVisible }) => {
   const { t, language } = useI18n();
+  const cardsAnimated = useAnimEnabled('cardEntrances');
+  const microAnimated = useAnimEnabled('microInteractions');
+  const entranceTransition = (base: object) => (cardsAnimated ? base : { duration: 0 });
+  const microTransition = (base: object) => (microAnimated ? base : { duration: 0 });
 
   const services = [
     {
@@ -79,7 +84,7 @@ export const WhatIBring: React.FC<WhatIBringProps> = React.memo(({ isVisible }) 
           <motion.div
             initial={{ scaleX: 0 }}
             animate={isVisible ? { scaleX: 1 } : { scaleX: 0 }}
-            transition={{ duration: 1, delay: 0.6 }}
+            transition={entranceTransition({ duration: 1, delay: 0.6 })}
             className="h-1 w-32 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] rounded-full mx-auto mt-8"
           />
         </SectionHeader>
@@ -95,11 +100,11 @@ export const WhatIBring: React.FC<WhatIBringProps> = React.memo(({ isVisible }) 
                 key={index}
                 initial={{ opacity: 0, y: 50 }}
                 animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                transition={{
+                transition={entranceTransition({
                   duration: 0.7,
                   delay: 0.8 + (index * 0.12),
                   ease: [0.22, 1, 0.36, 1]
-                }}
+                })}
                 whileHover={{
                   y: -10,
                   transition: { duration: 0.3, ease: 'easeOut' }
@@ -115,8 +120,8 @@ export const WhatIBring: React.FC<WhatIBringProps> = React.memo(({ isVisible }) 
                 <div className="relative bg-white/70 backdrop-blur-xl rounded-3xl p-8 border border-[#00bfe6]/20 shadow-lg group-hover:shadow-2xl transition-all duration-300 h-full">
                   {/* Icon: idle float loop, independent of hover, so the card has a little life at rest */}
                   <motion.div
-                    animate={{ y: [0, -6, 0] }}
-                    transition={{ duration: 3.2 + (index % 3) * 0.4, repeat: Infinity, ease: "easeInOut", delay: index * 0.15 }}
+                    animate={microAnimated ? { y: [0, -6, 0] } : { y: 0 }}
+                    transition={microTransition({ duration: 3.2 + (index % 3) * 0.4, repeat: Infinity, ease: "easeInOut", delay: index * 0.15 })}
                     whileHover={{ scale: 1.08, rotate: -4, transition: { duration: 0.25, ease: 'easeOut' } }}
                     className={`w-16 h-16 bg-gradient-to-r ${service.gradient} rounded-2xl flex items-center justify-center mb-6 shadow-lg`}
                   >

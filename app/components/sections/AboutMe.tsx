@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { motion } from 'motion/react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../contexts/i18nContext';
+import { useAnimEnabled } from '../../lib/animationFlags';
 import { EditableText } from '../admin/EditableText';
 import { CreativeRoleCard } from './about/CreativeRoleCard';
 import { QuickStats } from './about/QuickStats';
@@ -12,6 +13,8 @@ interface AboutMeProps {
 
 export const AboutMe: React.FC<AboutMeProps> = React.memo(({ isVisible }) => {
   const { t, language } = useI18n();
+  const cardsAnimated = useAnimEnabled('cardEntrances');
+  const entranceTransition = (base: object) => (cardsAnimated ? base : { duration: 0 });
   const startedDate = useMemo(() => new Date('2023-07-01'), []);
   // Experience in 0.5 increments
   const experienceYearsHalfStep = useMemo(() => {
@@ -81,13 +84,13 @@ export const AboutMe: React.FC<AboutMeProps> = React.memo(({ isVisible }) => {
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
-          transition={{ duration: 0.8 }}
+          transition={entranceTransition({ duration: 0.8 })}
           className="space-y-8"
         >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={entranceTransition({ duration: 0.6, delay: 0.2 })}
           >
             <h1 className="text-4xl sm:text-5xl md:text-6xl leading-tight font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-4">
               <EditableText path="about.title" locale={language} hoverGlow glowColor={[201, 60, 183]} liftOnHover={false}>{t('about.title')}</EditableText>
@@ -98,7 +101,7 @@ export const AboutMe: React.FC<AboutMeProps> = React.memo(({ isVisible }) => {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            transition={entranceTransition({ duration: 0.6, delay: 0.4 })}
             className="text-xl text-gray-700 leading-relaxed"
           >
             <EditableText path="about.subtitle" locale={language} multiline>{t('about.subtitle')}</EditableText>
@@ -107,7 +110,7 @@ export const AboutMe: React.FC<AboutMeProps> = React.memo(({ isVisible }) => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
+            transition={entranceTransition({ duration: 0.6, delay: 0.6 })}
             className="space-y-4"
           >
             <p className="text-gray-600 leading-relaxed">
@@ -139,7 +142,7 @@ export const AboutMe: React.FC<AboutMeProps> = React.memo(({ isVisible }) => {
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: 0.8, delay: 1.5 }}
+        transition={entranceTransition({ duration: 0.8, delay: 1.5 })}
         className="text-center mb-16 px-4 sm:px-6"
       >
         <p className="text-2xl text-gray-500 italic">
@@ -148,7 +151,7 @@ export const AboutMe: React.FC<AboutMeProps> = React.memo(({ isVisible }) => {
         <motion.div
           initial={{ scaleX: 0 }}
           animate={isVisible ? { scaleX: 1 } : { scaleX: 0 }}
-          transition={{ duration: 1, delay: 1.8 }}
+          transition={entranceTransition({ duration: 1, delay: 1.8 })}
           className="h-0.5 w-48 bg-gradient-to-r from-transparent via-[#00bfe6] to-transparent mx-auto mt-4"
         />
       </motion.div>

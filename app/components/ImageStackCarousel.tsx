@@ -2,6 +2,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState, type MouseEvent, type TouchEvent } from "react";
 import { useInViewport } from "../hooks/useInViewport";
+import { useAnimEnabled } from "../lib/animationFlags";
 import { ImageLightbox } from "./ImageLightbox";
 
 interface ImageStackCarouselProps {
@@ -24,6 +25,8 @@ export const ImageStackCarousel = ({ images, autoPlayDelay = 5000 }: ImageStackC
     return isSmall;
   };
   const isTabletOrBelow = useIsTabletOrBelow();
+  const carouselAnimated = useAnimEnabled('carousel');
+  const slideTransition = (base: object) => (carouselAnimated ? base : { duration: 0 });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -128,7 +131,7 @@ export const ImageStackCarousel = ({ images, autoPlayDelay = 5000 }: ImageStackC
                 initial={{ x: direction > 0 ? '60%' : '-60%', opacity: 0, scale: 0.98 }}
                 animate={{ x: 0, opacity: 1, scale: 1 }}
                 exit={{ x: direction > 0 ? '-60%' : '60%', opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.55, ease: [0.34, 1.56, 0.64, 1], opacity: { duration: 0.3 } }}
+                transition={slideTransition({ duration: 0.55, ease: [0.34, 1.56, 0.64, 1], opacity: { duration: 0.3 } })}
                 style={{ willChange: 'transform, opacity' }}
                 onClick={() => !isDragging && openLightbox(currentIndex)}
               />
@@ -143,7 +146,7 @@ export const ImageStackCarousel = ({ images, autoPlayDelay = 5000 }: ImageStackC
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.25, ease: 'easeInOut' }}
+                    transition={slideTransition({ duration: 0.25, ease: 'easeInOut' })}
                     className="inline-block"
                   >
                     {currentIndex + 1} / {images.length}
@@ -164,6 +167,7 @@ export const ImageStackCarousel = ({ images, autoPlayDelay = 5000 }: ImageStackC
                     }}
                     className={`rounded-full transition-all duration-300 ${index === currentIndex ? 'bg-primary' : 'bg-foreground/50 hover:bg-foreground/80'}`}
                     animate={{ width: index === currentIndex ? 24 : 8, height: 8 }}
+                    transition={slideTransition({ type: 'spring', stiffness: 400, damping: 30 })}
                     whileHover={{ scale: 1.15 }}
                     whileTap={{ scale: 0.95 }}
                     aria-label={`Ir a la imagen ${index + 1}`}
@@ -216,7 +220,7 @@ export const ImageStackCarousel = ({ images, autoPlayDelay = 5000 }: ImageStackC
               rotateY: 12,
               transition: { duration: 0.3, ease: "easeOut" }
             }}
-            transition={{ duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }}
+            transition={slideTransition({ duration: 0.6, ease: [0.34, 1.56, 0.64, 1] })}
             onClick={prevImage}
           >
             <AnimatePresence mode="wait">
@@ -247,12 +251,12 @@ export const ImageStackCarousel = ({ images, autoPlayDelay = 5000 }: ImageStackC
             y: isHovered && !isDragging ? -10 : 0,
             rotateY: 0,
           }}
-          transition={{ 
-            duration: 0.4, 
+          transition={slideTransition({
+            duration: 0.4,
             ease: [0.34, 1.56, 0.64, 1],
             scale: { duration: 0.3 },
             y: { duration: 0.3 }
-          }}
+          })}
           onClick={() => !isDragging && openLightbox(currentIndex)}
         >
           <AnimatePresence mode="popLayout" custom={direction}>
@@ -280,13 +284,13 @@ export const ImageStackCarousel = ({ images, autoPlayDelay = 5000 }: ImageStackC
                 rotateY: direction > 0 ? 15 : -15,
                 z: -50
               }}
-              transition={{ 
+              transition={slideTransition({
                 duration: 0.6,
                 ease: [0.34, 1.56, 0.64, 1],
                 opacity: { duration: 0.3 },
                 scale: { duration: 0.6 },
                 rotateY: { duration: 0.6 }
-              }}
+              })}
               className="absolute flex justify-center inset-0 z-10"
               style={{ transformStyle: "preserve-3d", willChange: 'transform, opacity' }}
             >
@@ -313,7 +317,7 @@ export const ImageStackCarousel = ({ images, autoPlayDelay = 5000 }: ImageStackC
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
+                transition={slideTransition({ duration: 0.3, ease: "easeInOut" })}
                 className="inline-block"
               >
                 {currentIndex + 1} / {images.length}
@@ -341,7 +345,7 @@ export const ImageStackCarousel = ({ images, autoPlayDelay = 5000 }: ImageStackC
               rotateY: -12,
               transition: { duration: 0.3, ease: "easeOut" }
             }}
-            transition={{ duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }}
+            transition={slideTransition({ duration: 0.6, ease: [0.34, 1.56, 0.64, 1] })}
             onClick={nextImage}
           >
             <AnimatePresence mode="wait">
@@ -378,6 +382,7 @@ export const ImageStackCarousel = ({ images, autoPlayDelay = 5000 }: ImageStackC
                   width: index === currentIndex ? 32 : 8,
                   height: 8
                 }}
+                transition={slideTransition({ type: 'spring', stiffness: 400, damping: 30 })}
                 whileHover={{ scale: 1.2 }}
                 whileTap={{ scale: 0.9 }}
                 aria-label={`Ir a la imagen ${index + 1}`}

@@ -2,6 +2,7 @@
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
 import React from 'react';
+import { useAnimEnabled } from '../../../lib/animationFlags';
 
 interface CreativeRoleCardProps {
   isVisible: boolean;
@@ -25,6 +26,8 @@ export const CreativeRoleCard: React.FC<CreativeRoleCardProps> = ({
   const springConfig = { stiffness: 150, damping: 20, mass: 0.5 };
   const rotateX = useSpring(useTransform(pointerY, [0, 1], [9, -9]), springConfig);
   const rotateY = useSpring(useTransform(pointerX, [0, 1], [-9, 9]), springConfig);
+  const cardsAnimated = useAnimEnabled('cardEntrances');
+  const entranceTransition = (base: object) => (cardsAnimated ? base : { duration: 0 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -41,7 +44,7 @@ export const CreativeRoleCard: React.FC<CreativeRoleCardProps> = ({
     <motion.div
       initial={{ opacity: 0, y: 40 }}
       animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-      transition={{ duration: 0.9, delay: 0.5, type: 'spring', bounce: 0.35 }}
+      transition={entranceTransition({ duration: 0.9, delay: 0.5, type: 'spring', bounce: 0.35 })}
       className="relative max-w-md mx-auto"
       style={{ perspective: 1200 }}
     >
@@ -54,14 +57,14 @@ export const CreativeRoleCard: React.FC<CreativeRoleCardProps> = ({
         <motion.div
           initial={{ rotate: -25, scale: 0 }}
           animate={isVisible ? { rotate: 0, scale: 1 } : { rotate: -25, scale: 0 }}
-          transition={{ duration: 0.9, delay: 0.8, type: 'spring' }}
+          transition={entranceTransition({ duration: 0.9, delay: 0.8, type: 'spring' })}
           className="absolute -top-10 -right-10 w-48 h-48 bg-[#00bfe6]/20 rounded-full blur-2xl"
         />
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.6, delay: 0.9 }}
+          transition={entranceTransition({ duration: 0.6, delay: 0.9 })}
           className="flex flex-col items-center text-center space-y-4 relative z-10"
           style={{ transform: 'translateZ(40px)' }}
         >
@@ -69,14 +72,14 @@ export const CreativeRoleCard: React.FC<CreativeRoleCardProps> = ({
             <motion.div
               initial={{ scale: 0, rotate: 90 }}
               animate={isVisible ? { scale: 1, rotate: 0 } : { scale: 0, rotate: 90 }}
-              transition={{ duration: 0.7, delay: 1 }}
+              transition={entranceTransition({ duration: 0.7, delay: 1 })}
               className="w-48"
               style={{ aspectRatio: '1400 / 990' }}
             >
               <DotLottieReact
                 src="/animations/Coding.json"
-                loop
-                autoplay
+                loop={cardsAnimated}
+                autoplay={cardsAnimated}
                 // `renderConfig.autoResize` never actually resized the underlying <canvas>'s
                 // width/height attributes in testing — it stayed at the browser's 300x150 canvas
                 // default (a 2:1 ratio) while CSS stretched it to fit our 1400:990 box, distorting
@@ -102,7 +105,7 @@ export const CreativeRoleCard: React.FC<CreativeRoleCardProps> = ({
                 key={i}
                 initial={{ opacity: 0, y: 10 }}
                 animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-                transition={{ duration: 0.4, delay: 1.1 + i * 0.07 }}
+                transition={entranceTransition({ duration: 0.4, delay: 1.1 + i * 0.07 })}
                 className="px-3 py-1 text-xs font-semibold rounded-full bg-white/50 backdrop-blur-md border border-white/60 text-[#005b7f] shadow-sm"
               >
                 {pill}

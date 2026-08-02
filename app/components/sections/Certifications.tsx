@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import React, { useEffect, useState } from 'react';
 import { useI18n } from '../../contexts/i18nContext';
 import { useCertificates } from '../../hooks/useCertificates';
+import { useAnimEnabled } from '../../lib/animationFlags';
 import { EditableText } from '../admin/EditableText';
 import { SectionHeader, StaggeredText } from '../animations';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
@@ -17,6 +18,10 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
   // True once the expand animation has fully settled (only one card can be expanded at a time,
   // so a single flag is enough). See the overflow note on the actions container below.
   const [expandSettled, setExpandSettled] = useState(false);
+  const cardsAnimated = useAnimEnabled('cardEntrances');
+  const microAnimated = useAnimEnabled('microInteractions');
+  const entranceTransition = (base: object) => (cardsAnimated ? base : { duration: 0 });
+  const microTransition = (base: object) => (microAnimated ? base : { duration: 0 });
   const { data: certsData } = useCertificates(language);
   const backendCerts = React.useMemo(() => (Array.isArray(certsData) ? certsData : []), [certsData]);
   const [prefixAssets, setPrefixAssets] = useState<Record<string, { images: string[] }>>({});
@@ -96,7 +101,7 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
         <motion.div
           initial={{ height: 0 }}
           animate={isVisible ? { height: '100%' } : { height: 0 }}
-          transition={{ duration: 1.5, delay: 0.5 }}
+          transition={entranceTransition({ duration: 1.5, delay: 0.5 })}
           className="hidden md:block absolute md:left-1/2 top-0 w-1 bg-gradient-to-b from-[#00bfe6] via-[#0096c7] to-[#48cae4] transform md:-translate-x-1/2"
         />
 
@@ -112,7 +117,7 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
                 key={index}
                 initial={{ opacity: 0, x: index % 2 === 0 ? -100 : 100 }}
                 animate={isVisible ? { opacity: 1, x: 0 } : { opacity: 0, x: index % 2 === 0 ? -100 : 100 }}
-                transition={{ duration: 0.8, delay: 0.6 + (index * 0.2) }}
+                transition={entranceTransition({ duration: 0.8, delay: 0.6 + (index * 0.2) })}
                 className={`relative flex items-center ${
                   index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
                 } flex-col gap-8`}
@@ -121,7 +126,7 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={isVisible ? { scale: 1 } : { scale: 0 }}
-                  transition={{ duration: 0.5, delay: 0.8 + (index * 0.2), type: "spring", bounce: 0.5 }}
+                  transition={entranceTransition({ duration: 0.5, delay: 0.8 + (index * 0.2), type: "spring", bounce: 0.5 })}
                   className="hidden md:block absolute md:left-1/2 transform md:-translate-x-1/2 w-6 h-6 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] rounded-full border-4 border-white shadow-lg z-10"
                 >
                   {/* Pulse only on the first dot (matches Experience's timeline) — this is
@@ -131,8 +136,8 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
                       loop running forever, all invisible on mobile, purely wasted work. */}
                   {index === 0 && (
                     <motion.div
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
+                      animate={microAnimated ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+                      transition={microTransition({ duration: 2, repeat: Infinity })}
                       className="w-full h-full rounded-full bg-[#00bfe6]/50"
                     />
                   )}
@@ -173,7 +178,7 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
                         <motion.div
                           initial={{ x: -100, opacity: 0 }}
                           animate={isVisible ? { x: 0, opacity: 1 } : { x: -100, opacity: 0 }}
-                          transition={{ duration: 0.8, delay: 1 + (index * 0.2) }}
+                          transition={entranceTransition({ duration: 0.8, delay: 1 + (index * 0.2) })}
                           className="absolute top-4 left-4 px-4 py-2 bg-gradient-to-r from-[#00bfe6] to-[#0096c7] rounded-full flex items-center gap-2 shadow-lg"
                         >
                           <Award size={16} className="text-white" />
@@ -224,7 +229,7 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
                             layout
                             initial={false}
                             animate={isExpanded ? { height: 'auto', opacity: 1 } : { height: 0, opacity: 0 }}
-                            transition={{ type: 'spring', stiffness: 280, damping: 26 }}
+                            transition={microTransition({ type: 'spring', stiffness: 280, damping: 26 })}
                             // overflow:hidden is only needed while the height animation is in
                             // flight (it's what clips the sliding content). Left on permanently,
                             // it also clips the Download button's edges whenever its hover scale
@@ -280,7 +285,7 @@ export const Certifications: React.FC<CertificationsProps> = React.memo(({ isVis
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: 0.8, delay: 1.5 }}
+        transition={entranceTransition({ duration: 0.8, delay: 1.5 })}
         className="text-center mt-24 px-4 sm:px-6"
       >
         <p className="text-2xl text-gray-600 font-light italic">

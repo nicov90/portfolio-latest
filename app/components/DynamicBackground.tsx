@@ -2,7 +2,7 @@ import type { MotionValue } from 'motion/react';
 import { animate as animateValue, motion, useMotionValue, useScroll, useTransform } from 'motion/react';
 import React, { useEffect, useRef } from 'react';
 import { useIsScrolling } from '../hooks/useIsScrolling';
-import { useIsMobile } from './ui/use-mobile';
+import { useAnimEnabled } from '../lib/animationFlags';
 
 interface DynamicBackgroundProps {
   section: string;
@@ -113,6 +113,8 @@ interface CircleProps {
   background: string;
   opacity: number;
   isScrolling: MotionValue<boolean>;
+  driftEnabled: boolean;
+  colorFadeEnabled: boolean;
 }
 
 // One of the three ambient blur circles. `background`/`opacity` stay on the ordinary declarative
@@ -132,7 +134,7 @@ interface CircleProps {
 // controls with `.pause()`/`.play()` — pause freezes the value exactly where it is, play resumes
 // from there, no restart and no jump — and because these motion values are separate from the
 // `animate` prop entirely, they don't conflict with the background/opacity animation at all.
-const Circle: React.FC<CircleProps> = ({ config, background, opacity, isScrolling }) => {
+const Circle: React.FC<CircleProps> = ({ config, background, opacity, isScrolling, driftEnabled, colorFadeEnabled }) => {
   const x = useMotionValue(config.from.x ?? 0);
   const y = useMotionValue(config.from.y ?? 0);
   const scale = useMotionValue(config.from.scale ?? 1);
@@ -143,6 +145,10 @@ const Circle: React.FC<CircleProps> = ({ config, background, opacity, isScrollin
   const playbackRef = useRef<ReturnType<typeof animateValue>[]>([]);
 
   useEffect(() => {
+    // driftEnabled === false (bisection testing on tablet/mobile): skip the animation entirely and
+    // just hold every axis at its resting `from` value — a fully static circle, no per-frame work.
+    if (!driftEnabled) return;
+
     const axisPairs: Array<[typeof x, number, number]> = [
       [x, config.from.x ?? 0, config.to.x ?? 0],
       [y, config.from.y ?? 0, config.to.y ?? 0],
@@ -165,16 +171,17 @@ const Circle: React.FC<CircleProps> = ({ config, background, opacity, isScrollin
       );
     return () => playbackRef.current.forEach((playback) => playback.stop());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [driftEnabled]);
 
   useEffect(() => {
+    if (!driftEnabled) return;
     // Subscribing directly to the MotionValue (not reading it as a React prop/state value) is
     // what makes this reaction synchronous with the scroll instead of waiting on a render —
     // see useIsScrolling's docs for why that distinction is the whole fix here.
     return isScrolling.on('change', (scrolling) => {
       playbackRef.current.forEach((playback) => (scrolling ? playback.pause() : playback.play()));
     });
-  }, [isScrolling]);
+  }, [isScrolling, driftEnabled]);
 
   return (
     <motion.div
@@ -182,7 +189,7 @@ const Circle: React.FC<CircleProps> = ({ config, background, opacity, isScrollin
       style={{ ...config.style, x, y, scale, scaleX, scaleY, rotate }}
       initial={{ background, opacity: 0 }}
       animate={{ background, opacity }}
-      transition={{ duration: 0.8, ease: 'easeInOut' }}
+      transition={colorFadeEnabled ? { duration: 0.8, ease: 'easeInOut' } : { duration: 0 }}
     />
   );
 };
@@ -190,7 +197,9 @@ const Circle: React.FC<CircleProps> = ({ config, background, opacity, isScrollin
 export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({ section }) => {
   const colors = sectionColorSchemes[section as keyof typeof sectionColorSchemes] || sectionColorSchemes['about-me'];
   const isScrolling = useIsScrolling();
-  const isMobile = useIsMobile();
+  const driftEnabled = useAnimEnabled('backgroundDrift');
+  const colorFadeEnabled = useAnimEnabled('backgroundColorFade');
+  const parallaxEnabled = useAnimEnabled('backgroundParallax');
 
   // Drifts the background gently as the page scrolls. `useScroll`/`useTransform` write directly
   // to a motion value and update the DOM outside React's render cycle, so this doesn't add any
@@ -207,7 +216,7 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({ section })
   // without touching desktop, where this subtle depth effect stays exactly as before.
   const { scrollYProgress } = useScroll();
   const PARALLAX_RANGE = 80; // px the inner layer drifts upward over a full page scroll
-  const parallaxY = useTransform(scrollYProgress, [0, 1], [0, isMobile ? 0 : -PARALLAX_RANGE]);
+  const parallaxY = useTransform(scrollYProgress, [0, 1], [0, parallaxEnabled ? -PARALLAX_RANGE : 0]);
 
   // The outer layer is a plain (non-animated) fixed/inset-0 box — it must always match the
   // viewport exactly, or its bottom edge exposes bare white page background as it drifts. The
@@ -230,9 +239,9 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({ section })
     // before the bar even starts hiding, so there's nothing to catch up on.
     <div className="fixed inset-x-0 top-0 h-[100lvh] -z-10 overflow-hidden">
       <motion.div className="absolute inset-x-0 top-0" style={{ y: parallaxY, height: `calc(100% + ${PARALLAX_RANGE}px)` }}>
-        <Circle config={CIRCLES[0]} background={colors.circle1} opacity={colors.opacity1} isScrolling={isScrolling} />
-        <Circle config={CIRCLES[1]} background={colors.circle2} opacity={colors.opacity2} isScrolling={isScrolling} />
-        <Circle config={CIRCLES[2]} background={colors.circle3} opacity={colors.opacity3} isScrolling={isScrolling} />
+        <Circle config={CIRCLES[0]} background={colors.circle1} opacity={colors.opacity1} isScrolling={isScrolling} driftEnabled={driftEnabled} colorFadeEnabled={colorFadeEnabled} />
+        <Circle config={CIRCLES[1]} background={colors.circle2} opacity={colors.opacity2} isScrolling={isScrolling} driftEnabled={driftEnabled} colorFadeEnabled={colorFadeEnabled} />
+        <Circle config={CIRCLES[2]} background={colors.circle3} opacity={colors.opacity3} isScrolling={isScrolling} driftEnabled={driftEnabled} colorFadeEnabled={colorFadeEnabled} />
       </motion.div>
     </div>
   );

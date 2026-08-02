@@ -3,6 +3,7 @@ import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../contexts/i18nContext';
+import { useAnimEnabled } from '../lib/animationFlags';
 
 const languages = [
   { code: 'es', name: 'Español', flag: '🇪🇸' },
@@ -16,6 +17,8 @@ export const LanguageSelector: React.FC = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const currentLanguage = languages.find(lang => lang.code === language) || languages[0];
+  const animated = useAnimEnabled('microInteractions');
+  const microTransition = (base: object) => (animated ? base : { duration: 0 });
 
   const handleLanguageChange = (langCode: string) => {
     setLanguage(langCode);
@@ -54,7 +57,7 @@ export const LanguageSelector: React.FC = () => {
         <span className="text-sm font-medium text-gray-800">{currentLanguage.code.toUpperCase()}</span>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.2 }}
+          transition={microTransition({ duration: 0.2 })}
         >
           <ChevronDown size={14} className="text-gray-700" />
         </motion.div>
@@ -66,7 +69,7 @@ export const LanguageSelector: React.FC = () => {
             initial={{ opacity: 0, y: -8, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.95 }}
-            transition={{ duration: 0.18 }}
+            transition={microTransition({ duration: 0.18 })}
             className="absolute top-full mt-2 right-0 min-w-[140px] bg-white/30 backdrop-blur-xl rounded-xl border border-white/40 shadow-2xl z-20 overflow-hidden ring-1 ring-white/50"
           >
             {languages.map((lang, index) => (
@@ -78,7 +81,7 @@ export const LanguageSelector: React.FC = () => {
                 }`}
                 initial={{ opacity: 0, x: 12 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.04 * index }}
+                transition={microTransition({ delay: 0.04 * index })}
               >
                 <span className="text-lg">{lang.flag}</span>
                 <span className="text-sm font-medium text-gray-800">{lang.name}</span>

@@ -2,6 +2,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState, type MouseEvent, type TouchEvent } from "react";
 import { useInViewport } from "../hooks/useInViewport";
+import { useAnimEnabled } from "../lib/animationFlags";
 import { ImageLightbox } from "./ImageLightbox";
 
 interface SimpleImageCarouselProps {
@@ -10,6 +11,8 @@ interface SimpleImageCarouselProps {
 }
 
 export const SimpleImageCarousel = ({ images, autoPlayDelay = 5000 }: SimpleImageCarouselProps) => {
+  const carouselAnimated = useAnimEnabled('carousel');
+  const slideTransition = (base: object) => (carouselAnimated ? base : { duration: 0 });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -97,7 +100,7 @@ export const SimpleImageCarousel = ({ images, autoPlayDelay = 5000 }: SimpleImag
               initial={{ x: direction > 0 ? '100%' : '-100%', opacity: 0.6 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: direction > 0 ? '-100%' : '100%', opacity: 0.6 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              transition={slideTransition({ duration: 0.5, ease: [0.22, 1, 0.36, 1] })}
               style={{ willChange: 'transform, opacity' }}
               onClick={() => !isDragging && openLightbox(currentIndex)}
             />
@@ -112,7 +115,7 @@ export const SimpleImageCarousel = ({ images, autoPlayDelay = 5000 }: SimpleImag
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.25, ease: 'easeInOut' }}
+                  transition={slideTransition({ duration: 0.25, ease: 'easeInOut' })}
                   className="inline-block"
                 >
                   {currentIndex + 1} / {images.length}
@@ -133,6 +136,7 @@ export const SimpleImageCarousel = ({ images, autoPlayDelay = 5000 }: SimpleImag
                   }}
                   className={`rounded-full transition-all duration-300 ${index === currentIndex ? 'bg-primary' : 'bg-foreground/50 hover:bg-foreground/80'}`}
                   animate={{ width: index === currentIndex ? 24 : 8, height: 8 }}
+                  transition={slideTransition({ type: 'spring', stiffness: 400, damping: 30 })}
                   whileHover={{ scale: 1.15 }}
                   whileTap={{ scale: 0.95 }}
                   aria-label={`Ir a la imagen ${index + 1}`}

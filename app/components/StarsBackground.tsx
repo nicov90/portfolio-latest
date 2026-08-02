@@ -1,7 +1,8 @@
 "use client";
 import { motion } from 'motion/react';
 import React, { useMemo } from 'react';
-import { useIsMobile } from './ui/use-mobile';
+import { useIsTabletOrBelow } from '../hooks/useIsTabletOrBelow';
+import { useAnimEnabled } from '../lib/animationFlags';
 
 interface Star {
   id: number;
@@ -78,8 +79,9 @@ export const StarsBackground: React.FC = () => {
   // Mobile hardware is where all this ambient motion (this + the blur circles + backdrop-blur
   // cards) actually struggles to keep up during scroll — fewer independently-animating stars is
   // the cheap remaining lever after making each one itself cheaper (see the filter note below).
-  const isMobile = useIsMobile();
-  const stars = useMemo(() => generateStars(isMobile ? 18 : 40), [isMobile]);
+  const isTabletOrBelow = useIsTabletOrBelow();
+  const starsAnimated = useAnimEnabled('stars');
+  const stars = useMemo(() => generateStars(isTabletOrBelow ? 18 : 40), [isTabletOrBelow]);
 
   // h-[100lvh] (large viewport height, not dvh) — see DynamicBackground's note on why the
   // dynamic unit still lagged a beat behind Chrome mobile's address bar animation, and why
@@ -121,7 +123,7 @@ export const StarsBackground: React.FC = () => {
           // real, structural mobile jank (the section-entrance burst, the address-bar gap) gets
           // sorted out.
           animate={
-            isMobile
+            !starsAnimated
               ? { opacity: star.peakOpacity, scale: 1.3 }
               : {
                   opacity: [0.25, 0.25, star.peakOpacity, star.peakOpacity, 0.25],
@@ -129,7 +131,7 @@ export const StarsBackground: React.FC = () => {
                 }
           }
           transition={
-            isMobile
+            !starsAnimated
               ? undefined
               : {
                   duration: star.duration,

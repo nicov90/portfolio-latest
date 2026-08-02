@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import React from 'react';
+import { useAnimEnabled } from '../lib/animationFlags';
 
 interface CirclesBackgroundProps {
   exitAnimation?: boolean;
@@ -8,6 +9,12 @@ interface CirclesBackgroundProps {
 export const CirclesBackground: React.FC<CirclesBackgroundProps> = ({
   exitAnimation = false
 }) => {
+  const driftEnabled = useAnimEnabled('backgroundDrift');
+  // Tablet/mobile bisection off: skip the infinite drift loop, jump straight to each circle's
+  // resting transform, and drop the opacity fade to an instant show/hide — still respects
+  // exitAnimation (circles disappear when leaving the intro), just without any easing over time.
+  const driftDuration = (base: number) => (driftEnabled ? base : 0);
+  const driftRepeat = driftEnabled ? Infinity : 0;
   return (
     <>
       {/* First Circle - Purple/Pink gradient */}
@@ -33,8 +40,8 @@ export const CirclesBackground: React.FC<CirclesBackgroundProps> = ({
         transition={{
           ease: [0.47, 0, 0.745, 0.715],
           transform: {
-            duration: exitAnimation ? 0.75 : 4.25,
-            repeat: exitAnimation ? 0 : Infinity,
+            duration: exitAnimation ? 0.75 : driftDuration(4.25),
+            repeat: exitAnimation ? 0 : driftRepeat,
             repeatType: "reverse",
           },
           opacity: {
@@ -68,8 +75,8 @@ export const CirclesBackground: React.FC<CirclesBackgroundProps> = ({
         transition={{
           ease: [0.47, 0, 0.745, 0.715],
           transform: {
-            duration: exitAnimation ? 0.75 : 4.25,
-            repeat: exitAnimation ? 0 : Infinity,
+            duration: exitAnimation ? 0.75 : driftDuration(4.25),
+            repeat: exitAnimation ? 0 : driftRepeat,
             repeatType: "reverse",
           },
           opacity: {
@@ -102,8 +109,8 @@ export const CirclesBackground: React.FC<CirclesBackgroundProps> = ({
         transition={{
           ease: [0.47, 0, 0.745, 0.715],
           transform: {
-            duration: exitAnimation ? 0.75 : 6,
-            repeat: exitAnimation ? 0 : Infinity,
+            duration: exitAnimation ? 0.75 : driftDuration(6),
+            repeat: exitAnimation ? 0 : driftRepeat,
             repeatType: "reverse",
           },
           opacity: {
