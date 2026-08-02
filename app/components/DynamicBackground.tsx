@@ -2,6 +2,7 @@ import type { MotionValue } from 'motion/react';
 import { animate as animateValue, motion, useMotionValue, useScroll, useTransform } from 'motion/react';
 import React, { useEffect, useRef } from 'react';
 import { useIsScrolling } from '../hooks/useIsScrolling';
+import { useIsMobile } from './ui/use-mobile';
 
 interface DynamicBackgroundProps {
   section: string;
@@ -189,14 +190,24 @@ const Circle: React.FC<CircleProps> = ({ config, background, opacity, isScrollin
 export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({ section }) => {
   const colors = sectionColorSchemes[section as keyof typeof sectionColorSchemes] || sectionColorSchemes['about-me'];
   const isScrolling = useIsScrolling();
+  const isMobile = useIsMobile();
 
   // Drifts the background gently as the page scrolls. `useScroll`/`useTransform` write directly
   // to a motion value and update the DOM outside React's render cycle, so this doesn't add any
   // re-renders on scroll — cheap, unlike the state-driven updates that used to stall scrolling
   // here (see the note below on why these circles don't remount per-section anymore).
+  //
+  // Mobile-only: unlike the circles' own drift (paused via isScrolling above), this parallax was
+  // never gated on scroll state at all — it's driven directly off scrollYProgress, so it writes a
+  // new `y` on this huge fixed/blurred layer every single scroll frame, for the entire scroll,
+  // with no pause. That's the one continuously-repainting piece left after every other mobile fix
+  // (star pause, circle freeze, blur reduction) failed to resolve a real-device tearing artifact —
+  // strong match for GPU tile desync on a large translating blurred layer. Zeroing the range on
+  // mobile removes that continuous write (output is a constant 0, so the style never changes)
+  // without touching desktop, where this subtle depth effect stays exactly as before.
   const { scrollYProgress } = useScroll();
   const PARALLAX_RANGE = 80; // px the inner layer drifts upward over a full page scroll
-  const parallaxY = useTransform(scrollYProgress, [0, 1], [0, -PARALLAX_RANGE]);
+  const parallaxY = useTransform(scrollYProgress, [0, 1], [0, isMobile ? 0 : -PARALLAX_RANGE]);
 
   // The outer layer is a plain (non-animated) fixed/inset-0 box — it must always match the
   // viewport exactly, or its bottom edge exposes bare white page background as it drifts. The

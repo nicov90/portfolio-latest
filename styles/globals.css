@@ -44,20 +44,6 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
-/* DIAGNOSTIC ONLY (mobile, desktop untouched): reducing the blur radius (24px->12px etc, previous
-   round) did NOT fix the real-device scroll tearing artifact, so this temporarily zeroes every
-   backdrop-blur usage on mobile to test whether backdrop-filter compositing is the cause at all.
-   If the artifact disappears with this active, backdrop-filter is confirmed as the root cause and
-   we design a real (non-zero) mobile treatment; if it persists, look elsewhere entirely. Revert or
-   dial back once confirmed either way — this is not meant to ship as-is. */
-@media (max-width: 767px) {
-  :root {
-    --blur-md: 0px;
-    --blur-xl: 0px;
-    --blur-2xl: 0px;
-  }
-}
-
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
