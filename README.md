@@ -38,7 +38,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Database and Email setup
 
-This app uses Neon (PostgreSQL) with Drizzle ORM and Brevo (Sendinblue) for emails.
+This app uses Neon (PostgreSQL) with Drizzle ORM and Brevo (Sendinblue) for emails. Supabase is not used today; it's kept on standby as a backup (see section 5).
 
 1) Environment variables
 
@@ -74,9 +74,10 @@ npx drizzle-kit migrate
 - `app/actions.ts`: `getData()` (raw Neon) and `getProjects()` (Drizzle)
 
 
-5) Supabase keep-alive
+5) Supabase (standby backup, not in use)
 
-A separate Supabase Postgres instance (not used by the app) gets paused after 7 days without activity. `scripts/keep-supabase-alive.ts` runs a read-only `select 1` against it, and `.github/workflows/supabase-keepalive.yml` runs it every Monday at 09:00 UTC.
+The app does not use Supabase today. A separate Supabase Postgres instance is kept as a backup/migration target in case the project moves off Neon. Since nothing uses it, Supabase would pause it after 7 days without activity: `scripts/keep-supabase-alive.ts` runs a read-only `select 1` against it, and `.github/workflows/supabase-keepalive.yml` runs it every Monday at 09:00 UTC.
 
 - Requires `SUPABASE_KEEPALIVE_DATABASE_URL` (in `.env.local` locally, and as a GitHub Actions repository secret)
 - Run manually: `npm run keepalive:supabase`
+- To switch to it: point `DATABASE_URL` at Supabase and replace the Neon driver in `db/index.ts` with `drizzle-orm/postgres-js`

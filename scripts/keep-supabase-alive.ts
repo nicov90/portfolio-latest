@@ -1,7 +1,8 @@
 /*
-  Supabase free-tier projects auto-pause after 7 days with no activity. This project's real DB is
-  Neon (see db/index.ts) — this separate Supabase Postgres instance isn't used by the app at all,
-  so it never sees organic traffic and would otherwise get paused every week.
+  Supabase is NOT used by the app today — the active DB is Neon (see db/index.ts). This Supabase
+  Postgres instance is kept on standby as a backup/migration target in case the project moves off
+  Neon. Free-tier projects auto-pause after 7 days with no activity, and since nothing uses it, it
+  would otherwise get paused every week.
 
   Runs a single read-only `select 1` against it — enough to register as activity, touches no data,
   creates/reads/writes nothing. Scheduled weekly via .github/workflows/supabase-keepalive.yml.

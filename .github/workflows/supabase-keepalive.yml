@@ -1,8 +1,9 @@
 name: Supabase keep-alive
 
-# Supabase's free tier pauses a project after 7 days with no database activity. This repo's real
-# DB is Neon (see db/index.ts) — the Supabase Postgres instance behind this ping isn't used by the
-# app at all, so without this it would never see traffic and get paused every week.
+# Supabase is NOT used by the app today — the active DB is Neon (see db/index.ts). The Supabase
+# Postgres instance behind this ping is a standby backup/migration target. Supabase's free tier
+# pauses a project after 7 days with no database activity, so without this it would get paused
+# every week.
 #
 # TODO (one-time, manual — not done yet): this workflow won't work until the
 # SUPABASE_KEEPALIVE_DATABASE_URL secret referenced below is added in GitHub — Settings > Secrets
