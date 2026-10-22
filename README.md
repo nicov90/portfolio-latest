@@ -73,3 +73,10 @@ npx drizzle-kit migrate
 
 - `app/actions.ts`: `getData()` (raw Neon) and `getProjects()` (Drizzle)
 
+
+5) Supabase keep-alive
+
+A separate Supabase Postgres instance (not used by the app) gets paused after 7 days without activity. `scripts/keep-supabase-alive.ts` runs a read-only `select 1` against it, and `.github/workflows/supabase-keepalive.yml` runs it every Monday at 09:00 UTC.
+
+- Requires `SUPABASE_KEEPALIVE_DATABASE_URL` (in `.env.local` locally, and as a GitHub Actions repository secret)
+- Run manually: `npm run keepalive:supabase`

@@ -1,0 +1,31 @@
+name: Supabase keep-alive
+
+# Supabase's free tier pauses a project after 7 days with no database activity. This repo's real
+# DB is Neon (see db/index.ts) — the Supabase Postgres instance behind this ping isn't used by the
+# app at all, so without this it would never see traffic and get paused every week.
+#
+# TODO (one-time, manual — not done yet): this workflow won't work until the
+# SUPABASE_KEEPALIVE_DATABASE_URL secret referenced below is added in GitHub — Settings > Secrets
+# and variables > Actions > New repository secret. Value: the same connection string as
+# POSTGRES_URL_NON_POOLING (or POSTGRES_URL) in .env.local.
+on:
+  schedule:
+    # Every Monday at 09:00 UTC — comfortably inside the 7-day inactivity window.
+    - cron: '0 9 * * 1'
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - run: npm ci
+
+      - run: npm run keepalive:supabase
+        env:
+          SUPABASE_KEEPALIVE_DATABASE_URL: ${{ secrets.SUPABASE_KEEPALIVE_DATABASE_URL }}
