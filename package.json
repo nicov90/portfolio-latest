@@ -52,7 +52,7 @@
     "@types/geoip-lite": "^1.4.4",
     "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",
-    "cloudinary": "^1.41.3",
+    "cloudinary": "^2.7.0",
     "dayjs": "^1.11.18",
     "drizzle-orm": "^0.45.4",
     "geoip-lite": "^1.4.10",
