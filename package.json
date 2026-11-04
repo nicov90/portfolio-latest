@@ -55,7 +55,7 @@
     "cloudinary": "^1.41.3",
     "dayjs": "^1.11.18",
     "drizzle-orm": "^0.45.4",
-    "geoip-lite": "^1.4.10",
+    "geoip-lite": "^2.0.3",
     "lucide-react": "^0.545.0",
     "motion": "^12.23.24",
     "next": "16.4.2",
